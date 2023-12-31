@@ -5,10 +5,8 @@
 #define SCENEMODIFIER_H
 
 #include <QtCore/QObject>
-
 #include <Qt3DCore/qentity.h>
 #include <Qt3DCore/qtransform.h>
-
 #include <Qt3DExtras/QTorusMesh>
 #include <Qt3DExtras/QConeMesh>
 #include <Qt3DExtras/QCylinderMesh>
