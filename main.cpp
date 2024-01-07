@@ -70,17 +70,13 @@ int main(int argc, char **argv)
     // Create control widgets
     QCommandLinkButton *info = new QCommandLinkButton();
     info->setText(QStringLiteral("Qt3D ready-made meshes"));
-    info->setDescription(QString::fromLatin1("Qt3D provides several ready-made meshes, like torus, cylinder, cone, "
+    info->setDescription(QString::fromLatin1("Qt3D provides several ready-made meshes, like torus, cylinder, "
                                              "cube, plane and sphere."));
     info->setIconSize(QSize(0,0));
 
     QCheckBox *torusCB = new QCheckBox(widget);
     torusCB->setChecked(true);
     torusCB->setText(QStringLiteral("Torus"));
-
-    QCheckBox *coneCB = new QCheckBox(widget);
-    coneCB->setChecked(true);
-    coneCB->setText(QStringLiteral("Cone"));
 
     QCheckBox *cylinderCB = new QCheckBox(widget);
     cylinderCB->setChecked(true);
@@ -100,7 +96,6 @@ int main(int argc, char **argv)
 
     vLayout->addWidget(info);
     vLayout->addWidget(torusCB);
-    vLayout->addWidget(coneCB);
     vLayout->addWidget(cylinderCB);
     vLayout->addWidget(cuboidCB);
     vLayout->addWidget(planeCB);
@@ -108,8 +103,6 @@ int main(int argc, char **argv)
 
     QObject::connect(torusCB, &QCheckBox::stateChanged,
                      modifier, &SceneModifier::enableTorus);
-    QObject::connect(coneCB, &QCheckBox::stateChanged,
-                     modifier, &SceneModifier::enableCone);
     QObject::connect(cylinderCB, &QCheckBox::stateChanged,
                      modifier, &SceneModifier::enableCylinder);
     QObject::connect(cuboidCB, &QCheckBox::stateChanged,
@@ -120,7 +113,6 @@ int main(int argc, char **argv)
                      modifier, &SceneModifier::enableSphere);
 
     torusCB->setChecked(true);
-    coneCB->setChecked(true);
     cylinderCB->setChecked(true);
     cuboidCB->setChecked(true);
     planeCB->setChecked(true);
