@@ -1,28 +1,28 @@
 cmake_minimum_required(VERSION 3.16)
-project(cube LANGUAGES CXX)
+project(orbifold_builder LANGUAGES CXX)
 
 if(NOT DEFINED INSTALL_EXAMPLESDIR)
     set(INSTALL_EXAMPLESDIR "examples")
 endif()
 
-set(INSTALL_EXAMPLEDIR "${INSTALL_EXAMPLESDIR}/opengl/cube")
+set(INSTALL_EXAMPLEDIR "${INSTALL_EXAMPLESDIR}/opengl/orbifold_builder")
 
 find_package(Qt6 REQUIRED COMPONENTS Core Gui OpenGL OpenGLWidgets Widgets)
 
 qt_standard_project_setup()
 
-qt_add_executable(cube
+qt_add_executable(orbifold_builder
     geometryengine.cpp geometryengine.h
     main.cpp
     mainwidget.cpp mainwidget.h
 )
 
-set_target_properties(cube PROPERTIES
+set_target_properties(orbifold_builder PROPERTIES
     WIN32_EXECUTABLE TRUE
     MACOSX_BUNDLE TRUE
 )
 
-target_link_libraries(cube PRIVATE
+target_link_libraries(orbifold_builder PRIVATE
     Qt6::Core
     Qt6::Gui
     Qt6::OpenGL
@@ -36,7 +36,7 @@ set(shaders_resource_files
     "vshader.glsl"
 )
 
-qt6_add_resources(cube "shaders"
+qt6_add_resources(orbifold_builder "shaders"
     PREFIX
         "/"
     FILES
@@ -47,14 +47,14 @@ set(textures_resource_files
     "cube.png"
 )
 
-qt6_add_resources(cube "textures"
+qt6_add_resources(orbifold_builder "textures"
     PREFIX
         "/"
     FILES
         ${textures_resource_files}
 )
 
-install(TARGETS cube
+install(TARGETS orbifold_builder
     RUNTIME DESTINATION "${INSTALL_EXAMPLEDIR}"
     BUNDLE DESTINATION "${INSTALL_EXAMPLEDIR}"
     LIBRARY DESTINATION "${INSTALL_EXAMPLEDIR}"

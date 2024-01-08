@@ -1,6 +1,6 @@
 QT += core gui widgets opengl openglwidgets
 
-TARGET = cube
+TARGET = orbifold_builder
 TEMPLATE = app
 
 SOURCES += main.cpp
@@ -18,5 +18,5 @@ RESOURCES += \
     textures.qrc
 
 # install
-target.path = $$[QT_INSTALL_EXAMPLES]/opengl/cube
+target.path = $$[QT_INSTALL_EXAMPLES]/opengl/orbifold_builder
 INSTALLS += target
