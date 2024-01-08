@@ -1,11 +1,7 @@
-// Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
-
 #ifndef MAINWIDGET_H
 #define MAINWIDGET_H
 
 #include "geometryengine.h"
-
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
 #include <QMatrix4x4>
@@ -52,4 +48,4 @@ private:
     QQuaternion rotation;
 };
 
-#endif // MAINWIDGET_H
+#endif
