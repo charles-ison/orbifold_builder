@@ -48,7 +48,7 @@ qt6_add_resources(orbifold_builder "shaders"
         ${shaders_resource_files}
 )
 
-set(textures_resource_files
+set(images
     "images/cube.png"
     "images/background1.png"
     "images/background2.png"
@@ -67,11 +67,11 @@ set(textures_resource_files
     "images/underline.png"
 )
 
-qt6_add_resources(orbifold_builder "textures"
+qt6_add_resources(orbifold_builder "images"
     PREFIX
         "/"
     FILES
-        ${textures_resource_files}
+        ${images}
 )
 
 install(TARGETS orbifold_builder

@@ -21,11 +21,6 @@ HEADERS += \
     arrow.h \
     diagramtextitem.h
 
-RESOURCES += \
-    shaders.qrc \
-    textures.qrc \
-    diagramscene.qrc
-
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/opengl/orbifold_builder
 INSTALLS += target
