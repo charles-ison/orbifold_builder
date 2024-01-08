@@ -49,7 +49,7 @@ qt6_add_resources(orbifold_builder "shaders"
 )
 
 set(textures_resource_files
-    "cube.png"
+    "images/cube.png"
     "images/background1.png"
     "images/background2.png"
     "images/background3.png"
