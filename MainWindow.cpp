@@ -25,10 +25,13 @@ MainWindow::MainWindow()
             this, &MainWindow::itemSelected);
     createToolbars();
 
+    view = new QGraphicsView(scene);
+    resultsWidget = new ResultsWidget();
+
     QHBoxLayout *layout = new QHBoxLayout;
     layout->addWidget(toolBox);
-    view = new QGraphicsView(scene);
     layout->addWidget(view);
+    //layout->addWidget(resultsWidget);
 
     QWidget *centralWidget = new QWidget;
     centralWidget->setLayout(layout);

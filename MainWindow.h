@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include "DiagramItem.h"
+#include "ResultsWidget.h"
 #include <QMainWindow>
 
 class DiagramScene;
@@ -65,6 +66,7 @@ private:
 
     DiagramScene *scene;
     QGraphicsView *view;
+    ResultsWidget *resultsWidget;
 
     QAction *exitAction;
     QAction *addAction;
