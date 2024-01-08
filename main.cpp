@@ -3,7 +3,7 @@
 #include <QSurfaceFormat>
 
 #ifndef QT_NO_OPENGL
-#include "mainwidget.h"
+    #include "mainwidget.h"
 #endif
 
 int main(int argc, char *argv[])
@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
     format.setDepthBufferSize(24);
     QSurfaceFormat::setDefaultFormat(format);
 
-    app.setApplicationName("cube");
+    app.setApplicationName("manifold_builder");
     app.setApplicationVersion("0.1");
 
 #ifndef QT_NO_OPENGL
