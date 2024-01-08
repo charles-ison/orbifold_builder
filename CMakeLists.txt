@@ -13,7 +13,12 @@ qt_standard_project_setup()
 
 qt_add_executable(orbifold_builder
     geometryengine.cpp geometryengine.h
+    arrow.cpp arrow.h
+    diagramitem.cpp diagramitem.h
+    diagramscene.cpp diagramscene.h
+    diagramtextitem.cpp diagramtextitem.h
     main.cpp
+    mainwindow.cpp mainwindow.h
     mainwidget.cpp mainwidget.h
 )
 
@@ -45,6 +50,21 @@ qt6_add_resources(orbifold_builder "shaders"
 
 set(textures_resource_files
     "cube.png"
+    "images/background1.png"
+    "images/background2.png"
+    "images/background3.png"
+    "images/background4.png"
+    "images/bold.png"
+    "images/bringtofront.png"
+    "images/delete.png"
+    "images/floodfill.png"
+    "images/italic.png"
+    "images/linecolor.png"
+    "images/linepointer.png"
+    "images/pointer.png"
+    "images/sendtoback.png"
+    "images/textpointer.png"
+    "images/underline.png"
 )
 
 qt6_add_resources(orbifold_builder "textures"
