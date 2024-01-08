@@ -4,22 +4,22 @@ TARGET = orbifold_builder
 TEMPLATE = app
 
 SOURCES += main.cpp \
-    mainwidget.cpp \
-    geometryengine.cpp \
-    mainwindow.cpp \
-    diagramitem.cpp \
-    arrow.cpp \
-    diagramtextitem.cpp \
-    diagramscene.cpp
+    ResultsWidget.cpp \
+    GeometryEngine.cpp \
+    MainWindow.cpp \
+    DiagramItem.cpp \
+    Arrow.cpp \
+    DiagramTextItem.cpp \
+    DiagramScene.cpp
 
 HEADERS += \
-    mainwidget.h \
-    geometryengine.h \
-    mainwindow.h \
-    diagramitem.h \
-    diagramscene.h \
-    arrow.h \
-    diagramtextitem.h
+    ResultsWidget.h \
+    GeometryEngine.h \
+    MainWindow.h \
+    DiagramItem.h \
+    DiagramScene.h \
+    Arrow.h \
+    DiagramTextItem.h
 
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/opengl/orbifold_builder

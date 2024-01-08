@@ -1,11 +1,7 @@
-// Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
-
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "diagramitem.h"
-
+#include "DiagramItem.h"
 #include <QMainWindow>
 
 class DiagramScene;
@@ -13,11 +9,9 @@ class DiagramScene;
 QT_BEGIN_NAMESPACE
 class QAction;
 class QToolBox;
-class QSpinBox;
 class QComboBox;
 class QFontComboBox;
 class QButtonGroup;
-class QLineEdit;
 class QGraphicsTextItem;
 class QFont;
 class QToolButton;
@@ -25,7 +19,6 @@ class QAbstractButton;
 class QGraphicsView;
 QT_END_NAMESPACE
 
-//! [0]
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -110,6 +103,5 @@ private:
     QAction *fillAction;
     QAction *lineAction;
 };
-//! [0]
 
-#endif // MAINWINDOW_H
+#endif

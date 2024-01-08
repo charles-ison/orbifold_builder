@@ -12,14 +12,14 @@ find_package(Qt6 REQUIRED COMPONENTS Core Gui OpenGL OpenGLWidgets Widgets)
 qt_standard_project_setup()
 
 qt_add_executable(orbifold_builder
-    geometryengine.cpp geometryengine.h
-    arrow.cpp arrow.h
-    diagramitem.cpp diagramitem.h
-    diagramscene.cpp diagramscene.h
-    diagramtextitem.cpp diagramtextitem.h
-    main.cpp
-    mainwindow.cpp mainwindow.h
-    mainwidget.cpp mainwidget.h
+    GeometryEngine.cpp GeometryEngine.h
+    Arrow.cpp Arrow.h
+    DiagramItem.cpp DiagramItem.h
+    DiagramScene.cpp DiagramScene.h
+    DiagramTextItem.cpp DiagramTextItem.h
+    Main.cpp
+    MainWindow.cpp MainWindow.h
+    ResultsWidget.cpp ResultsWidget.h
 )
 
 set_target_properties(orbifold_builder PROPERTIES
@@ -37,8 +37,8 @@ target_link_libraries(orbifold_builder PRIVATE
 
 # Resources:
 set(shaders_resource_files
-    "fshader.glsl"
-    "vshader.glsl"
+    "FShader.glsl"
+    "VShader.glsl"
 )
 
 qt6_add_resources(orbifold_builder "shaders"

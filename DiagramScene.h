@@ -4,8 +4,8 @@
 #ifndef DIAGRAMSCENE_H
 #define DIAGRAMSCENE_H
 
-#include "diagramitem.h"
-#include "diagramtextitem.h"
+#include "DiagramItem.h"
+#include "DiagramTextItem.h"
 
 #include <QGraphicsScene>
 

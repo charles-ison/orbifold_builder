@@ -1,4 +1,4 @@
-#include "geometryengine.h"
+#include "GeometryEngine.h"
 #include <QVector2D>
 
 struct VertexData

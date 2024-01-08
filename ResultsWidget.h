@@ -1,7 +1,7 @@
-#ifndef MAINWIDGET_H
-#define MAINWIDGET_H
+#ifndef RESULTSWIDGET_H
+#define RESULTSWIDGET_H
 
-#include "geometryengine.h"
+#include "GeometryEngine.h"
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
 #include <QMatrix4x4>
@@ -13,13 +13,13 @@
 
 class GeometryEngine;
 
-class MainWidget : public QOpenGLWidget, protected QOpenGLFunctions
+class ResultsWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
     Q_OBJECT
 
 public:
     using QOpenGLWidget::QOpenGLWidget;
-    ~MainWidget();
+    ~ResultsWidget();
 
 protected:
     void mousePressEvent(QMouseEvent *e) override;

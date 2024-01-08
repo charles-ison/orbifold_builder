@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
 
 
-#include "arrow.h"
-#include "diagramitem.h"
+#include "Arrow.h"
+#include "DiagramItem.h"
 
 #include <QPainter>
 #include <QPen>

@@ -1,8 +1,8 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
 
-#include "diagramtextitem.h"
-#include "diagramscene.h"
+#include "DiagramTextItem.h"
+#include "DiagramScene.h"
 
 //! [0]
 DiagramTextItem::DiagramTextItem(QGraphicsItem *parent)
