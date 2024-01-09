@@ -5,11 +5,8 @@
 #include <QMenu>
 #include <QPainter>
 
-DiagramItem::DiagramItem(DiagramType diagramType, QMenu *contextMenu,
-                         QGraphicsItem *parent)
-    : QGraphicsPolygonItem(parent), myDiagramType(diagramType)
-    , myContextMenu(contextMenu)
-{
+DiagramItem::DiagramItem(DiagramType diagramType, QMenu *contextMenu, QGraphicsItem *parent)
+    : QGraphicsPolygonItem(parent), myDiagramType(diagramType), myContextMenu(contextMenu) {
     QPainterPath path;
     switch (myDiagramType) {
         case StartEnd:
@@ -38,13 +35,11 @@ DiagramItem::DiagramItem(DiagramType diagramType, QMenu *contextMenu,
     setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
 }
 
-void DiagramItem::removeArrow(Arrow *arrow)
-{
+void DiagramItem::removeArrow(Arrow *arrow) {
     arrows.removeAll(arrow);
 }
 
-void DiagramItem::removeArrows()
-{
+void DiagramItem::removeArrows() {
     // need a copy here since removeArrow() will
     // modify the arrows container
     const auto arrowsCopy = arrows;
@@ -56,13 +51,11 @@ void DiagramItem::removeArrows()
     }
 }
 
-void DiagramItem::addArrow(Arrow *arrow)
-{
+void DiagramItem::addArrow(Arrow *arrow) {
     arrows.append(arrow);
 }
 
-QPixmap DiagramItem::image() const
-{
+QPixmap DiagramItem::image() const {
     QPixmap pixmap(250, 250);
     pixmap.fill(Qt::transparent);
     QPainter painter(&pixmap);
@@ -73,15 +66,13 @@ QPixmap DiagramItem::image() const
     return pixmap;
 }
 
-void DiagramItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
-{
+void DiagramItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event) {
     scene()->clearSelection();
     setSelected(true);
     myContextMenu->popup(event->screenPos());
 }
 
-QVariant DiagramItem::itemChange(GraphicsItemChange change, const QVariant &value)
-{
+QVariant DiagramItem::itemChange(GraphicsItemChange change, const QVariant &value) {
     if (change == QGraphicsItem::ItemPositionChange) {
         for (Arrow *arrow : std::as_const(arrows))
             arrow->updatePosition();

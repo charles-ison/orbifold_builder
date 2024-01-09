@@ -316,8 +316,7 @@ QMenu *MainWindow::createColorMenu(const PointerToMemberFunction &slot, QColor d
     QList<QColor> colors;
     colors << Qt::black << Qt::white << Qt::red << Qt::blue << Qt::yellow;
     QStringList names;
-    names << tr("black") << tr("white") << tr("red") << tr("blue")
-          << tr("yellow");
+    names << tr("black") << tr("white") << tr("red") << tr("blue") << tr("yellow");
 
     QMenu *colorMenu = new QMenu(this);
     for (int i = 0; i < colors.count(); ++i) {

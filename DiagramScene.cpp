@@ -3,9 +3,7 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QTextCursor>
 
-DiagramScene::DiagramScene(QMenu *itemMenu, QObject *parent)
-    : QGraphicsScene(parent)
-{
+DiagramScene::DiagramScene(QMenu *itemMenu, QObject *parent) : QGraphicsScene(parent) {
     myItemMenu = itemMenu;
     myMode = MoveItem;
     myItemType = DiagramItem::Step;
@@ -16,8 +14,7 @@ DiagramScene::DiagramScene(QMenu *itemMenu, QObject *parent)
     myLineColor = Qt::black;
 }
 
-void DiagramScene::setLineColor(const QColor &color)
-{
+void DiagramScene::setLineColor(const QColor &color) {
     myLineColor = color;
     if (isItemChange(Arrow::Type)) {
         Arrow *item = qgraphicsitem_cast<Arrow *>(selectedItems().first());
@@ -26,8 +23,7 @@ void DiagramScene::setLineColor(const QColor &color)
     }
 }
 
-void DiagramScene::setTextColor(const QColor &color)
-{
+void DiagramScene::setTextColor(const QColor &color) {
     myTextColor = color;
     if (isItemChange(DiagramTextItem::Type)) {
         DiagramTextItem *item = qgraphicsitem_cast<DiagramTextItem *>(selectedItems().first());
@@ -35,8 +31,7 @@ void DiagramScene::setTextColor(const QColor &color)
     }
 }
 
-void DiagramScene::setItemColor(const QColor &color)
-{
+void DiagramScene::setItemColor(const QColor &color) {
     myItemColor = color;
     if (isItemChange(DiagramItem::Type)) {
         DiagramItem *item = qgraphicsitem_cast<DiagramItem *>(selectedItems().first());
@@ -44,8 +39,7 @@ void DiagramScene::setItemColor(const QColor &color)
     }
 }
 
-void DiagramScene::setFont(const QFont &font)
-{
+void DiagramScene::setFont(const QFont &font) {
     myFont = font;
 
     if (isItemChange(DiagramTextItem::Type)) {
@@ -56,18 +50,15 @@ void DiagramScene::setFont(const QFont &font)
     }
 }
 
-void DiagramScene::setMode(Mode mode)
-{
+void DiagramScene::setMode(Mode mode) {
     myMode = mode;
 }
 
-void DiagramScene::setItemType(DiagramItem::DiagramType type)
-{
+void DiagramScene::setItemType(DiagramItem::DiagramType type) {
     myItemType = type;
 }
 
-void DiagramScene::editorLostFocus(DiagramTextItem *item)
-{
+void DiagramScene::editorLostFocus(DiagramTextItem *item) {
     QTextCursor cursor = item->textCursor();
     cursor.clearSelection();
     item->setTextCursor(cursor);
@@ -78,8 +69,7 @@ void DiagramScene::editorLostFocus(DiagramTextItem *item)
     }
 }
 
-void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
-{
+void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent) {
     if (mouseEvent->button() != Qt::LeftButton)
         return;
 
@@ -120,8 +110,7 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
     QGraphicsScene::mousePressEvent(mouseEvent);
 }
 
-void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent)
-{
+void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent) {
     if (myMode == InsertLine && line != nullptr) {
         QLineF newLine(line->line().p1(), mouseEvent->scenePos());
         line->setLine(newLine);
@@ -130,8 +119,7 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent)
     }
 }
 
-void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
-{
+void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent) {
     if (line != nullptr && myMode == InsertLine) {
         QList<QGraphicsItem *> startItems = items(line->line().p1());
         if (startItems.count() && startItems.first() == line)
@@ -163,8 +151,7 @@ void DiagramScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
     QGraphicsScene::mouseReleaseEvent(mouseEvent);
 }
 
-bool DiagramScene::isItemChange(int type) const
-{
+bool DiagramScene::isItemChange(int type) const {
     const QList<QGraphicsItem *> items = selectedItems();
     const auto cb = [type](const QGraphicsItem *item) { return item->type() == type; };
     return std::find_if(items.begin(), items.end(), cb) != items.end();
