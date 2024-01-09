@@ -28,7 +28,6 @@ public:
    MainWindow();
 
 private slots:
-    void backgroundButtonGroupClicked(QAbstractButton *button);
     void buttonGroupClicked(QAbstractButton *button);
     void deleteItem();
     void pointerGroupClicked();
@@ -54,8 +53,6 @@ private:
     void createActions();
     void createMenus();
     void createToolbars();
-    QWidget *createBackgroundCellWidget(const QString &text,
-                                        const QString &image);
     QWidget *createCellWidget(const QString &text,
                               DiagramItem::DiagramType type);
 

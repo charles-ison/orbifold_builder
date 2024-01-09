@@ -43,26 +43,6 @@ MainWindow::MainWindow() {
     setStyleSheet("background-color:rgb(96,96,96);");
 }
 
-void MainWindow::backgroundButtonGroupClicked(QAbstractButton *button) {
-    const QList<QAbstractButton *> buttons = backgroundButtonGroup->buttons();
-    for (QAbstractButton *myButton : buttons) {
-        if (myButton != button)
-            button->setChecked(false);
-    }
-    QString text = button->text();
-    if (text == tr("Blue Grid"))
-        scene->setBackgroundBrush(QPixmap(":/images/background1.png"));
-    else if (text == tr("White Grid"))
-        scene->setBackgroundBrush(QPixmap(":/images/background2.png"));
-    else if (text == tr("Gray Grid"))
-        scene->setBackgroundBrush(QPixmap(":/images/background3.png"));
-    else
-        scene->setBackgroundBrush(QPixmap(":/images/background4.png"));
-
-    scene->update();
-    view->update();
-}
-
 void MainWindow::buttonGroupClicked(QAbstractButton *button) {
     const QList<QAbstractButton *> buttons = buttonGroup->buttons();
     for (QAbstractButton *myButton : buttons) {
@@ -249,31 +229,10 @@ void MainWindow::createToolBox() {
     QWidget *itemWidget = new QWidget;
     itemWidget->setLayout(layout);
 
-    backgroundButtonGroup = new QButtonGroup(this);
-    connect(backgroundButtonGroup, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked),
-            this, &MainWindow::backgroundButtonGroupClicked);
-
-    QGridLayout *backgroundLayout = new QGridLayout;
-    backgroundLayout->addWidget(createBackgroundCellWidget(tr("Blue Grid"),
-                                                           ":/images/background1.png"), 0, 0);
-    backgroundLayout->addWidget(createBackgroundCellWidget(tr("White Grid"),
-                                                           ":/images/background2.png"), 0, 1);
-    backgroundLayout->addWidget(createBackgroundCellWidget(tr("Gray Grid"),
-                                                           ":/images/background3.png"), 1, 0);
-    backgroundLayout->addWidget(createBackgroundCellWidget(tr("No Grid"),
-                                                           ":/images/background4.png"), 1, 1);
-
-    backgroundLayout->setRowStretch(2, 10);
-    backgroundLayout->setColumnStretch(2, 10);
-
-    QWidget *backgroundWidget = new QWidget;
-    backgroundWidget->setLayout(backgroundLayout);
-
     toolBox = new QToolBox;
     toolBox->setSizePolicy(QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Ignored));
     toolBox->setMinimumWidth(itemWidget->sizeHint().width());
     toolBox->addItem(itemWidget, tr("Basic Flowchart Shapes"));
-    toolBox->addItem(backgroundWidget, tr("Backgrounds"));
 }
 
 void MainWindow::createActions() {
@@ -418,23 +377,6 @@ void MainWindow::createToolbars() {
     pointerToolbar->addWidget(pointerButton);
     pointerToolbar->addWidget(linePointerButton);
     pointerToolbar->addWidget(sceneScaleCombo);
-}
-
-QWidget *MainWindow::createBackgroundCellWidget(const QString &text, const QString &image) {
-    QToolButton *button = new QToolButton;
-    button->setText(text);
-    button->setIcon(QIcon(image));
-    button->setIconSize(QSize(50, 50));
-    button->setCheckable(true);
-    backgroundButtonGroup->addButton(button);
-
-    QGridLayout *layout = new QGridLayout;
-    layout->addWidget(button, 0, 0, Qt::AlignHCenter);
-    layout->addWidget(new QLabel(text), 1, 0, Qt::AlignCenter);
-
-    QWidget *widget = new QWidget;
-    widget->setLayout(layout);
-    return widget;
 }
 
 QWidget *MainWindow::createCellWidget(const QString &text, DiagramItem::DiagramType type) {

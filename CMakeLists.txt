@@ -50,10 +50,6 @@ qt6_add_resources(orbifold_builder "shaders"
 
 set(images
     "images/cube.png"
-    "images/background1.png"
-    "images/background2.png"
-    "images/background3.png"
-    "images/background4.png"
     "images/bold.png"
     "images/bringtofront.png"
     "images/delete.png"
