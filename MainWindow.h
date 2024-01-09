@@ -86,8 +86,6 @@ private:
     QToolBar *pointerToolbar;
 
     QComboBox *sceneScaleCombo;
-    QComboBox *itemColorCombo;
-    QComboBox *textColorCombo;
     QComboBox *fontSizeCombo;
     QFontComboBox *fontCombo;
 

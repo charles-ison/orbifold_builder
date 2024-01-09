@@ -1,6 +1,3 @@
-// Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
-
 #ifndef DIAGRAMITEM_H
 #define DIAGRAMITEM_H
 
@@ -16,7 +13,6 @@ QT_END_NAMESPACE
 
 class Arrow;
 
-//! [0]
 class DiagramItem : public QGraphicsPolygonItem
 {
 public:
@@ -43,6 +39,5 @@ private:
     QMenu *myContextMenu;
     QList<Arrow *> arrows;
 };
-//! [0]
 
-#endif // DIAGRAMITEM_H
+#endif

@@ -1,8 +1,8 @@
 #include "ResultsWidget.h"
 #include <QMouseEvent>
+#include <QtWidgets>
 
-ResultsWidget::~ResultsWidget()
-{
+ResultsWidget::~ResultsWidget() {
     // Make sure the context is current when deleting the texture
     // and the buffers.
     makeCurrent();
@@ -11,14 +11,12 @@ ResultsWidget::~ResultsWidget()
     doneCurrent();
 }
 
-void ResultsWidget::mousePressEvent(QMouseEvent *e)
-{
+void ResultsWidget::mousePressEvent(QMouseEvent *e) {
     // Save mouse press position
     mousePressPosition = QVector2D(e->position());
 }
 
-void ResultsWidget::mouseReleaseEvent(QMouseEvent *e)
-{
+void ResultsWidget::mouseReleaseEvent(QMouseEvent *e) {
     // Mouse release position - mouse press position
     QVector2D diff = QVector2D(e->position()) - mousePressPosition;
 
@@ -36,8 +34,7 @@ void ResultsWidget::mouseReleaseEvent(QMouseEvent *e)
     angularSpeed += acc;
 }
 
-void ResultsWidget::timerEvent(QTimerEvent *)
-{
+void ResultsWidget::timerEvent(QTimerEvent *) {
     // Decrease angular speed (friction)
     angularSpeed *= 0.99;
 
@@ -53,8 +50,7 @@ void ResultsWidget::timerEvent(QTimerEvent *)
     }
 }
 
-void ResultsWidget::initializeGL()
-{
+void ResultsWidget::initializeGL() {
     initializeOpenGLFunctions();
 
     glClearColor(0, 0, 0, 1);
@@ -68,8 +64,7 @@ void ResultsWidget::initializeGL()
     timer.start(12, this);
 }
 
-void ResultsWidget::initShaders()
-{
+void ResultsWidget::initShaders() {
     // Compile vertex shader
     if (!program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/VShader.glsl"))
         close();
@@ -87,8 +82,7 @@ void ResultsWidget::initShaders()
         close();
 }
 
-void ResultsWidget::initTextures()
-{
+void ResultsWidget::initTextures() {
     // Load cube.png image
     texture = new QOpenGLTexture(QImage(":/images/cube.png").mirrored());
 
@@ -103,8 +97,7 @@ void ResultsWidget::initTextures()
     texture->setWrapMode(QOpenGLTexture::Repeat);
 }
 
-void ResultsWidget::resizeGL(int w, int h)
-{
+void ResultsWidget::resizeGL(int w, int h) {
     // Calculate aspect ratio
     qreal aspect = qreal(w) / qreal(h ? h : 1);
 
@@ -118,8 +111,7 @@ void ResultsWidget::resizeGL(int w, int h)
     projection.perspective(fov, aspect, zNear, zFar);
 }
 
-void ResultsWidget::paintGL()
-{
+void ResultsWidget::paintGL() {
     // Clear color and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

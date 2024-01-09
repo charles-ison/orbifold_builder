@@ -1,15 +1,10 @@
-// Copyright (C) 2016 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
-
 #include "DiagramItem.h"
 #include "Arrow.h"
-
 #include <QGraphicsScene>
 #include <QGraphicsSceneContextMenuEvent>
 #include <QMenu>
 #include <QPainter>
 
-//! [0]
 DiagramItem::DiagramItem(DiagramType diagramType, QMenu *contextMenu,
                          QGraphicsItem *parent)
     : QGraphicsPolygonItem(parent), myDiagramType(diagramType)
@@ -47,16 +42,12 @@ DiagramItem::DiagramItem(DiagramType diagramType, QMenu *contextMenu,
     setFlag(QGraphicsItem::ItemIsSelectable, true);
     setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
 }
-//! [0]
 
-//! [1]
 void DiagramItem::removeArrow(Arrow *arrow)
 {
     arrows.removeAll(arrow);
 }
-//! [1]
 
-//! [2]
 void DiagramItem::removeArrows()
 {
     // need a copy here since removeArrow() will
@@ -69,16 +60,12 @@ void DiagramItem::removeArrows()
         delete arrow;
     }
 }
-//! [2]
 
-//! [3]
 void DiagramItem::addArrow(Arrow *arrow)
 {
     arrows.append(arrow);
 }
-//! [3]
 
-//! [4]
 QPixmap DiagramItem::image() const
 {
     QPixmap pixmap(250, 250);
@@ -90,18 +77,14 @@ QPixmap DiagramItem::image() const
 
     return pixmap;
 }
-//! [4]
 
-//! [5]
 void DiagramItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
     scene()->clearSelection();
     setSelected(true);
     myContextMenu->popup(event->screenPos());
 }
-//! [5]
 
-//! [6]
 QVariant DiagramItem::itemChange(GraphicsItemChange change, const QVariant &value)
 {
     if (change == QGraphicsItem::ItemPositionChange) {
@@ -111,4 +94,3 @@ QVariant DiagramItem::itemChange(GraphicsItemChange change, const QVariant &valu
 
     return value;
 }
-//! [6]
