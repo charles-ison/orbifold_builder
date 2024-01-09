@@ -202,7 +202,6 @@ void MainWindow::handleFontChange() {
     font.setWeight(boldAction->isChecked() ? QFont::Bold : QFont::Normal);
     font.setItalic(italicAction->isChecked());
     font.setUnderline(underlineAction->isChecked());
-
     scene->setFont(font);
 }
 
@@ -230,9 +229,7 @@ void MainWindow::createToolBox() {
     connect(buttonGroup, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked),
             this, &MainWindow::buttonGroupClicked);
     QGridLayout *layout = new QGridLayout;
-    layout->addWidget(createCellWidget(tr("Conditional"), DiagramItem::Conditional), 0, 0);
-    layout->addWidget(createCellWidget(tr("Process"), DiagramItem::Step),0, 1);
-    layout->addWidget(createCellWidget(tr("Input/Output"), DiagramItem::Io), 1, 0);
+    layout->addWidget(createCellWidget(tr("Polygon"), DiagramItem::Step),0, 0);
 
     QToolButton *textButton = new QToolButton;
     textButton->setCheckable(true);
@@ -244,7 +241,7 @@ void MainWindow::createToolBox() {
     textLayout->addWidget(new QLabel(tr("Text")), 1, 0, Qt::AlignCenter);
     QWidget *textWidget = new QWidget;
     textWidget->setLayout(textLayout);
-    layout->addWidget(textWidget, 1, 1);
+    layout->addWidget(textWidget, 0, 2);
 
     layout->setRowStretch(3, 10);
     layout->setColumnStretch(2, 10);
@@ -437,7 +434,6 @@ QWidget *MainWindow::createBackgroundCellWidget(const QString &text, const QStri
 
     QWidget *widget = new QWidget;
     widget->setLayout(layout);
-
     return widget;
 }
 
@@ -457,7 +453,6 @@ QWidget *MainWindow::createCellWidget(const QString &text, DiagramItem::DiagramT
 
     QWidget *widget = new QWidget;
     widget->setLayout(layout);
-
     return widget;
 }
 
@@ -492,7 +487,6 @@ QIcon MainWindow::createColorToolButtonIcon(const QString &imageFile, QColor col
     QRect source(0, 0, 42, 43);
     painter.fillRect(QRect(0, 60, 50, 80), color);
     painter.drawPixmap(target, image, source);
-
     return QIcon(pixmap);
 }
 
@@ -501,6 +495,5 @@ QIcon MainWindow::createColorIcon(QColor color) {
     QPainter painter(&pixmap);
     painter.setPen(Qt::NoPen);
     painter.fillRect(QRect(0, 0, 20, 20), color);
-
     return QIcon(pixmap);
 }
