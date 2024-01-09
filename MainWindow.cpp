@@ -149,9 +149,6 @@ void MainWindow::lineButtonTriggered() {
 void MainWindow::handleFontChange() {
     QFont font = fontCombo->currentFont();
     font.setPointSize(fontSizeCombo->currentText().toInt());
-    font.setWeight(boldAction->isChecked() ? QFont::Bold : QFont::Normal);
-    font.setItalic(italicAction->isChecked());
-    font.setUnderline(underlineAction->isChecked());
     scene->setFont(font);
 }
 
@@ -162,9 +159,6 @@ void MainWindow::itemSelected(QGraphicsItem *item) {
     QFont font = textItem->font();
     fontCombo->setCurrentFont(font);
     fontSizeCombo->setEditText(QString().setNum(font.pointSize()));
-    boldAction->setChecked(font.weight() == QFont::Bold);
-    italicAction->setChecked(font.italic());
-    underlineAction->setChecked(font.underline());
 }
 
 void MainWindow::about() {
@@ -215,23 +209,6 @@ void MainWindow::createActions() {
     exitAction->setShortcuts(QKeySequence::Quit);
     exitAction->setStatusTip(tr("Quit Scenediagram example"));
     connect(exitAction, &QAction::triggered, this, &QWidget::close);
-
-    boldAction = new QAction(tr("Bold"), this);
-    boldAction->setCheckable(true);
-    QPixmap pixmap(":/images/bold.png");
-    boldAction->setIcon(QIcon(pixmap));
-    boldAction->setShortcut(tr("Ctrl+B"));
-    connect(boldAction, &QAction::triggered, this, &MainWindow::handleFontChange);
-
-    italicAction = new QAction(QIcon(":/images/italic.png"), tr("Italic"), this);
-    italicAction->setCheckable(true);
-    italicAction->setShortcut(tr("Ctrl+I"));
-    connect(italicAction, &QAction::triggered, this, &MainWindow::handleFontChange);
-
-    underlineAction = new QAction(QIcon(":/images/underline.png"), tr("Underline"), this);
-    underlineAction->setCheckable(true);
-    underlineAction->setShortcut(tr("Ctrl+U"));
-    connect(underlineAction, &QAction::triggered, this, &MainWindow::handleFontChange);
 
     aboutAction = new QAction(tr("A&bout"), this);
     aboutAction->setShortcut(tr("F1"));
@@ -297,9 +274,6 @@ void MainWindow::createToolbars() {
     textToolBar = addToolBar(tr("Font"));
     textToolBar->addWidget(fontCombo);
     textToolBar->addWidget(fontSizeCombo);
-    textToolBar->addAction(boldAction);
-    textToolBar->addAction(italicAction);
-    textToolBar->addAction(underlineAction);
 
     colorToolBar = addToolBar(tr("Color"));
     colorToolBar->addWidget(fontColorToolButton);

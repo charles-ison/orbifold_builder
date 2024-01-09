@@ -83,13 +83,9 @@ private:
     QToolBox *toolBox;
     QButtonGroup *buttonGroup;
     QButtonGroup *pointerTypeGroup;
-    QButtonGroup *backgroundButtonGroup;
     QToolButton *fontColorToolButton;
     QToolButton *fillColorToolButton;
     QToolButton *lineColorToolButton;
-    QAction *boldAction;
-    QAction *underlineAction;
-    QAction *italicAction;
     QAction *textAction;
     QAction *fillAction;
     QAction *lineAction;

@@ -50,15 +50,12 @@ qt6_add_resources(orbifold_builder "shaders"
 
 set(images
     "images/cube.png"
-    "images/bold.png"
     "images/delete.png"
     "images/floodfill.png"
-    "images/italic.png"
     "images/linecolor.png"
     "images/linepointer.png"
     "images/pointer.png"
     "images/textpointer.png"
-    "images/underline.png"
 )
 
 qt6_add_resources(orbifold_builder "images"
