@@ -34,7 +34,6 @@ private slots:
     void itemInserted(DiagramItem *item);
     void textInserted(QGraphicsTextItem *item);
     void currentFontChanged(const QFont &font);
-    void fontSizeChanged(const QString &size);
     void sceneScaleChanged(const QString &scale);
     void textColorChanged();
     void itemColorChanged();
@@ -77,7 +76,6 @@ private:
     QToolBar *pointerToolbar;
 
     QComboBox *sceneScaleCombo;
-    QComboBox *fontSizeCombo;
     QFontComboBox *fontCombo;
 
     QToolBox *toolBox;

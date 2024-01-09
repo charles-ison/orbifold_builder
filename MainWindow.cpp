@@ -98,10 +98,6 @@ void MainWindow::currentFontChanged(const QFont &) {
     handleFontChange();
 }
 
-void MainWindow::fontSizeChanged(const QString &) {
-    handleFontChange();
-}
-
 void MainWindow::sceneScaleChanged(const QString &scale) {
     double newScale = scale.left(scale.indexOf(tr("%"))).toDouble() / 100.0;
     QTransform oldMatrix = view->transform();
@@ -148,7 +144,6 @@ void MainWindow::lineButtonTriggered() {
 
 void MainWindow::handleFontChange() {
     QFont font = fontCombo->currentFont();
-    font.setPointSize(fontSizeCombo->currentText().toInt());
     scene->setFont(font);
 }
 
@@ -158,7 +153,6 @@ void MainWindow::itemSelected(QGraphicsItem *item) {
 
     QFont font = textItem->font();
     fontCombo->setCurrentFont(font);
-    fontSizeCombo->setEditText(QString().setNum(font.pointSize()));
 }
 
 void MainWindow::about() {
@@ -235,15 +229,6 @@ void MainWindow::createToolbars() {
     connect(fontCombo, &QFontComboBox::currentFontChanged,
             this, &MainWindow::currentFontChanged);
 
-    fontSizeCombo = new QComboBox;
-    fontSizeCombo->setEditable(true);
-    for (int i = 8; i < 30; i = i + 2)
-        fontSizeCombo->addItem(QString().setNum(i));
-    QIntValidator *validator = new QIntValidator(2, 64, this);
-    fontSizeCombo->setValidator(validator);
-    connect(fontSizeCombo, &QComboBox::currentTextChanged,
-            this, &MainWindow::fontSizeChanged);
-
     fontColorToolButton = new QToolButton;
     fontColorToolButton->setPopupMode(QToolButton::MenuButtonPopup);
     fontColorToolButton->setMenu(createColorMenu(&MainWindow::textColorChanged, Qt::black));
@@ -273,7 +258,6 @@ void MainWindow::createToolbars() {
 
     textToolBar = addToolBar(tr("Font"));
     textToolBar->addWidget(fontCombo);
-    textToolBar->addWidget(fontSizeCombo);
 
     colorToolBar = addToolBar(tr("Color"));
     colorToolBar->addWidget(fontColorToolButton);
