@@ -52,15 +52,14 @@ void ResultsWidget::timerEvent(QTimerEvent *) {
 
 void ResultsWidget::initializeGL() {
     initializeOpenGLFunctions();
-
-    glClearColor(0, 0, 0, 1);
+    glClearColor(96.0/255, 96.0/255, 96.0/255, 1.0);
 
     initShaders();
     initTextures();
 
     geometries = new GeometryEngine;
 
-    // Use QBasicTimer because its faster than QTimer
+    // Use QBasicTimer because it's faster than QTimer
     timer.start(12, this);
 }
 

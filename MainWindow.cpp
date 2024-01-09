@@ -1,7 +1,6 @@
 #include "Arrow.h"
 #include "DiagramItem.h"
 #include "DiagramScene.h"
-#include "DiagramTextItem.h"
 #include "MainWindow.h"
 #include "ResultsWidget.h"
 #include <QtWidgets>
@@ -16,13 +15,14 @@ MainWindow::MainWindow() {
     scene = new DiagramScene(itemMenu, this);
     scene->setSceneRect(QRectF(0, 0, 2000, 1000));
 
-    connect(scene, &DiagramScene::itemInserted,
-            this, &MainWindow::itemInserted);
-    connect(scene, &DiagramScene::textInserted,
-            this, &MainWindow::textInserted);
+    connect(scene, &DiagramScene::itemInserted,this, &MainWindow::itemInserted);
+    connect(scene, &DiagramScene::textInserted,this, &MainWindow::textInserted);
     createToolbars();
 
     view = new QGraphicsView(scene);
+    view->setStyleSheet("background-color:rgb(96,96,96);");
+    toolBox->setStyleSheet("background-color:rgb(96,96,96);");
+
     resultsWidget = new ResultsWidget();
     resultsWidget->setMinimumSize(400, 500);
 
@@ -38,7 +38,7 @@ MainWindow::MainWindow() {
     setWindowTitle(tr("Orbifold Builder"));
     setUnifiedTitleAndToolBarOnMac(true);
     setGeometry(100, 100, 1000, 500);
-    setStyleSheet("background-color:rgb(96,96,96);");
+    setStyleSheet("background-color:rgb(169,169,169);");
 }
 
 void MainWindow::buttonGroupClicked(QAbstractButton *button) {
@@ -137,8 +137,7 @@ void MainWindow::about() {
 void MainWindow::createToolBox() {
     buttonGroup = new QButtonGroup(this);
     buttonGroup->setExclusive(false);
-    connect(buttonGroup, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked),
-            this, &MainWindow::buttonGroupClicked);
+    connect(buttonGroup, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked),this, &MainWindow::buttonGroupClicked);
     QGridLayout *layout = new QGridLayout;
     layout->addWidget(createCellWidget(tr("Polygon"), DiagramItem::Step),0, 0);
 
@@ -172,12 +171,12 @@ void MainWindow::createActions() {
     deleteAction->setStatusTip(tr("Delete item from diagram"));
     connect(deleteAction, &QAction::triggered, this, &MainWindow::deleteItem);
 
-    exitAction = new QAction(tr("E&xit"), this);
+    exitAction = new QAction(tr("Exit"), this);
     exitAction->setShortcuts(QKeySequence::Quit);
-    exitAction->setStatusTip(tr("Quit Scenediagram example"));
+    exitAction->setStatusTip(tr("Quit"));
     connect(exitAction, &QAction::triggered, this, &QWidget::close);
 
-    aboutAction = new QAction(tr("A&bout"), this);
+    aboutAction = new QAction(tr("About"), this);
     aboutAction->setShortcut(tr("F1"));
     connect(aboutAction, &QAction::triggered, this, &MainWindow::about);
 }
@@ -204,8 +203,7 @@ void MainWindow::createToolbars() {
     textAction = fontColorToolButton->menu()->defaultAction();
     fontColorToolButton->setIcon(createColorToolButtonIcon(":/images/textpointer.png", Qt::black));
     fontColorToolButton->setAutoFillBackground(true);
-    connect(fontColorToolButton, &QAbstractButton::clicked,
-            this, &MainWindow::textButtonTriggered);
+    connect(fontColorToolButton, &QAbstractButton::clicked,this, &MainWindow::textButtonTriggered);
 
     fillColorToolButton = new QToolButton;
     fillColorToolButton->setPopupMode(QToolButton::MenuButtonPopup);
@@ -213,8 +211,7 @@ void MainWindow::createToolbars() {
     fillAction = fillColorToolButton->menu()->defaultAction();
     fillColorToolButton->setIcon(createColorToolButtonIcon(
                                      ":/images/floodfill.png", Qt::white));
-    connect(fillColorToolButton, &QAbstractButton::clicked,
-            this, &MainWindow::fillButtonTriggered);
+    connect(fillColorToolButton, &QAbstractButton::clicked,this, &MainWindow::fillButtonTriggered);
 
     lineColorToolButton = new QToolButton;
     lineColorToolButton->setPopupMode(QToolButton::MenuButtonPopup);
@@ -222,8 +219,7 @@ void MainWindow::createToolbars() {
     lineAction = lineColorToolButton->menu()->defaultAction();
     lineColorToolButton->setIcon(createColorToolButtonIcon(
                                      ":/images/linecolor.png", Qt::black));
-    connect(lineColorToolButton, &QAbstractButton::clicked,
-            this, &MainWindow::lineButtonTriggered);
+    connect(lineColorToolButton, &QAbstractButton::clicked,this, &MainWindow::lineButtonTriggered);
 
     colorToolBar = addToolBar(tr("Color"));
     colorToolBar->addWidget(fontColorToolButton);
@@ -241,8 +237,7 @@ void MainWindow::createToolbars() {
     pointerTypeGroup = new QButtonGroup(this);
     pointerTypeGroup->addButton(pointerButton, int(DiagramScene::MoveItem));
     pointerTypeGroup->addButton(linePointerButton, int(DiagramScene::InsertLine));
-    connect(pointerTypeGroup, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked),
-            this, &MainWindow::pointerGroupClicked);
+    connect(pointerTypeGroup, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked),this, &MainWindow::pointerGroupClicked);
 
     pointerToolbar = addToolBar(tr("Pointer type"));
     pointerToolbar->addWidget(pointerButton);
