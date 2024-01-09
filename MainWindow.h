@@ -37,7 +37,6 @@ private slots:
     void textButtonTriggered();
     void fillButtonTriggered();
     void lineButtonTriggered();
-    void itemSelected(QGraphicsItem *item);
     void about();
 
 private:
@@ -45,8 +44,7 @@ private:
     void createActions();
     void createMenus();
     void createToolbars();
-    QWidget *createCellWidget(const QString &text,
-                              DiagramItem::DiagramType type);
+    QWidget *createCellWidget(const QString &text, DiagramItem::DiagramType type);
 
     template<typename PointerToMemberFunction>
     QMenu *createColorMenu(const PointerToMemberFunction &slot, QColor defaultColor);

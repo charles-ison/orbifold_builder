@@ -20,8 +20,6 @@ MainWindow::MainWindow() {
             this, &MainWindow::itemInserted);
     connect(scene, &DiagramScene::textInserted,
             this, &MainWindow::textInserted);
-    connect(scene, &DiagramScene::itemSelected,
-            this, &MainWindow::itemSelected);
     createToolbars();
 
     view = new QGraphicsView(scene);
@@ -128,11 +126,6 @@ void MainWindow::fillButtonTriggered() {
 
 void MainWindow::lineButtonTriggered() {
     scene->setLineColor(qvariant_cast<QColor>(lineAction->data()));
-}
-
-void MainWindow::itemSelected(QGraphicsItem *item) {
-    DiagramTextItem *textItem =
-    qgraphicsitem_cast<DiagramTextItem *>(item);
 }
 
 void MainWindow::about() {
