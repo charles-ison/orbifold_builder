@@ -83,36 +83,6 @@ void MainWindow::pointerGroupClicked() {
     scene->setMode(DiagramScene::Mode(pointerTypeGroup->checkedId()));
 }
 
-void MainWindow::bringToFront() {
-    if (scene->selectedItems().isEmpty())
-        return;
-
-    QGraphicsItem *selectedItem = scene->selectedItems().first();
-    const QList<QGraphicsItem *> overlapItems = selectedItem->collidingItems();
-
-    qreal zValue = 0;
-    for (const QGraphicsItem *item : overlapItems) {
-        if (item->zValue() >= zValue && item->type() == DiagramItem::Type)
-            zValue = item->zValue() + 0.1;
-    }
-    selectedItem->setZValue(zValue);
-}
-
-void MainWindow::sendToBack() {
-    if (scene->selectedItems().isEmpty())
-        return;
-
-    QGraphicsItem *selectedItem = scene->selectedItems().first();
-    const QList<QGraphicsItem *> overlapItems = selectedItem->collidingItems();
-
-    qreal zValue = 0;
-    for (const QGraphicsItem *item : overlapItems) {
-        if (item->zValue() <= zValue && item->type() == DiagramItem::Type)
-            zValue = item->zValue() - 0.1;
-    }
-    selectedItem->setZValue(zValue);
-}
-
 void MainWindow::itemInserted(DiagramItem *item) {
     pointerTypeGroup->button(int(DiagramScene::MoveItem))->setChecked(true);
     scene->setMode(DiagramScene::Mode(pointerTypeGroup->checkedId()));
@@ -236,17 +206,6 @@ void MainWindow::createToolBox() {
 }
 
 void MainWindow::createActions() {
-    toFrontAction = new QAction(QIcon(":/images/bringtofront.png"),
-                                tr("Bring to &Front"), this);
-    toFrontAction->setShortcut(tr("Ctrl+F"));
-    toFrontAction->setStatusTip(tr("Bring item to front"));
-    connect(toFrontAction, &QAction::triggered, this, &MainWindow::bringToFront);
-
-    sendBackAction = new QAction(QIcon(":/images/sendtoback.png"), tr("Send to &Back"), this);
-    sendBackAction->setShortcut(tr("Ctrl+T"));
-    sendBackAction->setStatusTip(tr("Send item to back"));
-    connect(sendBackAction, &QAction::triggered, this, &MainWindow::sendToBack);
-
     deleteAction = new QAction(QIcon(":/images/delete.png"), tr("&Delete"), this);
     deleteAction->setShortcut(tr("Delete"));
     deleteAction->setStatusTip(tr("Delete item from diagram"));
@@ -286,8 +245,6 @@ void MainWindow::createMenus() {
     itemMenu = menuBar()->addMenu(tr("&Item"));
     itemMenu->addAction(deleteAction);
     itemMenu->addSeparator();
-    itemMenu->addAction(toFrontAction);
-    itemMenu->addAction(sendBackAction);
 
     aboutMenu = menuBar()->addMenu(tr("&Help"));
     aboutMenu->addAction(aboutAction);
@@ -296,8 +253,6 @@ void MainWindow::createMenus() {
 void MainWindow::createToolbars() {
     editToolBar = addToolBar(tr("Edit"));
     editToolBar->addAction(deleteAction);
-    editToolBar->addAction(toFrontAction);
-    editToolBar->addAction(sendBackAction);
 
     fontCombo = new QFontComboBox();
     connect(fontCombo, &QFontComboBox::currentFontChanged,

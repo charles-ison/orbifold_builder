@@ -31,8 +31,6 @@ private slots:
     void buttonGroupClicked(QAbstractButton *button);
     void deleteItem();
     void pointerGroupClicked();
-    void bringToFront();
-    void sendToBack();
     void itemInserted(DiagramItem *item);
     void textInserted(QGraphicsTextItem *item);
     void currentFontChanged(const QFont &font);
@@ -66,11 +64,7 @@ private:
     ResultsWidget *resultsWidget;
 
     QAction *exitAction;
-    QAction *addAction;
     QAction *deleteAction;
-
-    QAction *toFrontAction;
-    QAction *sendBackAction;
     QAction *aboutAction;
 
     QMenu *fileMenu;
