@@ -10,8 +10,6 @@ class DiagramScene;
 QT_BEGIN_NAMESPACE
 class QAction;
 class QToolBox;
-class QComboBox;
-class QFontComboBox;
 class QButtonGroup;
 class QGraphicsTextItem;
 class QFont;
@@ -71,8 +69,6 @@ private:
     QToolBar *editToolBar;
     QToolBar *colorToolBar;
     QToolBar *pointerToolbar;
-
-    QComboBox *sceneScaleCombo;
 
     QToolBox *toolBox;
     QButtonGroup *buttonGroup;
