@@ -1,15 +1,12 @@
 #include "GeometryEngine.h"
 #include <QVector2D>
 
-struct VertexData
-{
+struct VertexData {
     QVector3D position;
     QVector2D texCoord;
 };
 
-GeometryEngine::GeometryEngine()
-    : indexBuf(QOpenGLBuffer::IndexBuffer)
-{
+GeometryEngine::GeometryEngine() : indexBuf(QOpenGLBuffer::IndexBuffer) {
     initializeOpenGLFunctions();
 
     // Generate 2 VBOs
@@ -20,14 +17,12 @@ GeometryEngine::GeometryEngine()
     initCubeGeometry();
 }
 
-GeometryEngine::~GeometryEngine()
-{
+GeometryEngine::~GeometryEngine() {
     arrayBuf.destroy();
     indexBuf.destroy();
 }
 
-void GeometryEngine::initCubeGeometry()
-{
+void GeometryEngine::initCubeGeometry() {
     // For cube we would need only 8 vertices but we have to
     // duplicate vertex for each face because texture coordinate
     // is different.
@@ -94,8 +89,7 @@ void GeometryEngine::initCubeGeometry()
     indexBuf.allocate(indices, 34 * sizeof(GLushort));
 }
 
-void GeometryEngine::drawCubeGeometry(QOpenGLShaderProgram *program)
-{
+void GeometryEngine::drawCubeGeometry(QOpenGLShaderProgram *program) {
     // Tell OpenGL which VBOs to use
     arrayBuf.bind();
     indexBuf.bind();
