@@ -94,10 +94,6 @@ void MainWindow::textInserted(QGraphicsTextItem *) {
     scene->setMode(DiagramScene::Mode(pointerTypeGroup->checkedId()));
 }
 
-void MainWindow::currentFontChanged(const QFont &) {
-    handleFontChange();
-}
-
 void MainWindow::sceneScaleChanged(const QString &scale) {
     double newScale = scale.left(scale.indexOf(tr("%"))).toDouble() / 100.0;
     QTransform oldMatrix = view->transform();
@@ -142,17 +138,9 @@ void MainWindow::lineButtonTriggered() {
     scene->setLineColor(qvariant_cast<QColor>(lineAction->data()));
 }
 
-void MainWindow::handleFontChange() {
-    QFont font = fontCombo->currentFont();
-    scene->setFont(font);
-}
-
 void MainWindow::itemSelected(QGraphicsItem *item) {
     DiagramTextItem *textItem =
     qgraphicsitem_cast<DiagramTextItem *>(item);
-
-    QFont font = textItem->font();
-    fontCombo->setCurrentFont(font);
 }
 
 void MainWindow::about() {
@@ -225,10 +213,6 @@ void MainWindow::createToolbars() {
     editToolBar = addToolBar(tr("Edit"));
     editToolBar->addAction(deleteAction);
 
-    fontCombo = new QFontComboBox();
-    connect(fontCombo, &QFontComboBox::currentFontChanged,
-            this, &MainWindow::currentFontChanged);
-
     fontColorToolButton = new QToolButton;
     fontColorToolButton->setPopupMode(QToolButton::MenuButtonPopup);
     fontColorToolButton->setMenu(createColorMenu(&MainWindow::textColorChanged, Qt::black));
@@ -255,9 +239,6 @@ void MainWindow::createToolbars() {
                                      ":/images/linecolor.png", Qt::black));
     connect(lineColorToolButton, &QAbstractButton::clicked,
             this, &MainWindow::lineButtonTriggered);
-
-    textToolBar = addToolBar(tr("Font"));
-    textToolBar->addWidget(fontCombo);
 
     colorToolBar = addToolBar(tr("Color"));
     colorToolBar->addWidget(fontColorToolButton);

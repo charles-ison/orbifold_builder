@@ -33,7 +33,6 @@ private slots:
     void pointerGroupClicked();
     void itemInserted(DiagramItem *item);
     void textInserted(QGraphicsTextItem *item);
-    void currentFontChanged(const QFont &font);
     void sceneScaleChanged(const QString &scale);
     void textColorChanged();
     void itemColorChanged();
@@ -41,7 +40,6 @@ private slots:
     void textButtonTriggered();
     void fillButtonTriggered();
     void lineButtonTriggered();
-    void handleFontChange();
     void itemSelected(QGraphicsItem *item);
     void about();
 
@@ -70,13 +68,11 @@ private:
     QMenu *itemMenu;
     QMenu *aboutMenu;
 
-    QToolBar *textToolBar;
     QToolBar *editToolBar;
     QToolBar *colorToolBar;
     QToolBar *pointerToolbar;
 
     QComboBox *sceneScaleCombo;
-    QFontComboBox *fontCombo;
 
     QToolBox *toolBox;
     QButtonGroup *buttonGroup;
