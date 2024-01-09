@@ -3,8 +3,7 @@
 #include <QtWidgets>
 
 ResultsWidget::~ResultsWidget() {
-    // Make sure the context is current when deleting the texture
-    // and the buffers.
+    // Make sure the context is current when deleting the texture and the buffers.
     makeCurrent();
     delete texture;
     delete geometries;
@@ -20,8 +19,7 @@ void ResultsWidget::mouseReleaseEvent(QMouseEvent *e) {
     // Mouse release position - mouse press position
     QVector2D diff = QVector2D(e->position()) - mousePressPosition;
 
-    // Rotation axis is perpendicular to the mouse position difference
-    // vector
+    // Rotation axis is perpendicular to the mouse position difference vector
     QVector3D n = QVector3D(diff.y(), diff.x(), 0.0).normalized();
 
     // Accelerate angular speed relative to the length of the mouse sweep
@@ -55,7 +53,7 @@ void ResultsWidget::initializeGL() {
     glClearColor(96.0/255, 96.0/255, 96.0/255, 1.0);
 
     initShaders();
-    initTextures();
+    //initTextures();
 
     geometries = new GeometryEngine;
 
@@ -120,7 +118,7 @@ void ResultsWidget::paintGL() {
     // Enable back face culling
     glEnable(GL_CULL_FACE);
 
-    texture->bind();
+    //texture->bind();
     program.bind();
 
     // Calculate model view transformation
@@ -132,7 +130,7 @@ void ResultsWidget::paintGL() {
     program.setUniformValue("mvp_matrix", projection * matrix);
 
     // Use texture unit 0 which contains cube.png
-    program.setUniformValue("texture", 0);
+    //program.setUniformValue("texture", 0);
 
     // Draw cube geometry
     geometries->drawCubeGeometry(&program);

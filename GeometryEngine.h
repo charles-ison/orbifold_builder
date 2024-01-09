@@ -5,8 +5,7 @@
 #include <QOpenGLShaderProgram>
 #include <QOpenGLBuffer>
 
-class GeometryEngine : protected QOpenGLFunctions
-{
+class GeometryEngine : protected QOpenGLFunctions {
 public:
     GeometryEngine();
     virtual ~GeometryEngine();

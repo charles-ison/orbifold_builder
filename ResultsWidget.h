@@ -13,8 +13,8 @@
 
 class GeometryEngine;
 
-class ResultsWidget : public QOpenGLWidget, protected QOpenGLFunctions
-{
+class ResultsWidget : public QOpenGLWidget, protected QOpenGLFunctions {
+
     Q_OBJECT
 
 public:
