@@ -94,14 +94,6 @@ void MainWindow::textInserted(QGraphicsTextItem *) {
     scene->setMode(DiagramScene::Mode(pointerTypeGroup->checkedId()));
 }
 
-void MainWindow::sceneScaleChanged(const QString &scale) {
-    double newScale = scale.left(scale.indexOf(tr("%"))).toDouble() / 100.0;
-    QTransform oldMatrix = view->transform();
-    view->resetTransform();
-    view->translate(oldMatrix.dx(), oldMatrix.dy());
-    view->scale(newScale, newScale);
-}
-
 void MainWindow::textColorChanged() {
     textAction = qobject_cast<QAction *>(sender());
     fontColorToolButton->setIcon(createColorToolButtonIcon(
