@@ -63,11 +63,11 @@ void ResultsWidget::initializeGL() {
 
 void ResultsWidget::initShaders() {
     // Compile vertex shader
-    if (!program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/textureVShader.glsl"))
+    if (!program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/VShader.glsl"))
         close();
 
     // Compile fragment shader
-    if (!program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/textureFShader.glsl"))
+    if (!program.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/FShader.glsl"))
         close();
 
     // Link shader pipeline

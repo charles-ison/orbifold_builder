@@ -37,8 +37,8 @@ target_link_libraries(orbifold_builder PRIVATE
 
 # Resources:
 set(shaders_resource_files
-    "shaders/textureFShader.glsl"
-    "shaders/textureVShader.glsl"
+    "shaders/FShader.glsl"
+    "shaders/VShader.glsl"
 )
 
 qt6_add_resources(orbifold_builder "shaders"

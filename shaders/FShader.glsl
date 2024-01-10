@@ -1,13 +1,17 @@
-varying highp vec3 vert;
-varying highp vec3 vertNormal;
+#ifdef GL_ES
+// Set default precision to medium
+precision mediump int;
+precision mediump float;
+#endif
 
-uniform highp vec3 lightPos;
+uniform sampler2D texture;
+
+varying vec2 v_texcoord;
+varying vec4 position;
 
 void main() {
-    highp vec3 L = normalize(lightPos - vert);
-    highp float NL = max(dot(normalize(vertNormal), L), 0.0);
-    highp vec3 color = vec3(0.39, 1.0, 0.0);
-    highp vec3 col = clamp(color * 0.2 + color * 0.8 * NL, 0.0, 1.0);
-    gl_FragColor = vec4(col, 1.0);
+    // Set fragment color from texture
+    // gl_FragColor = texture2D(texture, v_texcoord);
+    gl_FragColor = position;
 }
 
