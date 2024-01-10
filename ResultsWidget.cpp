@@ -1,20 +1,20 @@
-#include "ResultsWidget.h"
+#include "ResultWidget.h"
 #include <QMouseEvent>
 #include <QtWidgets>
 
-ResultsWidget::~ResultsWidget() {
+ResultWidget::~ResultWidget() {
     // Make sure the context is current when deleting the buffers.
     makeCurrent();
     delete geometries;
     doneCurrent();
 }
 
-void ResultsWidget::mousePressEvent(QMouseEvent *e) {
+void ResultWidget::mousePressEvent(QMouseEvent *e) {
     // Save mouse press position
     mousePressPosition = QVector2D(e->position());
 }
 
-void ResultsWidget::mouseReleaseEvent(QMouseEvent *e) {
+void ResultWidget::mouseReleaseEvent(QMouseEvent *e) {
     // Mouse release position - mouse press position
     QVector2D diff = QVector2D(e->position()) - mousePressPosition;
 
@@ -31,7 +31,7 @@ void ResultsWidget::mouseReleaseEvent(QMouseEvent *e) {
     angularSpeed += acc;
 }
 
-void ResultsWidget::timerEvent(QTimerEvent *) {
+void ResultWidget::timerEvent(QTimerEvent *) {
     // Decrease angular speed (friction)
     angularSpeed *= 0.99;
 
@@ -47,7 +47,7 @@ void ResultsWidget::timerEvent(QTimerEvent *) {
     }
 }
 
-void ResultsWidget::initializeGL() {
+void ResultWidget::initializeGL() {
     initializeOpenGLFunctions();
     glClearColor(96.0/255, 96.0/255, 96.0/255, 1.0);
 
@@ -59,7 +59,7 @@ void ResultsWidget::initializeGL() {
     timer.start(12, this);
 }
 
-void ResultsWidget::initShaders() {
+void ResultWidget::initShaders() {
     // Compile vertex shader
     if (!program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/VShader.glsl"))
         close();
@@ -77,7 +77,7 @@ void ResultsWidget::initShaders() {
         close();
 }
 
-void ResultsWidget::resizeGL(int w, int h) {
+void ResultWidget::resizeGL(int w, int h) {
     // Calculate aspect ratio
     qreal aspect = qreal(w) / qreal(h ? h : 1);
 
@@ -91,7 +91,7 @@ void ResultsWidget::resizeGL(int w, int h) {
     projection.perspective(fov, aspect, zNear, zFar);
 }
 
-void ResultsWidget::paintGL() {
+void ResultWidget::paintGL() {
     // Clear color and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include "DiagramItem.h"
-#include "ResultsWidget.h"
+#include "ResultWidget.h"
 #include <QMainWindow>
 #include <QtWidgets>
 
@@ -52,10 +52,13 @@ private:
     QIcon createColorToolButtonIcon(const QString &image, QColor color);
     QIcon createColorIcon(QColor color);
 
-    DiagramScene *scene;
-    QGraphicsView *view;
-    ResultsWidget *resultsWidget;
-    QScrollArea *scrollArea;
+    DiagramScene *builderScene;
+    QGraphicsView *builderView;
+    QToolBox *builderToolBox;
+
+    ResultWidget *resultWidget;
+    QScrollArea *resultScrollArea;
+    QToolBox *resultToolBox;
 
     QAction *exitAction;
     QAction *deleteAction;
@@ -69,7 +72,7 @@ private:
     QToolBar *colorToolBar;
     QToolBar *pointerToolbar;
 
-    QToolBox *toolBox;
+    QToolBox *inputToolBox;
     QButtonGroup *buttonGroup;
     QButtonGroup *pointerTypeGroup;
     QToolButton *fontColorToolButton;

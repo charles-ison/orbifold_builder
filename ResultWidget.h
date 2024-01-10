@@ -9,17 +9,16 @@
 #include <QVector2D>
 #include <QBasicTimer>
 #include <QOpenGLShaderProgram>
-#include <QOpenGLTexture>
 
 class GeometryEngine;
 
-class ResultsWidget : public QOpenGLWidget, protected QOpenGLFunctions {
+class ResultWidget : public QOpenGLWidget, protected QOpenGLFunctions {
 
     Q_OBJECT
 
 public:
     using QOpenGLWidget::QOpenGLWidget;
-    ~ResultsWidget();
+    ~ResultWidget();
 
 protected:
     void mousePressEvent(QMouseEvent *e) override;

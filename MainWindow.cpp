@@ -2,7 +2,7 @@
 #include "DiagramItem.h"
 #include "DiagramScene.h"
 #include "MainWindow.h"
-#include "ResultsWidget.h"
+#include "ResultWidget.h"
 
 const int InsertTextButton = 10;
 
@@ -11,29 +11,39 @@ MainWindow::MainWindow() {
     createToolBox();
     createMenus();
 
-    scene = new DiagramScene(itemMenu, this);
-    scene->setSceneRect(QRectF(0, 0, 2000, 1000));
+    builderScene = new DiagramScene(itemMenu, this);
+    builderScene->setSceneRect(QRectF(0, 0, 1000, 1000));
 
-    connect(scene, &DiagramScene::itemInserted,this, &MainWindow::itemInserted);
-    connect(scene, &DiagramScene::textInserted,this, &MainWindow::textInserted);
+    connect(builderScene, &DiagramScene::itemInserted,this, &MainWindow::itemInserted);
+    connect(builderScene, &DiagramScene::textInserted,this, &MainWindow::textInserted);
     createToolbars();
 
-    view = new QGraphicsView(scene);
-    view->setStyleSheet("background-color:rgb(96,96,96);");
-    toolBox->setStyleSheet("background-color:rgb(96,96,96);");
+    builderView = new QGraphicsView(builderScene);
 
-    resultsWidget = new ResultsWidget();
-    resultsWidget->setMinimumSize(400, 500);
+    builderToolBox = new QToolBox;
+    builderToolBox->addItem(builderView, tr("Fundamental Polygon Builder"));
+    builderToolBox->setMinimumSize(500, 500);
 
-    scrollArea = new QScrollArea;
-    scrollArea->setWidget(resultsWidget);
-    scrollArea->setMinimumSize(400, 500);
-    scrollArea->setStyleSheet("background-color:rgb(96,96,96);");
+    resultWidget = new ResultWidget();
+    resultWidget->setMinimumSize(500, 500);
+
+    resultScrollArea = new QScrollArea;
+    resultScrollArea->setWidget(resultWidget);
+
+    resultToolBox = new QToolBox;
+    resultToolBox->addItem(resultScrollArea, tr("Resulting Orbifold"));
+    resultToolBox->setMinimumSize(500, 500);
+
+    builderView->setStyleSheet("background-color:rgb(96,96,96);");
+    resultScrollArea->setStyleSheet("background-color:rgb(96,96,96);");
+    inputToolBox->setStyleSheet("background-color:rgb(96,96,96);");
+    resultToolBox->setStyleSheet("background-color:rgb(96,96,96);");
+    builderToolBox->setStyleSheet("background-color:rgb(96,96,96);");
 
     QGridLayout *layout = new QGridLayout;
-    layout->addWidget(toolBox, 0, 1);
-    layout->addWidget(view, 0, 2);
-    layout->addWidget(scrollArea, 0, 3);
+    layout->addWidget(inputToolBox, 0, 1);
+    layout->addWidget(builderToolBox, 0, 2);
+    layout->addWidget(resultToolBox, 0, 3);
 
     QWidget *centralWidget = new QWidget;
     centralWidget->setLayout(layout);
@@ -53,18 +63,18 @@ void MainWindow::buttonGroupClicked(QAbstractButton *button) {
     }
     const int id = buttonGroup->id(button);
     if (id == InsertTextButton) {
-        scene->setMode(DiagramScene::InsertText);
+        builderScene->setMode(DiagramScene::InsertText);
     } else {
-        scene->setItemType(DiagramItem::DiagramType(id));
-        scene->setMode(DiagramScene::InsertItem);
+        builderScene->setItemType(DiagramItem::DiagramType(id));
+        builderScene->setMode(DiagramScene::InsertItem);
     }
 }
 
 void MainWindow::deleteItem() {
-    QList<QGraphicsItem *> selectedItems = scene->selectedItems();
+    QList<QGraphicsItem *> selectedItems = builderScene->selectedItems();
     for (QGraphicsItem *item : std::as_const(selectedItems)) {
         if (item->type() == Arrow::Type) {
-            scene->removeItem(item);
+            builderScene->removeItem(item);
             Arrow *arrow = qgraphicsitem_cast<Arrow *>(item);
             arrow->startItem()->removeArrow(arrow);
             arrow->endItem()->removeArrow(arrow);
@@ -72,28 +82,28 @@ void MainWindow::deleteItem() {
         }
     }
 
-    selectedItems = scene->selectedItems();
+    selectedItems = builderScene->selectedItems();
     for (QGraphicsItem *item : std::as_const(selectedItems)) {
          if (item->type() == DiagramItem::Type)
              qgraphicsitem_cast<DiagramItem *>(item)->removeArrows();
-         scene->removeItem(item);
+        builderScene->removeItem(item);
          delete item;
      }
 }
 
 void MainWindow::pointerGroupClicked() {
-    scene->setMode(DiagramScene::Mode(pointerTypeGroup->checkedId()));
+    builderScene->setMode(DiagramScene::Mode(pointerTypeGroup->checkedId()));
 }
 
 void MainWindow::itemInserted(DiagramItem *item) {
     pointerTypeGroup->button(int(DiagramScene::MoveItem))->setChecked(true);
-    scene->setMode(DiagramScene::Mode(pointerTypeGroup->checkedId()));
+    builderScene->setMode(DiagramScene::Mode(pointerTypeGroup->checkedId()));
     buttonGroup->button(int(item->diagramType()))->setChecked(false);
 }
 
 void MainWindow::textInserted(QGraphicsTextItem *) {
     buttonGroup->button(InsertTextButton)->setChecked(false);
-    scene->setMode(DiagramScene::Mode(pointerTypeGroup->checkedId()));
+    builderScene->setMode(DiagramScene::Mode(pointerTypeGroup->checkedId()));
 }
 
 void MainWindow::textColorChanged() {
@@ -121,15 +131,15 @@ void MainWindow::lineColorChanged() {
 }
 
 void MainWindow::textButtonTriggered() {
-    scene->setTextColor(qvariant_cast<QColor>(textAction->data()));
+    builderScene->setTextColor(qvariant_cast<QColor>(textAction->data()));
 }
 
 void MainWindow::fillButtonTriggered() {
-    scene->setItemColor(qvariant_cast<QColor>(fillAction->data()));
+    builderScene->setItemColor(qvariant_cast<QColor>(fillAction->data()));
 }
 
 void MainWindow::lineButtonTriggered() {
-    scene->setLineColor(qvariant_cast<QColor>(lineAction->data()));
+    builderScene->setLineColor(qvariant_cast<QColor>(lineAction->data()));
 }
 
 void MainWindow::about() {
@@ -162,10 +172,10 @@ void MainWindow::createToolBox() {
     QWidget *itemWidget = new QWidget;
     itemWidget->setLayout(layout);
 
-    toolBox = new QToolBox;
-    toolBox->setSizePolicy(QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Ignored));
-    toolBox->setMinimumWidth(itemWidget->sizeHint().width());
-    toolBox->addItem(itemWidget, tr("Input Options"));
+    inputToolBox = new QToolBox;
+    inputToolBox->setSizePolicy(QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Ignored));
+    inputToolBox->setMinimumWidth(itemWidget->sizeHint().width());
+    inputToolBox->addItem(itemWidget, tr("Input Options"));
 }
 
 void MainWindow::createActions() {

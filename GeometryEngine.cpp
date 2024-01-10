@@ -22,7 +22,7 @@ GeometryEngine::~GeometryEngine() {
 }
 
 void GeometryEngine::initCubeGeometry() {
-    // For cube we would need only 8 vertices but we have to duplicate vertex for each face because texture coordinate
+    // For cube we would need only 8 vertices, but we have to duplicate vertex for each face because texture coordinate
     // is different.
     VertexData vertices[] = {
         // Vertex data for face 0

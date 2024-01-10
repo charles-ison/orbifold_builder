@@ -19,7 +19,7 @@ qt_add_executable(orbifold_builder
     DiagramTextItem.cpp DiagramTextItem.h
     Main.cpp
     MainWindow.cpp MainWindow.h
-    ResultsWidget.cpp ResultsWidget.h
+    ResultsWidget.cpp ResultWidget.h
 )
 
 set_target_properties(orbifold_builder PROPERTIES
@@ -49,7 +49,6 @@ qt6_add_resources(orbifold_builder "shaders"
 )
 
 set(images
-    "images/cube.png"
     "images/delete.png"
     "images/floodfill.png"
     "images/linecolor.png"
