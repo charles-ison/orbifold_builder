@@ -133,9 +133,8 @@ void MainWindow::lineButtonTriggered() {
 }
 
 void MainWindow::about() {
-    QMessageBox::about(this, tr("About Diagram Scene"),
-                       tr("The <b>Diagram Scene</b> example shows "
-                          "use of the graphics framework."));
+    QMessageBox::about(this, tr("About Orbifold Builder"),
+                       tr("The <b>Orbifold Builder</b> allows for the construction of orbifolds from a fundamental polygon."));
 }
 
 void MainWindow::createToolBox() {
