@@ -45,6 +45,7 @@ private:
     void createActions();
     void createMenus();
     void createToolbars();
+    void initStyle();
     QWidget *createCellWidget(const QString &text, DiagramItem::DiagramType type);
 
     template<typename PointerToMemberFunction>
@@ -78,6 +79,7 @@ private:
     QToolButton *fontColorToolButton;
     QToolButton *fillColorToolButton;
     QToolButton *lineColorToolButton;
+    QToolButton *textButton;
     QAction *textAction;
     QAction *fillAction;
     QAction *lineAction;

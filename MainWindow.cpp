@@ -34,12 +34,6 @@ MainWindow::MainWindow() {
     resultToolBox->addItem(resultScrollArea, tr("Resulting Orbifold"));
     resultToolBox->setMinimumSize(500, 500);
 
-    builderView->setStyleSheet("background-color:rgb(96,96,96);");
-    resultScrollArea->setStyleSheet("background-color:rgb(96,96,96);");
-    inputToolBox->setStyleSheet("background-color:rgb(96,96,96);");
-    resultToolBox->setStyleSheet("background-color:rgb(96,96,96);");
-    builderToolBox->setStyleSheet("background-color:rgb(96,96,96);");
-
     QGridLayout *layout = new QGridLayout;
     layout->addWidget(inputToolBox, 0, 1);
     layout->addWidget(builderToolBox, 0, 2);
@@ -52,6 +46,17 @@ MainWindow::MainWindow() {
     setWindowTitle(tr("Orbifold Builder"));
     setUnifiedTitleAndToolBarOnMac(true);
     setGeometry(100, 100, 1000, 500);
+    initStyle();
+}
+
+void MainWindow::initStyle() {
+    inputToolBox->setStyleSheet("background-color:rgb(96,96,96);");
+    builderToolBox->setStyleSheet("background-color:rgb(96,96,96); border:none;");
+    resultToolBox->setStyleSheet("background-color:rgb(96,96,96); border:none;");
+    textButton->setStyleSheet("background-color:rgb(120,120,120);");
+    editToolBar->setStyleSheet("border-color:rgb(96,96,96);");
+    colorToolBar->setStyleSheet("border-color:rgb(96,96,96);");
+    pointerToolbar->setStyleSheet("border-color:rgb(96,96,96);");
     setStyleSheet("background-color:rgb(169,169,169);");
 }
 
@@ -151,10 +156,12 @@ void MainWindow::createToolBox() {
     buttonGroup = new QButtonGroup(this);
     buttonGroup->setExclusive(false);
     connect(buttonGroup, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked),this, &MainWindow::buttonGroupClicked);
-    QGridLayout *layout = new QGridLayout;
-    layout->addWidget(createCellWidget(tr("Polygon"), DiagramItem::Step),0, 0);
 
-    QToolButton *textButton = new QToolButton;
+    QWidget *newWidget = createCellWidget(tr("Polygon"), DiagramItem::Step);
+    QGridLayout *layout = new QGridLayout;
+    layout->addWidget(newWidget,0, 0);
+
+    textButton = new QToolButton;
     textButton->setCheckable(true);
     buttonGroup->addButton(textButton, InsertTextButton);
     textButton->setIcon(QIcon(QPixmap(":/images/textpointer.png")));
@@ -209,6 +216,7 @@ void MainWindow::createMenus() {
 void MainWindow::createToolbars() {
     editToolBar = addToolBar(tr("Edit"));
     editToolBar->addAction(deleteAction);
+    editToolBar->setMovable(false);
 
     fontColorToolButton = new QToolButton;
     fontColorToolButton->setPopupMode(QToolButton::MenuButtonPopup);
@@ -238,6 +246,7 @@ void MainWindow::createToolbars() {
     colorToolBar->addWidget(fontColorToolButton);
     colorToolBar->addWidget(fillColorToolButton);
     colorToolBar->addWidget(lineColorToolButton);
+    colorToolBar->setMovable(false);
 
     QToolButton *pointerButton = new QToolButton;
     pointerButton->setCheckable(true);
@@ -255,6 +264,7 @@ void MainWindow::createToolbars() {
     pointerToolbar = addToolBar(tr("Pointer type"));
     pointerToolbar->addWidget(pointerButton);
     pointerToolbar->addWidget(linePointerButton);
+    pointerToolbar->setMovable(false);
 }
 
 QWidget *MainWindow::createCellWidget(const QString &text, DiagramItem::DiagramType type) {
@@ -265,6 +275,7 @@ QWidget *MainWindow::createCellWidget(const QString &text, DiagramItem::DiagramT
     button->setIcon(icon);
     button->setIconSize(QSize(50, 50));
     button->setCheckable(true);
+    button->setStyleSheet("background-color:rgb(120,120,120);");
     buttonGroup->addButton(button, int(type));
 
     QGridLayout *layout = new QGridLayout;
