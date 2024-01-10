@@ -3,9 +3,8 @@
 #include <QtWidgets>
 
 ResultsWidget::~ResultsWidget() {
-    // Make sure the context is current when deleting the texture and the buffers.
+    // Make sure the context is current when deleting the buffers.
     makeCurrent();
-    delete texture;
     delete geometries;
     doneCurrent();
 }
@@ -53,7 +52,6 @@ void ResultsWidget::initializeGL() {
     glClearColor(96.0/255, 96.0/255, 96.0/255, 1.0);
 
     initShaders();
-    //initTextures();
 
     geometries = new GeometryEngine;
 
@@ -77,21 +75,6 @@ void ResultsWidget::initShaders() {
     // Bind shader pipeline for use
     if (!program.bind())
         close();
-}
-
-void ResultsWidget::initTextures() {
-    // Load cube.png image
-    texture = new QOpenGLTexture(QImage(":/images/cube.png").mirrored());
-
-    // Set nearest filtering mode for texture minification
-    texture->setMinificationFilter(QOpenGLTexture::Nearest);
-
-    // Set bilinear filtering mode for texture magnification
-    texture->setMagnificationFilter(QOpenGLTexture::Linear);
-
-    // Wrap texture coordinates by repeating
-    // f.ex. texture coordinate (1.1, 1.2) is same as (0.1, 0.2)
-    texture->setWrapMode(QOpenGLTexture::Repeat);
 }
 
 void ResultsWidget::resizeGL(int w, int h) {
@@ -118,7 +101,6 @@ void ResultsWidget::paintGL() {
     // Enable back face culling
     glEnable(GL_CULL_FACE);
 
-    //texture->bind();
     program.bind();
 
     // Calculate model view transformation
@@ -128,9 +110,6 @@ void ResultsWidget::paintGL() {
 
     // Set modelview-projection matrix
     program.setUniformValue("mvp_matrix", projection * matrix);
-
-    // Use texture unit 0 which contains cube.png
-    //program.setUniformValue("texture", 0);
 
     // Draw cube geometry
     geometries->drawCubeGeometry(&program);

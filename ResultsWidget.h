@@ -29,13 +29,11 @@ protected:
     void resizeGL(int w, int h) override;
     void paintGL() override;
     void initShaders();
-    void initTextures();
 
 private:
     QBasicTimer timer;
     QOpenGLShaderProgram program;
     GeometryEngine *geometries = nullptr;
-    QOpenGLTexture *texture = nullptr;
     QMatrix4x4 projection;
     QVector2D mousePressPosition;
     QVector3D rotationAxis;

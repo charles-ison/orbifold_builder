@@ -3,7 +3,6 @@
 
 struct VertexData {
     QVector3D position;
-    QVector2D texCoord;
 };
 
 GeometryEngine::GeometryEngine() : indexBuf(QOpenGLBuffer::IndexBuffer) {
@@ -27,48 +26,45 @@ void GeometryEngine::initCubeGeometry() {
     // is different.
     VertexData vertices[] = {
         // Vertex data for face 0
-        {QVector3D(-1.0f, -1.0f,  1.0f), QVector2D(0.0f, 0.0f)},  // v0
-        {QVector3D( 1.0f, -1.0f,  1.0f), QVector2D(0.33f, 0.0f)}, // v1
-        {QVector3D(-1.0f,  1.0f,  1.0f), QVector2D(0.0f, 0.5f)},  // v2
-        {QVector3D( 1.0f,  1.0f,  1.0f), QVector2D(0.33f, 0.5f)}, // v3
+        {QVector3D(-1.0f, -1.0f,  1.0f)},  // v0
+        {QVector3D( 1.0f, -1.0f,  1.0f)}, // v1
+        {QVector3D(-1.0f,  1.0f,  1.0f)},  // v2
+        {QVector3D( 1.0f,  1.0f,  1.0f)}, // v3
 
         // Vertex data for face 1
-        {QVector3D( 1.0f, -1.0f,  1.0f), QVector2D( 0.0f, 0.5f)}, // v4
-        {QVector3D( 1.0f, -1.0f, -1.0f), QVector2D(0.33f, 0.5f)}, // v5
-        {QVector3D( 1.0f,  1.0f,  1.0f), QVector2D(0.0f, 1.0f)},  // v6
-        {QVector3D( 1.0f,  1.0f, -1.0f), QVector2D(0.33f, 1.0f)}, // v7
+        {QVector3D( 1.0f, -1.0f,  1.0f)}, // v4
+        {QVector3D( 1.0f, -1.0f, -1.0f)}, // v5
+        {QVector3D( 1.0f,  1.0f,  1.0f)},  // v6
+        {QVector3D( 1.0f,  1.0f, -1.0f)}, // v7
 
         // Vertex data for face 2
-        {QVector3D( 1.0f, -1.0f, -1.0f), QVector2D(0.66f, 0.5f)}, // v8
-        {QVector3D(-1.0f, -1.0f, -1.0f), QVector2D(1.0f, 0.5f)},  // v9
-        {QVector3D( 1.0f,  1.0f, -1.0f), QVector2D(0.66f, 1.0f)}, // v10
-        {QVector3D(-1.0f,  1.0f, -1.0f), QVector2D(1.0f, 1.0f)},  // v11
+        {QVector3D( 1.0f, -1.0f, -1.0f)}, // v8
+        {QVector3D(-1.0f, -1.0f, -1.0f)},  // v9
+        {QVector3D( 1.0f,  1.0f, -1.0f)}, // v10
+        {QVector3D(-1.0f,  1.0f, -1.0f)},  // v11
 
         // Vertex data for face 3
-        {QVector3D(-1.0f, -1.0f, -1.0f), QVector2D(0.66f, 0.0f)}, // v12
-        {QVector3D(-1.0f, -1.0f,  1.0f), QVector2D(1.0f, 0.0f)},  // v13
-        {QVector3D(-1.0f,  1.0f, -1.0f), QVector2D(0.66f, 0.5f)}, // v14
-        {QVector3D(-1.0f,  1.0f,  1.0f), QVector2D(1.0f, 0.5f)},  // v15
+        {QVector3D(-1.0f, -1.0f, -1.0f)}, // v12
+        {QVector3D(-1.0f, -1.0f,  1.0f)},  // v13
+        {QVector3D(-1.0f,  1.0f, -1.0f)}, // v14
+        {QVector3D(-1.0f,  1.0f,  1.0f)},  // v15
 
         // Vertex data for face 4
-        {QVector3D(-1.0f, -1.0f, -1.0f), QVector2D(0.33f, 0.0f)}, // v16
-        {QVector3D( 1.0f, -1.0f, -1.0f), QVector2D(0.66f, 0.0f)}, // v17
-        {QVector3D(-1.0f, -1.0f,  1.0f), QVector2D(0.33f, 0.5f)}, // v18
-        {QVector3D( 1.0f, -1.0f,  1.0f), QVector2D(0.66f, 0.5f)}, // v19
+        {QVector3D(-1.0f, -1.0f, -1.0f)}, // v16
+        {QVector3D( 1.0f, -1.0f, -1.0f)}, // v17
+        {QVector3D(-1.0f, -1.0f,  1.0f)}, // v18
+        {QVector3D( 1.0f, -1.0f,  1.0f)}, // v19
 
         // Vertex data for face 5
-        {QVector3D(-1.0f,  1.0f,  1.0f), QVector2D(0.33f, 0.5f)}, // v20
-        {QVector3D( 1.0f,  1.0f,  1.0f), QVector2D(0.66f, 0.5f)}, // v21
-        {QVector3D(-1.0f,  1.0f, -1.0f), QVector2D(0.33f, 1.0f)}, // v22
-        {QVector3D( 1.0f,  1.0f, -1.0f), QVector2D(0.66f, 1.0f)}  // v23
+        {QVector3D(-1.0f,  1.0f,  1.0f)}, // v20
+        {QVector3D( 1.0f,  1.0f,  1.0f)}, // v21
+        {QVector3D(-1.0f,  1.0f, -1.0f)}, // v22
+        {QVector3D( 1.0f,  1.0f, -1.0f)}  // v23
     };
 
-    // Indices for drawing cube faces using triangle strips.
-    // Triangle strips can be connected by duplicating indices
-    // between the strips. If connecting strips have opposite
-    // vertex order then last index of the first strip and first
-    // index of the second strip needs to be duplicated. If
-    // connecting strips have same vertex order then only last
+    // Indices for drawing cube faces using triangle strips. Triangle strips can be connected by duplicating indices
+    // between the strips. If connecting strips have opposite vertex order then last index of the first strip and first
+    // index of the second strip needs to be duplicated. If connecting strips have same vertex order then only last
     // index of the first strip needs to be duplicated.
     GLushort indices[] = {
          0,  1,  2,  3,  3,     // Face 0 - triangle strip ( v0,  v1,  v2,  v3)
@@ -100,14 +96,6 @@ void GeometryEngine::drawCubeGeometry(QOpenGLShaderProgram *program) {
     int vertexLocation = program->attributeLocation("a_position");
     program->enableAttributeArray(vertexLocation);
     program->setAttributeBuffer(vertexLocation, GL_FLOAT, offset, 3, sizeof(VertexData));
-
-    // Offset for texture coordinate
-    offset += sizeof(QVector3D);
-
-    // Tell OpenGL programmable pipeline how to locate vertex texture coordinate data
-    int texcoordLocation = program->attributeLocation("a_texcoord");
-    program->enableAttributeArray(texcoordLocation);
-    program->setAttributeBuffer(texcoordLocation, GL_FLOAT, offset, 2, sizeof(VertexData));
 
     // Draw cube geometry using indices from VBO 1
     glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, nullptr);
