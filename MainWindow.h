@@ -4,6 +4,7 @@
 #include "DiagramItem.h"
 #include "ResultsWidget.h"
 #include <QMainWindow>
+#include <QtWidgets>
 
 class DiagramScene;
 
@@ -54,6 +55,7 @@ private:
     DiagramScene *scene;
     QGraphicsView *view;
     ResultsWidget *resultsWidget;
+    QScrollArea *scrollArea;
 
     QAction *exitAction;
     QAction *deleteAction;

@@ -3,7 +3,6 @@
 #include "DiagramScene.h"
 #include "MainWindow.h"
 #include "ResultsWidget.h"
-#include <QtWidgets>
 
 const int InsertTextButton = 10;
 
@@ -26,10 +25,15 @@ MainWindow::MainWindow() {
     resultsWidget = new ResultsWidget();
     resultsWidget->setMinimumSize(400, 500);
 
+    scrollArea = new QScrollArea;
+    scrollArea->setWidget(resultsWidget);
+    scrollArea->setMinimumSize(400, 500);
+    scrollArea->setStyleSheet("background-color:rgb(96,96,96);");
+
     QGridLayout *layout = new QGridLayout;
     layout->addWidget(toolBox, 0, 1);
     layout->addWidget(view, 0, 2);
-    layout->addWidget(resultsWidget, 0, 3);
+    layout->addWidget(scrollArea, 0, 3);
 
     QWidget *centralWidget = new QWidget;
     centralWidget->setLayout(layout);
