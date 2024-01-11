@@ -1,5 +1,6 @@
 #include "GeometryEngine.h"
 #include <QVector2D>
+#include <iostream>
 
 struct VertexData {
     QVector3D position;
@@ -13,7 +14,8 @@ GeometryEngine::GeometryEngine() : indexBuf(QOpenGLBuffer::IndexBuffer) {
     indexBuf.create();
 
     // Initializes cube geometry and transfers it to VBOs
-    initCubeGeometry();
+    //initCubeGeometry();
+    initSphereGeometry();
 }
 
 GeometryEngine::~GeometryEngine() {
@@ -51,6 +53,65 @@ void GeometryEngine::initCubeGeometry() {
     indexBuf.allocate(indices, 36 * sizeof(GLushort));
 }
 
+void GeometryEngine::initSphereGeometry() {
+    int numVertSteps = 50;
+    int numHorzSteps = 50;
+    float radius = 1;
+
+    int numVertices = numVertSteps * numHorzSteps;
+    int numIndices = 6 * (numVertSteps-1) * numHorzSteps;
+    VertexData vertices[numVertices];
+    GLushort indices[numIndices];
+
+    float vertStepSize = M_PI / numVertSteps;
+    float horzStepSize = 2 * M_PI / numHorzSteps;
+
+    int verticesCounter = 0;
+    for (int i=0; i<numVertSteps; i++) {
+        float verticalAngle = (M_PI / 2) - vertStepSize * i;
+        float z = radius * sinf(verticalAngle);
+        for (int j=0; j<numHorzSteps; j++) {
+            float horizontalAngle = horzStepSize * j;
+            float x = radius * cosf(verticalAngle) * cosf(horizontalAngle);
+            float y = radius * cosf(verticalAngle) * sinf(horizontalAngle);
+            vertices[verticesCounter] = {QVector3D(x,  y,  z)};
+            verticesCounter += 1;
+        }
+    }
+
+    int indexCounter = 0;
+    int quadCounter = 0;
+    for (int i=0; i<numVertSteps-1; i++) {
+        for (int j=0; j<numHorzSteps; j++) {
+            if (j != numHorzSteps-1) {
+                indices[indexCounter] = quadCounter + 1;
+                indices[indexCounter + 1] = quadCounter;
+                indices[indexCounter + 2] = quadCounter + 1 + numHorzSteps;
+                indices[indexCounter + 3] = quadCounter + numHorzSteps;
+                indices[indexCounter + 4] = quadCounter + 1 + numHorzSteps;
+                indices[indexCounter + 5] = quadCounter;
+            } else {
+                indices[indexCounter] = quadCounter + 1 - numHorzSteps;
+                indices[indexCounter + 1] = quadCounter;
+                indices[indexCounter + 2] = quadCounter + 1;
+                indices[indexCounter + 3] = quadCounter + numHorzSteps;
+                indices[indexCounter + 4] = quadCounter + 1;
+                indices[indexCounter + 5] = quadCounter;
+            }
+            indexCounter += 6;
+            quadCounter += 1;
+        }
+    }
+
+    // Transfer vertex data to VBO 0
+    arrayBuf.bind();
+    arrayBuf.allocate(vertices, numVertices * sizeof(VertexData));
+
+    // Transfer index data to VBO 1
+    indexBuf.bind();
+    indexBuf.allocate(indices, numIndices * sizeof(GLushort));
+}
+
 void GeometryEngine::drawCubeGeometry(QOpenGLShaderProgram *program) {
     // Tell OpenGL which VBOs to use
     arrayBuf.bind();
@@ -62,5 +123,6 @@ void GeometryEngine::drawCubeGeometry(QOpenGLShaderProgram *program) {
     program->setAttributeBuffer(vertexLocation, GL_FLOAT, 0, 3, sizeof(VertexData));
 
     // Draw cube geometry using indices from VBO 1
-    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, nullptr);
+    //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, nullptr);
+    glDrawElements(GL_TRIANGLES, 6*50*50, GL_UNSIGNED_SHORT, nullptr);
 }

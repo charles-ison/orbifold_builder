@@ -14,6 +14,7 @@ public:
 
 private:
     void initCubeGeometry();
+    void initSphereGeometry();
 
     QOpenGLBuffer arrayBuf;
     QOpenGLBuffer indexBuf;
