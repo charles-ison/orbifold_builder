@@ -8,7 +8,6 @@ const int InsertTextButton = 10;
 
 MainWindow::MainWindow() {
     createActions();
-    createToolBox();
     createMenus();
 
     builderScene = new DiagramScene(itemMenu, this);
@@ -35,9 +34,8 @@ MainWindow::MainWindow() {
     resultToolBox->setMinimumSize(500, 500);
 
     QGridLayout *layout = new QGridLayout;
-    layout->addWidget(inputToolBox, 0, 1);
-    layout->addWidget(builderToolBox, 0, 2);
-    layout->addWidget(resultToolBox, 0, 3);
+    layout->addWidget(builderToolBox, 0, 1);
+    layout->addWidget(resultToolBox, 0, 2);
 
     QWidget *centralWidget = new QWidget;
     centralWidget->setLayout(layout);
@@ -50,10 +48,9 @@ MainWindow::MainWindow() {
 }
 
 void MainWindow::initStyle() {
-    inputToolBox->setStyleSheet("background-color:rgb(96,96,96);");
     builderToolBox->setStyleSheet("background-color:rgb(96,96,96); border:none;");
     resultToolBox->setStyleSheet("background-color:rgb(96,96,96); border:none;");
-    textButton->setStyleSheet("background-color:rgb(120,120,120);");
+    textButton->setStyleSheet("background-color:rgb(169,169,169);");
     editToolBar->setStyleSheet("border-color:rgb(96,96,96);");
     colorToolBar->setStyleSheet("border-color:rgb(96,96,96);");
     pointerToolbar->setStyleSheet("border-color:rgb(96,96,96);");
@@ -152,39 +149,6 @@ void MainWindow::about() {
                        tr("The <b>Orbifold Builder</b> allows for the construction of orbifolds from a fundamental polygon."));
 }
 
-void MainWindow::createToolBox() {
-    buttonGroup = new QButtonGroup(this);
-    buttonGroup->setExclusive(false);
-    connect(buttonGroup, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked),this, &MainWindow::buttonGroupClicked);
-
-    QWidget *newWidget = createCellWidget(tr("Polygon"), DiagramItem::Step);
-    QGridLayout *layout = new QGridLayout;
-    layout->addWidget(newWidget,0, 0);
-
-    textButton = new QToolButton;
-    textButton->setCheckable(true);
-    buttonGroup->addButton(textButton, InsertTextButton);
-    textButton->setIcon(QIcon(QPixmap(":/images/textpointer.png")));
-    textButton->setIconSize(QSize(50, 50));
-    QGridLayout *textLayout = new QGridLayout;
-    textLayout->addWidget(textButton, 0, 0, Qt::AlignHCenter);
-    textLayout->addWidget(new QLabel(tr("Text")), 1, 0, Qt::AlignCenter);
-    QWidget *textWidget = new QWidget;
-    textWidget->setLayout(textLayout);
-    layout->addWidget(textWidget, 0, 2);
-
-    layout->setRowStretch(3, 10);
-    layout->setColumnStretch(2, 10);
-
-    QWidget *itemWidget = new QWidget;
-    itemWidget->setLayout(layout);
-
-    inputToolBox = new QToolBox;
-    inputToolBox->setSizePolicy(QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Ignored));
-    inputToolBox->setMinimumWidth(itemWidget->sizeHint().width());
-    inputToolBox->addItem(itemWidget, tr("Input Options"));
-}
-
 void MainWindow::createActions() {
     deleteAction = new QAction(QIcon(":/images/delete.png"), tr("&Delete"), this);
     deleteAction->setShortcut(tr("Delete"));
@@ -214,7 +178,21 @@ void MainWindow::createMenus() {
 }
 
 void MainWindow::createToolbars() {
+    buttonGroup = new QButtonGroup(this);
+    buttonGroup->setExclusive(false);
+    connect(buttonGroup, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked),this, &MainWindow::buttonGroupClicked);
+
+    polygonButton = createButton(tr("Polygon"), DiagramItem::Step);
+
+    textButton = new QToolButton;
+    textButton->setCheckable(true);
+    buttonGroup->addButton(textButton, InsertTextButton);
+    textButton->setIcon(QIcon(QPixmap(":/images/textpointer.png")));
+    textButton->setIconSize(QSize(50, 50));
+
     editToolBar = addToolBar(tr("Edit"));
+    editToolBar->addWidget(polygonButton);
+    editToolBar->addWidget(textButton);
     editToolBar->addAction(deleteAction);
     editToolBar->setMovable(false);
 
@@ -267,7 +245,7 @@ void MainWindow::createToolbars() {
     pointerToolbar->setMovable(false);
 }
 
-QWidget *MainWindow::createCellWidget(const QString &text, DiagramItem::DiagramType type) {
+QToolButton *MainWindow::createButton(const QString &text, DiagramItem::DiagramType type) {
     DiagramItem item(type, itemMenu);
     QIcon icon(item.image());
 
@@ -275,16 +253,9 @@ QWidget *MainWindow::createCellWidget(const QString &text, DiagramItem::DiagramT
     button->setIcon(icon);
     button->setIconSize(QSize(50, 50));
     button->setCheckable(true);
-    button->setStyleSheet("background-color:rgb(120,120,120);");
+    button->setStyleSheet("background-color:rgb(169,169,169);");
     buttonGroup->addButton(button, int(type));
-
-    QGridLayout *layout = new QGridLayout;
-    layout->addWidget(button, 0, 0, Qt::AlignHCenter);
-    layout->addWidget(new QLabel(text), 1, 0, Qt::AlignCenter);
-
-    QWidget *widget = new QWidget;
-    widget->setLayout(layout);
-    return widget;
+    return button;
 }
 
 template<typename PointerToMemberFunction>

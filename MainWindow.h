@@ -41,12 +41,11 @@ private slots:
     void about();
 
 private:
-    void createToolBox();
     void createActions();
     void createMenus();
     void createToolbars();
     void initStyle();
-    QWidget *createCellWidget(const QString &text, DiagramItem::DiagramType type);
+    QToolButton *createButton(const QString &text, DiagramItem::DiagramType type);
 
     template<typename PointerToMemberFunction>
     QMenu *createColorMenu(const PointerToMemberFunction &slot, QColor defaultColor);
@@ -73,12 +72,12 @@ private:
     QToolBar *colorToolBar;
     QToolBar *pointerToolbar;
 
-    QToolBox *inputToolBox;
     QButtonGroup *buttonGroup;
     QButtonGroup *pointerTypeGroup;
     QToolButton *fontColorToolButton;
     QToolButton *fillColorToolButton;
     QToolButton *lineColorToolButton;
+    QToolButton *polygonButton;
     QToolButton *textButton;
     QAction *textAction;
     QAction *fillAction;
