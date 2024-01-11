@@ -1,6 +1,5 @@
 #include "GeometryEngine.h"
 #include <QVector2D>
-#include <iostream>
 
 struct VertexData {
     QVector3D position;

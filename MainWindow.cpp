@@ -2,7 +2,7 @@
 #include "DiagramItem.h"
 #include "DiagramScene.h"
 #include "MainWindow.h"
-#include "ResultWidget.h"
+#include "ResultsWidget.h"
 
 const int InsertTextButton = 10;
 
@@ -23,19 +23,19 @@ MainWindow::MainWindow() {
     builderToolBox->addItem(builderView, tr("Fundamental Polygon Builder"));
     builderToolBox->setMinimumSize(500, 500);
 
-    resultWidget = new ResultWidget();
-    resultWidget->setMinimumSize(500, 500);
+    resultsWidget = new ResultsWidget();
+    resultsWidget->setMinimumSize(500, 500);
 
-    resultScrollArea = new QScrollArea;
-    resultScrollArea->setWidget(resultWidget);
+    resultsScrollArea = new QScrollArea;
+    resultsScrollArea->setWidget(resultsWidget);
 
-    resultToolBox = new QToolBox;
-    resultToolBox->addItem(resultScrollArea, tr("Resulting Surface/Orbifold"));
-    resultToolBox->setMinimumSize(500, 500);
+    resultsToolBox = new QToolBox;
+    resultsToolBox->addItem(resultsScrollArea, tr("Resulting Surface/Orbifold"));
+    resultsToolBox->setMinimumSize(500, 500);
 
     QGridLayout *layout = new QGridLayout;
     layout->addWidget(builderToolBox, 0, 1);
-    layout->addWidget(resultToolBox, 0, 2);
+    layout->addWidget(resultsToolBox, 0, 2);
 
     QWidget *centralWidget = new QWidget;
     centralWidget->setLayout(layout);
@@ -49,11 +49,11 @@ MainWindow::MainWindow() {
 
 void MainWindow::initStyle() {
     builderToolBox->setStyleSheet("background-color:rgb(96,96,96); border:none;");
-    resultToolBox->setStyleSheet("background-color:rgb(96,96,96); border:none;");
-    textButton->setStyleSheet("background-color:rgb(169,169,169);");
-    editToolBar->setStyleSheet("border-color:rgb(96,96,96);");
+    resultsToolBox->setStyleSheet("background-color:rgb(96,96,96); border:none;");
+    insertToolBar->setStyleSheet("border-color:rgb(96,96,96);");
     colorToolBar->setStyleSheet("border-color:rgb(96,96,96);");
-    pointerToolbar->setStyleSheet("border-color:rgb(96,96,96);");
+    selectorToolbar->setStyleSheet("border-color:rgb(96,96,96);");
+    buildToolbar->setStyleSheet("border-color:rgb(96,96,96);");
     setStyleSheet("background-color:rgb(169,169,169);");
 }
 
@@ -91,6 +91,10 @@ void MainWindow::deleteItem() {
         builderScene->removeItem(item);
          delete item;
      }
+}
+
+void MainWindow::buildOrbifold() {
+    resultsWidget->setShouldPaintGL(true);
 }
 
 void MainWindow::pointerGroupClicked() {
@@ -155,6 +159,9 @@ void MainWindow::createActions() {
     deleteAction->setStatusTip(tr("Delete item from diagram"));
     connect(deleteAction, &QAction::triggered, this, &MainWindow::deleteItem);
 
+    buildAction = new QAction("Build", this);
+    connect(buildAction, &QAction::triggered, this, &MainWindow::buildOrbifold);
+
     exitAction = new QAction(tr("Exit"), this);
     exitAction->setShortcuts(QKeySequence::Quit);
     exitAction->setStatusTip(tr("Quit"));
@@ -188,13 +195,19 @@ void MainWindow::createToolbars() {
     textButton->setCheckable(true);
     buttonGroup->addButton(textButton, InsertTextButton);
     textButton->setIcon(QIcon(QPixmap(":/images/textpointer.png")));
-    textButton->setIconSize(QSize(50, 50));
 
-    editToolBar = addToolBar(tr("Edit"));
-    editToolBar->addWidget(polygonButton);
-    editToolBar->addWidget(textButton);
-    editToolBar->addAction(deleteAction);
-    editToolBar->setMovable(false);
+    insertToolBar = addToolBar(tr("Edit"));
+    insertToolBar->addWidget(polygonButton);
+    insertToolBar->addWidget(textButton);
+    insertToolBar->setMovable(false);
+
+    fillColorToolButton = new QToolButton;
+    fillColorToolButton->setPopupMode(QToolButton::MenuButtonPopup);
+    fillColorToolButton->setMenu(createColorMenu(&MainWindow::itemColorChanged, Qt::white));
+    fillAction = fillColorToolButton->menu()->defaultAction();
+    fillColorToolButton->setIcon(createColorToolButtonIcon(
+            ":/images/floodfill.png", Qt::white));
+    connect(fillColorToolButton, &QAbstractButton::clicked,this, &MainWindow::fillButtonTriggered);
 
     fontColorToolButton = new QToolButton;
     fontColorToolButton->setPopupMode(QToolButton::MenuButtonPopup);
@@ -203,14 +216,6 @@ void MainWindow::createToolbars() {
     fontColorToolButton->setIcon(createColorToolButtonIcon(":/images/textpointer.png", Qt::black));
     fontColorToolButton->setAutoFillBackground(true);
     connect(fontColorToolButton, &QAbstractButton::clicked,this, &MainWindow::textButtonTriggered);
-
-    fillColorToolButton = new QToolButton;
-    fillColorToolButton->setPopupMode(QToolButton::MenuButtonPopup);
-    fillColorToolButton->setMenu(createColorMenu(&MainWindow::itemColorChanged, Qt::white));
-    fillAction = fillColorToolButton->menu()->defaultAction();
-    fillColorToolButton->setIcon(createColorToolButtonIcon(
-                                     ":/images/floodfill.png", Qt::white));
-    connect(fillColorToolButton, &QAbstractButton::clicked,this, &MainWindow::fillButtonTriggered);
 
     lineColorToolButton = new QToolButton;
     lineColorToolButton->setPopupMode(QToolButton::MenuButtonPopup);
@@ -221,8 +226,8 @@ void MainWindow::createToolbars() {
     connect(lineColorToolButton, &QAbstractButton::clicked,this, &MainWindow::lineButtonTriggered);
 
     colorToolBar = addToolBar(tr("Color"));
-    colorToolBar->addWidget(fontColorToolButton);
     colorToolBar->addWidget(fillColorToolButton);
+    colorToolBar->addWidget(fontColorToolButton);
     colorToolBar->addWidget(lineColorToolButton);
     colorToolBar->setMovable(false);
 
@@ -239,10 +244,16 @@ void MainWindow::createToolbars() {
     pointerTypeGroup->addButton(linePointerButton, int(DiagramScene::InsertLine));
     connect(pointerTypeGroup, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked),this, &MainWindow::pointerGroupClicked);
 
-    pointerToolbar = addToolBar(tr("Pointer type"));
-    pointerToolbar->addWidget(pointerButton);
-    pointerToolbar->addWidget(linePointerButton);
-    pointerToolbar->setMovable(false);
+    selectorToolbar = addToolBar(tr("Selector type"));
+    selectorToolbar->addWidget(pointerButton);
+    selectorToolbar->addWidget(linePointerButton);
+    selectorToolbar->addAction(deleteAction);
+    selectorToolbar->setMovable(false);
+
+    buildToolbar = addToolBar(tr("Build"));
+    buildToolbar->addAction(buildAction);
+    buildToolbar->widgetForAction(buildAction)->setMinimumHeight(selectorToolbar->sizeHint().height());
+    buildToolbar->setMovable(false);
 }
 
 QToolButton *MainWindow::createButton(const QString &text, DiagramItem::DiagramType type) {

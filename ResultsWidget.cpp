@@ -1,20 +1,25 @@
-#include "ResultWidget.h"
+#include "ResultsWidget.h"
 #include <QMouseEvent>
 #include <QtWidgets>
 
-ResultWidget::~ResultWidget() {
+ResultsWidget::~ResultsWidget() {
     // Make sure the context is current when deleting the buffers.
     makeCurrent();
     delete geometries;
     doneCurrent();
 }
 
-void ResultWidget::mousePressEvent(QMouseEvent *e) {
+void ResultsWidget::setShouldPaintGL(bool newShouldPaintGL) {
+    shouldPaintGL = newShouldPaintGL;
+    update();
+}
+
+void ResultsWidget::mousePressEvent(QMouseEvent *e) {
     // Save mouse press position
     mousePressPosition = QVector2D(e->position());
 }
 
-void ResultWidget::mouseReleaseEvent(QMouseEvent *e) {
+void ResultsWidget::mouseReleaseEvent(QMouseEvent *e) {
     // Mouse release position - mouse press position
     QVector2D diff = QVector2D(e->position()) - mousePressPosition;
 
@@ -31,7 +36,7 @@ void ResultWidget::mouseReleaseEvent(QMouseEvent *e) {
     angularSpeed += acc;
 }
 
-void ResultWidget::timerEvent(QTimerEvent *) {
+void ResultsWidget::timerEvent(QTimerEvent *) {
     // Decrease angular speed (friction)
     angularSpeed *= 0.99;
 
@@ -47,7 +52,7 @@ void ResultWidget::timerEvent(QTimerEvent *) {
     }
 }
 
-void ResultWidget::initializeGL() {
+void ResultsWidget::initializeGL() {
     initializeOpenGLFunctions();
     glClearColor(96.0/255, 96.0/255, 96.0/255, 1.0);
 
@@ -59,7 +64,7 @@ void ResultWidget::initializeGL() {
     timer.start(12, this);
 }
 
-void ResultWidget::initShaders() {
+void ResultsWidget::initShaders() {
     // Compile vertex shader
     if (!program.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/VShader.glsl"))
         close();
@@ -77,7 +82,7 @@ void ResultWidget::initShaders() {
         close();
 }
 
-void ResultWidget::resizeGL(int w, int h) {
+void ResultsWidget::resizeGL(int w, int h) {
     // Calculate aspect ratio
     qreal aspect = qreal(w) / qreal(h ? h : 1);
 
@@ -91,26 +96,28 @@ void ResultWidget::resizeGL(int w, int h) {
     projection.perspective(fov, aspect, zNear, zFar);
 }
 
-void ResultWidget::paintGL() {
-    // Clear color and depth buffer
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+void ResultsWidget::paintGL() {
+    if (shouldPaintGL) {
+        // Clear color and depth buffer
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Enable depth buffer
-    glEnable(GL_DEPTH_TEST);
+        // Enable depth buffer
+        glEnable(GL_DEPTH_TEST);
 
-    // Enable back face culling
-    glEnable(GL_CULL_FACE);
+        // Enable back face culling
+        glEnable(GL_CULL_FACE);
 
-    program.bind();
+        program.bind();
 
-    // Calculate model view transformation
-    QMatrix4x4 matrix;
-    matrix.translate(0.0, 0.0, -5.0);
-    matrix.rotate(rotation);
+        // Calculate model view transformation
+        QMatrix4x4 matrix;
+        matrix.translate(0.0, 0.0, -5.0);
+        matrix.rotate(rotation);
 
-    // Set modelview-projection matrix
-    program.setUniformValue("mvp_matrix", projection * matrix);
+        // Set modelview-projection matrix
+        program.setUniformValue("mvp_matrix", projection * matrix);
 
-    // Draw cube geometry
-    geometries->drawCubeGeometry(&program);
+        // Draw cube geometry
+        geometries->drawCubeGeometry(&program);
+    }
 }

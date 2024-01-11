@@ -19,7 +19,7 @@ qt_add_executable(orbifold_builder
     DiagramTextItem.cpp DiagramTextItem.h
     Main.cpp
     MainWindow.cpp MainWindow.h
-    ResultsWidget.cpp ResultWidget.h
+    ResultsWidget.cpp ResultsWidget.h
 )
 
 set_target_properties(orbifold_builder PROPERTIES

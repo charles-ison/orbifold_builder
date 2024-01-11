@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include "DiagramItem.h"
-#include "ResultWidget.h"
+#include "ResultsWidget.h"
 #include <QMainWindow>
 #include <QtWidgets>
 
@@ -29,6 +29,7 @@ public:
 private slots:
     void buttonGroupClicked(QAbstractButton *button);
     void deleteItem();
+    void buildOrbifold();
     void pointerGroupClicked();
     void itemInserted(DiagramItem *item);
     void textInserted(QGraphicsTextItem *item);
@@ -56,21 +57,23 @@ private:
     QGraphicsView *builderView;
     QToolBox *builderToolBox;
 
-    ResultWidget *resultWidget;
-    QScrollArea *resultScrollArea;
-    QToolBox *resultToolBox;
+    ResultsWidget *resultsWidget;
+    QScrollArea *resultsScrollArea;
+    QToolBox *resultsToolBox;
 
     QAction *exitAction;
     QAction *deleteAction;
     QAction *aboutAction;
+    QAction *buildAction;
 
     QMenu *fileMenu;
     QMenu *itemMenu;
     QMenu *aboutMenu;
 
-    QToolBar *editToolBar;
+    QToolBar *insertToolBar;
     QToolBar *colorToolBar;
-    QToolBar *pointerToolbar;
+    QToolBar *selectorToolbar;
+    QToolBar *buildToolbar;
 
     QButtonGroup *buttonGroup;
     QButtonGroup *pointerTypeGroup;

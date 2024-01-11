@@ -12,13 +12,14 @@
 
 class GeometryEngine;
 
-class ResultWidget : public QOpenGLWidget, protected QOpenGLFunctions {
+class ResultsWidget : public QOpenGLWidget, protected QOpenGLFunctions {
 
     Q_OBJECT
 
 public:
     using QOpenGLWidget::QOpenGLWidget;
-    ~ResultWidget();
+    ~ResultsWidget();
+    void setShouldPaintGL(bool newShouldPaintGL);
 
 protected:
     void mousePressEvent(QMouseEvent *e) override;
@@ -38,6 +39,7 @@ private:
     QVector3D rotationAxis;
     qreal angularSpeed = 0;
     QQuaternion rotation;
+    bool shouldPaintGL = false;
 };
 
 #endif
