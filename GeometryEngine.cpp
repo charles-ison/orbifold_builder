@@ -58,8 +58,8 @@ void GeometryEngine::initSphereGeometry() {
     int numHorzSteps = 50;
     float radius = 1;
 
-    int numVertices = numVertSteps * numHorzSteps;
-    int numIndices = 6 * (numVertSteps-1) * numHorzSteps;
+    int numVertices = (numVertSteps+1) * numHorzSteps;
+    int numIndices = 6 * (numVertSteps+1) * numHorzSteps;
     VertexData vertices[numVertices];
     GLushort indices[numIndices];
 
@@ -67,7 +67,7 @@ void GeometryEngine::initSphereGeometry() {
     float horzStepSize = 2 * M_PI / numHorzSteps;
 
     int verticesCounter = 0;
-    for (int i=0; i<numVertSteps; i++) {
+    for (int i=0; i<=numVertSteps; i++) {
         float verticalAngle = (M_PI / 2) - vertStepSize * i;
         float z = radius * sinf(verticalAngle);
         for (int j=0; j<numHorzSteps; j++) {
@@ -81,7 +81,7 @@ void GeometryEngine::initSphereGeometry() {
 
     int indexCounter = 0;
     int quadCounter = 0;
-    for (int i=0; i<numVertSteps-1; i++) {
+    for (int i=0; i<numVertSteps; i++) {
         for (int j=0; j<numHorzSteps; j++) {
             if (j != numHorzSteps-1) {
                 indices[indexCounter] = quadCounter + 1;

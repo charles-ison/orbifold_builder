@@ -31,7 +31,7 @@ MainWindow::MainWindow() {
     resultScrollArea->setWidget(resultWidget);
 
     resultToolBox = new QToolBox;
-    resultToolBox->addItem(resultScrollArea, tr("Resulting Orbifold"));
+    resultToolBox->addItem(resultScrollArea, tr("Resulting Surface/Orbifold"));
     resultToolBox->setMinimumSize(500, 500);
 
     QGridLayout *layout = new QGridLayout;
