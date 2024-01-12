@@ -8,18 +8,20 @@
 class Sphere : public Surface {
 
 public:
+    Sphere();
     GLushort* getIndices();
     VertexData* getVertices();
     int getNumVertices();
     int getNumIndices();
 
 private:
-    int numVertSteps = 50;
-    int numHorSteps = 50;
+    static const int numVertSteps = 50;
+    static const int numHorSteps = 50;
     float radius = 1;
-    int numVertices = (numVertSteps+1) * numHorSteps;
-    int numIndices = 6 * (numVertSteps+1) * numHorSteps;
-    VertexData *vertices;
+    static const int numVertices = (numVertSteps+1) * numHorSteps;
+    static const int numIndices = 6 * (numVertSteps+1) * numHorSteps;
+    VertexData vertices[numVertices];
+    GLushort indices[numIndices];
 };
 
 #endif

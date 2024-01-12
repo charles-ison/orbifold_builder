@@ -1,8 +1,6 @@
 #include "Sphere.h"
 
-VertexData* Sphere::getVertices() {
-    VertexData vertices[numVertices];
-
+Sphere::Sphere() {
     float vertStepSize = M_PI / numVertSteps;
     float horStepSize = 2 * M_PI / numHorSteps;
 
@@ -19,11 +17,6 @@ VertexData* Sphere::getVertices() {
         }
     }
 
-    return vertices;
-}
-
-GLushort* Sphere::getIndices() {
-    GLushort indices[numIndices];
     int indexCounter = 0;
     int quadCounter = 0;
     for (int i=0; i<numVertSteps; i++) {
@@ -47,6 +40,13 @@ GLushort* Sphere::getIndices() {
             quadCounter += 1;
         }
     }
+}
+
+VertexData* Sphere::getVertices() {
+    return vertices;
+}
+
+GLushort* Sphere::getIndices() {
     return indices;
 }
 

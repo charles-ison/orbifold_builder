@@ -8,14 +8,17 @@
 class Cube : public Surface {
 
 public:
+    Cube();
     GLushort* getIndices();
     VertexData* getVertices();
     int getNumVertices();
     int getNumIndices();
 
 private:
-    int numVertices = 8;
-    int numIndices = 36;
+    static const int numVertices = 8;
+    static const int numIndices = 36;
+    VertexData vertices[numVertices];
+    GLushort indices[numIndices];
 };
 
 #endif
