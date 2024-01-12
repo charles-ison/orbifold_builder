@@ -11,6 +11,7 @@
 #include <QOpenGLShaderProgram>
 #include "surfaces/Cube.h"
 #include "surfaces/Sphere.h"
+#include "surfaces/Torus.h"
 
 class GeometryEngine;
 
@@ -35,10 +36,12 @@ protected:
 private:
     Cube *cube;
     Sphere *sphere;
+    Torus *torus;
     QBasicTimer timer;
     QOpenGLShaderProgram program;
     GeometryEngine *cubeGeometryEngine = nullptr;
     GeometryEngine *sphereGeometryEngine = nullptr;
+    GeometryEngine *torusGeometryEngine = nullptr;
     GeometryEngine *geometryEngine = nullptr;
     QMatrix4x4 projection;
     QVector2D mousePressPosition;

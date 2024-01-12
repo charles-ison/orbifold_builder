@@ -7,6 +7,7 @@ ResultsWidget::~ResultsWidget() {
     makeCurrent();
     delete cubeGeometryEngine;
     delete sphereGeometryEngine;
+    delete torusGeometryEngine;
     doneCurrent();
 }
 
@@ -15,7 +16,10 @@ void ResultsWidget::setShouldPaintGL(bool newShouldPaintGL) {
     update();
     if (geometryEngine == cubeGeometryEngine) {
         geometryEngine = sphereGeometryEngine;
-    } else {
+    } else if (geometryEngine == sphereGeometryEngine) {
+        geometryEngine = torusGeometryEngine;
+    }
+    else {
         geometryEngine = cubeGeometryEngine;
     }
 }
@@ -66,9 +70,11 @@ void ResultsWidget::initializeGL() {
 
     cube = new Cube();
     sphere = new Sphere();
+    torus = new Torus();
     cubeGeometryEngine = new GeometryEngine(cube);
     sphereGeometryEngine = new GeometryEngine(sphere);
-    geometryEngine = sphereGeometryEngine;
+    torusGeometryEngine = new GeometryEngine(torus);
+    geometryEngine = cubeGeometryEngine;
 
     // Use QBasicTimer because it's faster than QTimer
     timer.start(12, this);
