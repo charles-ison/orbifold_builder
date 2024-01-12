@@ -3,8 +3,9 @@
 
 #include <QOpenGLFunctions>
 #include "VertexData.h"
+#include "Surface.h"
 
-class Cube {
+class Cube : public Surface {
 
 public:
     GLushort* getIndices();

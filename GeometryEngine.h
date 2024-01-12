@@ -6,6 +6,7 @@
 #include <QOpenGLBuffer>
 #include "surfaces/Cube.h"
 #include "surfaces/Sphere.h"
+#include "surfaces/Surface.h"
 
 class GeometryEngine : protected QOpenGLFunctions {
 public:
@@ -16,8 +17,7 @@ public:
 
 private:
     int numIndices;
-    void initCubeGeometry();
-    void initSphereGeometry();
+    void initGeometry(Surface& surface);
 
     Cube* cube;
     Sphere* sphere;

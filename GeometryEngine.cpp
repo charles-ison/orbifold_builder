@@ -1,6 +1,5 @@
 #include "GeometryEngine.h"
-#include <QVector2D>
-#include <iostream>
+#include "surfaces/Surface.h"
 
 GeometryEngine::GeometryEngine() : indexBuf(QOpenGLBuffer::IndexBuffer) {
     initializeOpenGLFunctions();
@@ -12,9 +11,9 @@ GeometryEngine::GeometryEngine() : indexBuf(QOpenGLBuffer::IndexBuffer) {
     cube = new Cube();
     sphere = new Sphere();
 
-    // Initializes cube geometry and transfers it to VBOs
-    //initCubeGeometry();
-    initSphereGeometry();
+    // Initializes surface geometry and transfers it to VBOs
+    initGeometry(*cube);
+    //initGeometry(*sphere);
 }
 
 GeometryEngine::~GeometryEngine() {
@@ -22,10 +21,10 @@ GeometryEngine::~GeometryEngine() {
     indexBuf.destroy();
 }
 
-void GeometryEngine::initCubeGeometry() {
-    int numVertices = cube->getNumVertices();
+void GeometryEngine::initGeometry(Surface& surface) {
+    int numVertices = surface.getNumVertices();
     VertexData vertices[numVertices];
-    VertexData *verticesPointer = cube->getVertices();
+    VertexData *verticesPointer = surface.getVertices();
     for (int i=0; i<numVertices; i++) {
         vertices[i] = verticesPointer[i];
     }
@@ -34,33 +33,9 @@ void GeometryEngine::initCubeGeometry() {
     arrayBuf.bind();
     arrayBuf.allocate(vertices, numVertices * sizeof(VertexData));
 
-    numIndices = cube->getNumIndices();
+    numIndices = surface.getNumIndices();
     GLushort indices[numIndices];
-    GLushort *indicesPointer = cube->getIndices();
-    for (int i=0; i<numIndices; i++) {
-        indices[i] = indicesPointer[i];
-    }
-
-    // Transfer index data to VBO 1
-    indexBuf.bind();
-    indexBuf.allocate(indices, numIndices * sizeof(GLushort));
-}
-
-void GeometryEngine::initSphereGeometry() {
-    int numVertices = sphere->getNumVertices();
-    VertexData vertices[numVertices];
-    VertexData *verticesPointer = sphere->getVertices();
-    for (int i=0; i<numVertices; i++) {
-        vertices[i] = verticesPointer[i];
-    }
-
-    // Transfer vertex data to VBO 0
-    arrayBuf.bind();
-    arrayBuf.allocate(vertices, numVertices * sizeof(VertexData));
-
-    numIndices = sphere->getNumIndices();
-    GLushort indices[numIndices];
-    GLushort *indicesPointer = sphere->getIndices();
+    GLushort *indicesPointer = surface.getIndices();
     for (int i=0; i<numIndices; i++) {
         indices[i] = indicesPointer[i];
     }
