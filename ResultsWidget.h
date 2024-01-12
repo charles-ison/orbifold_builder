@@ -15,6 +15,7 @@
 
 class GeometryEngine;
 
+// TODO: Fix bug where surface does not always render in the center
 class ResultsWidget : public QOpenGLWidget, protected QOpenGLFunctions {
 
     Q_OBJECT

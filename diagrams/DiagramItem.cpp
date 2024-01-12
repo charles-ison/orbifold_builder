@@ -4,7 +4,6 @@
 #include <QGraphicsSceneContextMenuEvent>
 #include <QMenu>
 #include <QPainter>
-#include <iostream>
 
 DiagramItem::DiagramItem(DiagramType diagramType, QMenu *contextMenu, QGraphicsItem *parent)
     : QGraphicsPolygonItem(parent), myDiagramType(diagramType), myContextMenu(contextMenu) {
