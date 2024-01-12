@@ -1,7 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "DiagramItem.h"
+#include "diagrams/DiagramItem.h"
 #include "ResultsWidget.h"
 #include <QMainWindow>
 #include <QtWidgets>

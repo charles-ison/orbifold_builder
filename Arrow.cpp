@@ -3,7 +3,7 @@
 
 
 #include "Arrow.h"
-#include "DiagramItem.h"
+#include "diagrams/DiagramItem.h"
 
 #include <QPainter>
 #include <QPen>

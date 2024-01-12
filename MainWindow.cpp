@@ -1,6 +1,6 @@
 #include "Arrow.h"
-#include "DiagramItem.h"
-#include "DiagramScene.h"
+#include "diagrams/DiagramItem.h"
+#include "diagrams/DiagramScene.h"
 #include "MainWindow.h"
 #include "ResultsWidget.h"
 
