@@ -12,6 +12,7 @@
 #include "surfaces/Cube.h"
 #include "surfaces/Sphere.h"
 #include "surfaces/Torus.h"
+#include "surfaces/MobiusStrip.h"
 
 class GeometryEngine;
 
@@ -38,11 +39,13 @@ private:
     Cube *cube;
     Sphere *sphere;
     Torus *torus;
+    MobiusStrip *mobiusStrip;
     QBasicTimer timer;
     QOpenGLShaderProgram program;
     GeometryEngine *cubeGeometryEngine = nullptr;
     GeometryEngine *sphereGeometryEngine = nullptr;
     GeometryEngine *torusGeometryEngine = nullptr;
+    GeometryEngine *mobiusStripEngine = nullptr;
     GeometryEngine *geometryEngine = nullptr;
     QMatrix4x4 projection;
     QVector2D mousePressPosition;

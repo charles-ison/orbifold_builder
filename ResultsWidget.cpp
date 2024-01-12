@@ -8,6 +8,7 @@ ResultsWidget::~ResultsWidget() {
     delete cubeGeometryEngine;
     delete sphereGeometryEngine;
     delete torusGeometryEngine;
+    delete mobiusStripEngine;
     doneCurrent();
 }
 
@@ -18,8 +19,9 @@ void ResultsWidget::setShouldPaintGL(bool newShouldPaintGL) {
         geometryEngine = sphereGeometryEngine;
     } else if (geometryEngine == sphereGeometryEngine) {
         geometryEngine = torusGeometryEngine;
-    }
-    else {
+    } else if (geometryEngine == torusGeometryEngine) {
+        geometryEngine = mobiusStripEngine;
+    } else {
         geometryEngine = cubeGeometryEngine;
     }
 }
@@ -71,9 +73,11 @@ void ResultsWidget::initializeGL() {
     cube = new Cube();
     sphere = new Sphere();
     torus = new Torus();
+    mobiusStrip = new MobiusStrip();
     cubeGeometryEngine = new GeometryEngine(cube);
     sphereGeometryEngine = new GeometryEngine(sphere);
     torusGeometryEngine = new GeometryEngine(torus);
+    mobiusStripEngine = new GeometryEngine(mobiusStrip);
     geometryEngine = cubeGeometryEngine;
 
     // Use QBasicTimer because it's faster than QTimer
@@ -121,7 +125,8 @@ void ResultsWidget::paintGL() {
         glEnable(GL_DEPTH_TEST);
 
         // Enable back face culling
-        glEnable(GL_CULL_FACE);
+        // TODO: Figure out if this is required for non-orientable surfaces
+        //glEnable(GL_CULL_FACE);
 
         program.bind();
 
