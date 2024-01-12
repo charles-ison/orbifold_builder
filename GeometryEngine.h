@@ -4,23 +4,19 @@
 #include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLBuffer>
-#include "surfaces/Cube.h"
-#include "surfaces/Sphere.h"
 #include "surfaces/Surface.h"
 
 class GeometryEngine : protected QOpenGLFunctions {
 public:
-    GeometryEngine();
+    GeometryEngine(Surface* surface);
     virtual ~GeometryEngine();
-
-    void drawCubeGeometry(QOpenGLShaderProgram *program);
+    void drawGeometry(QOpenGLShaderProgram *program);
 
 private:
-    int numIndices;
-    void initGeometry(Surface& surface);
+    void initGeometry(Surface* surface);
 
-    Cube* cube;
-    Sphere* sphere;
+    int numIndices;
+    Surface* surface;
     QOpenGLBuffer arrayBuf;
     QOpenGLBuffer indexBuf;
 };

@@ -5,13 +5,19 @@
 ResultsWidget::~ResultsWidget() {
     // Make sure the context is current when deleting the buffers.
     makeCurrent();
-    delete geometries;
+    delete cubeGeometryEngine;
+    delete sphereGeometryEngine;
     doneCurrent();
 }
 
 void ResultsWidget::setShouldPaintGL(bool newShouldPaintGL) {
     shouldPaintGL = newShouldPaintGL;
     update();
+    if (geometryEngine == cubeGeometryEngine) {
+        geometryEngine = sphereGeometryEngine;
+    } else {
+        geometryEngine = cubeGeometryEngine;
+    }
 }
 
 void ResultsWidget::mousePressEvent(QMouseEvent *e) {
@@ -58,7 +64,11 @@ void ResultsWidget::initializeGL() {
 
     initShaders();
 
-    geometries = new GeometryEngine;
+    cube = new Cube();
+    sphere = new Sphere();
+    cubeGeometryEngine = new GeometryEngine(cube);
+    sphereGeometryEngine = new GeometryEngine(sphere);
+    geometryEngine = sphereGeometryEngine;
 
     // Use QBasicTimer because it's faster than QTimer
     timer.start(12, this);
@@ -118,6 +128,6 @@ void ResultsWidget::paintGL() {
         program.setUniformValue("mvp_matrix", projection * matrix);
 
         // Draw cube geometry
-        geometries->drawCubeGeometry(&program);
+        geometryEngine->drawGeometry(&program);
     }
 }

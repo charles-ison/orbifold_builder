@@ -14,9 +14,9 @@ qt_standard_project_setup()
 qt_add_executable(orbifold_builder
     GeometryEngine.cpp GeometryEngine.h
     Arrow.cpp Arrow.h
-        diagrams/DiagramItem.cpp diagrams/DiagramItem.h
-        diagrams/DiagramScene.cpp diagrams/DiagramScene.h
-        diagrams/DiagramTextItem.cpp diagrams/DiagramTextItem.h
+    diagrams/DiagramItem.cpp diagrams/DiagramItem.h
+    diagrams/DiagramScene.cpp diagrams/DiagramScene.h
+    diagrams/DiagramTextItem.cpp diagrams/DiagramTextItem.h
     Main.cpp
     MainWindow.cpp MainWindow.h
     ResultsWidget.cpp ResultsWidget.h

@@ -1,19 +1,14 @@
 #include "GeometryEngine.h"
-#include "surfaces/Surface.h"
 
-GeometryEngine::GeometryEngine() : indexBuf(QOpenGLBuffer::IndexBuffer) {
+GeometryEngine::GeometryEngine(Surface* surface) : indexBuf(QOpenGLBuffer::IndexBuffer) {
     initializeOpenGLFunctions();
 
     // Generate 2 VBOs
     arrayBuf.create();
     indexBuf.create();
 
-    cube = new Cube();
-    sphere = new Sphere();
-
     // Initializes surface geometry and transfers it to VBOs
-    initGeometry(*cube);
-    //initGeometry(*sphere);
+    initGeometry(surface);
 }
 
 GeometryEngine::~GeometryEngine() {
@@ -21,10 +16,10 @@ GeometryEngine::~GeometryEngine() {
     indexBuf.destroy();
 }
 
-void GeometryEngine::initGeometry(Surface& surface) {
-    int numVertices = surface.getNumVertices();
+void GeometryEngine::initGeometry(Surface* surface) {
+    int numVertices = surface->getNumVertices();
     VertexData vertices[numVertices];
-    VertexData *verticesPointer = surface.getVertices();
+    VertexData *verticesPointer = surface->getVertices();
     for (int i=0; i<numVertices; i++) {
         vertices[i] = verticesPointer[i];
     }
@@ -33,9 +28,9 @@ void GeometryEngine::initGeometry(Surface& surface) {
     arrayBuf.bind();
     arrayBuf.allocate(vertices, numVertices * sizeof(VertexData));
 
-    numIndices = surface.getNumIndices();
+    numIndices = surface->getNumIndices();
     GLushort indices[numIndices];
-    GLushort *indicesPointer = surface.getIndices();
+    GLushort *indicesPointer = surface->getIndices();
     for (int i=0; i<numIndices; i++) {
         indices[i] = indicesPointer[i];
     }
@@ -45,7 +40,7 @@ void GeometryEngine::initGeometry(Surface& surface) {
     indexBuf.allocate(indices, numIndices * sizeof(GLushort));
 }
 
-void GeometryEngine::drawCubeGeometry(QOpenGLShaderProgram *program) {
+void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program) {
     // Tell OpenGL which VBOs to use
     arrayBuf.bind();
     indexBuf.bind();
@@ -55,7 +50,7 @@ void GeometryEngine::drawCubeGeometry(QOpenGLShaderProgram *program) {
     program->enableAttributeArray(vertexLocation);
     program->setAttributeBuffer(vertexLocation, GL_FLOAT, 0, 3, sizeof(VertexData));
 
-    // Draw cube geometry using indices from VBO 1
+    // Draw geometry using indices from VBO 1
     //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, nullptr);
     glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_SHORT, nullptr);
 }

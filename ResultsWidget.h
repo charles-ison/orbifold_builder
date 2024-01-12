@@ -9,6 +9,8 @@
 #include <QVector2D>
 #include <QBasicTimer>
 #include <QOpenGLShaderProgram>
+#include "surfaces/Cube.h"
+#include "surfaces/Sphere.h"
 
 class GeometryEngine;
 
@@ -31,9 +33,13 @@ protected:
     void initShaders();
 
 private:
+    Cube *cube;
+    Sphere *sphere;
     QBasicTimer timer;
     QOpenGLShaderProgram program;
-    GeometryEngine *geometries = nullptr;
+    GeometryEngine *cubeGeometryEngine = nullptr;
+    GeometryEngine *sphereGeometryEngine = nullptr;
+    GeometryEngine *geometryEngine = nullptr;
     QMatrix4x4 projection;
     QVector2D mousePressPosition;
     QVector3D rotationAxis;
