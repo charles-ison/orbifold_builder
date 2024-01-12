@@ -20,6 +20,9 @@ qt_add_executable(orbifold_builder
     Main.cpp
     MainWindow.cpp MainWindow.h
     ResultsWidget.cpp ResultsWidget.h
+    surfaces/Cube.cpp surfaces/Cube.h
+    surfaces/Sphere.cpp surfaces/Sphere.h
+    surfaces/VertexData.h
 )
 
 set_target_properties(orbifold_builder PROPERTIES

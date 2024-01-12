@@ -39,17 +39,6 @@ void DiagramScene::setItemColor(const QColor &color) {
     }
 }
 
-void DiagramScene::setFont(const QFont &font) {
-    myFont = font;
-
-    if (isItemChange(DiagramTextItem::Type)) {
-        QGraphicsTextItem *item = qgraphicsitem_cast<DiagramTextItem *>(selectedItems().first());
-        //At this point the selection can change so the first selected item might not be a DiagramTextItem
-        if (item)
-            item->setFont(myFont);
-    }
-}
-
 void DiagramScene::setMode(Mode mode) {
     myMode = mode;
 }
@@ -77,15 +66,15 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent) {
     switch (myMode) {
         case InsertItem:
             item = new DiagramItem(myItemType, myItemMenu);
-            item->setBrush(myItemColor);
+            item->setBrush(Qt::white);
+            item->setPen(QPen(myLineColor, 4));
             addItem(item);
             item->setPos(mouseEvent->scenePos());
             emit itemInserted(item);
             break;
 
         case InsertLine:
-            line = new QGraphicsLineItem(QLineF(mouseEvent->scenePos(),
-                                        mouseEvent->scenePos()));
+            line = new QGraphicsLineItem(QLineF(mouseEvent->scenePos(),mouseEvent->scenePos()));
             line->setPen(QPen(myLineColor, 2));
             addItem(line);
             break;
@@ -95,10 +84,8 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent) {
             textItem->setFont(myFont);
             textItem->setTextInteractionFlags(Qt::TextEditorInteraction);
             textItem->setZValue(1000.0);
-            connect(textItem, &DiagramTextItem::lostFocus,
-                    this, &DiagramScene::editorLostFocus);
-            connect(textItem, &DiagramTextItem::selectedChange,
-                    this, &DiagramScene::itemSelected);
+            connect(textItem, &DiagramTextItem::lostFocus,this, &DiagramScene::editorLostFocus);
+            connect(textItem, &DiagramTextItem::selectedChange,this, &DiagramScene::itemSelected);
             addItem(textItem);
             textItem->setDefaultTextColor(myTextColor);
             textItem->setPos(mouseEvent->scenePos());
