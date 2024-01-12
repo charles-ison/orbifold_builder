@@ -24,6 +24,7 @@ qt_add_executable(orbifold_builder
     surfaces/Sphere.cpp surfaces/Sphere.h
     surfaces/Torus.cpp surfaces/Torus.h
     surfaces/MobiusStrip.cpp surfaces/MobiusStrip.h
+    surfaces/KleinBottle.cpp surfaces/KleinBottle.h
     surfaces/VertexData.h
 )
 

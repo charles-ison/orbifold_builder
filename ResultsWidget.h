@@ -13,10 +13,10 @@
 #include "surfaces/Sphere.h"
 #include "surfaces/Torus.h"
 #include "surfaces/MobiusStrip.h"
+#include "surfaces/KleinBottle.h"
 
 class GeometryEngine;
 
-// TODO: Fix bug where surface does not always render in the center
 class ResultsWidget : public QOpenGLWidget, protected QOpenGLFunctions {
 
     Q_OBJECT
@@ -40,12 +40,14 @@ private:
     Sphere *sphere;
     Torus *torus;
     MobiusStrip *mobiusStrip;
+    KleinBottle *kleinBottle;
     QBasicTimer timer;
     QOpenGLShaderProgram program;
     GeometryEngine *cubeGeometryEngine = nullptr;
     GeometryEngine *sphereGeometryEngine = nullptr;
     GeometryEngine *torusGeometryEngine = nullptr;
     GeometryEngine *mobiusStripEngine = nullptr;
+    GeometryEngine *kleinBottleEngine = nullptr;
     GeometryEngine *geometryEngine = nullptr;
     QMatrix4x4 projection;
     QVector2D mousePressPosition;
