@@ -23,6 +23,8 @@ void ResultsWidget::setShouldPaintGL(bool newShouldPaintGL) {
     } else if (geometryEngine == torusGeometryEngine) {
         geometryEngine = mobiusStripEngine;
     } else if (geometryEngine == mobiusStripEngine) {
+        geometryEngine = crossCapEngine;
+    } else if (geometryEngine == crossCapEngine) {
         geometryEngine = kleinBottleEngine;
     } else {
         geometryEngine = cubeGeometryEngine;
@@ -78,11 +80,13 @@ void ResultsWidget::initializeGL() {
     torus = new Torus();
     mobiusStrip = new MobiusStrip();
     kleinBottle = new KleinBottle();
+    crossCap = new CrossCap();
     cubeGeometryEngine = new GeometryEngine(cube);
     sphereGeometryEngine = new GeometryEngine(sphere);
     torusGeometryEngine = new GeometryEngine(torus);
     mobiusStripEngine = new GeometryEngine(mobiusStrip);
     kleinBottleEngine = new GeometryEngine(kleinBottle);
+    crossCapEngine = new GeometryEngine(crossCap);
     geometryEngine = cubeGeometryEngine;
 
     // Use QBasicTimer because it's faster than QTimer

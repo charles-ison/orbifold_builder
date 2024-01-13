@@ -14,6 +14,7 @@
 #include "surfaces/Torus.h"
 #include "surfaces/MobiusStrip.h"
 #include "surfaces/KleinBottle.h"
+#include "surfaces/CrossCap.h"
 
 class GeometryEngine;
 
@@ -41,6 +42,7 @@ private:
     Torus *torus;
     MobiusStrip *mobiusStrip;
     KleinBottle *kleinBottle;
+    CrossCap *crossCap;
     QBasicTimer timer;
     QOpenGLShaderProgram program;
     GeometryEngine *cubeGeometryEngine = nullptr;
@@ -48,6 +50,7 @@ private:
     GeometryEngine *torusGeometryEngine = nullptr;
     GeometryEngine *mobiusStripEngine = nullptr;
     GeometryEngine *kleinBottleEngine = nullptr;
+    GeometryEngine *crossCapEngine = nullptr;
     GeometryEngine *geometryEngine = nullptr;
     QMatrix4x4 projection;
     QVector2D mousePressPosition;

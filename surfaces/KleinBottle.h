@@ -17,7 +17,7 @@ public:
 private:
     static const int numVertSteps = 100;
     static const int numHorSteps = 100;
-    float a = 0.75;
+    float a = 0.5;
     float b = 1.0;
     float c = 0.5;
     static const int numVertices = 2 * (numVertSteps+1) * (numHorSteps+1);
