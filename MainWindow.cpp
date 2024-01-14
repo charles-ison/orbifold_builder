@@ -26,11 +26,8 @@ MainWindow::MainWindow() {
     resultsWidget = new ResultsWidget();
     resultsWidget->setMinimumSize(500, 500);
 
-    resultsScrollArea = new QScrollArea;
-    resultsScrollArea->setWidget(resultsWidget);
-
     resultsToolBox = new QToolBox;
-    resultsToolBox->addItem(resultsScrollArea, tr("Resulting Surface/Orbifold"));
+    resultsToolBox->addItem(resultsWidget, tr("Resulting Surface/Orbifold"));
     resultsToolBox->setMinimumSize(500, 500);
 
     QGridLayout *layout = new QGridLayout;

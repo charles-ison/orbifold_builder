@@ -58,7 +58,6 @@ private:
     QToolBox *builderToolBox;
 
     ResultsWidget *resultsWidget;
-    QScrollArea *resultsScrollArea;
     QToolBox *resultsToolBox;
 
     QAction *exitAction;

@@ -1,7 +1,6 @@
 #include "ResultsWidget.h"
 #include <QMouseEvent>
 #include <QtWidgets>
-#include <iostream>
 
 ResultsWidget::~ResultsWidget() {
     // Make sure the context is current when deleting the buffers.
