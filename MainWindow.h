@@ -30,6 +30,7 @@ private slots:
     void buttonGroupClicked(QAbstractButton *button);
     void deleteItem();
     void buildOrbifold();
+    void toggleFundamentalPolygon();
     void pointerGroupClicked();
     void itemInserted(DiagramItem *item);
     void textInserted(QGraphicsTextItem *item);
@@ -42,6 +43,7 @@ private slots:
     void about();
 
 private:
+    bool hideFundamentalPolygon;
     void createActions();
     void createMenus();
     void createToolbars();
@@ -53,9 +55,9 @@ private:
     QIcon createColorToolButtonIcon(const QString &image, QColor color);
     QIcon createColorIcon(QColor color);
 
-    DiagramScene *builderScene;
-    QGraphicsView *builderView;
-    QToolBox *builderToolBox;
+    DiagramScene *fundamentalPolygonScene;
+    QGraphicsView *fundamentalPolygonView;
+    QToolBox *fundamentalPolygonToolBox;
 
     ResultsWidget *resultsWidget;
     QToolBox *resultsToolBox;
@@ -64,6 +66,7 @@ private:
     QAction *deleteAction;
     QAction *aboutAction;
     QAction *buildAction;
+    QAction *fundamentalPolygonAction;
 
     QMenu *fileMenu;
     QMenu *itemMenu;
@@ -84,6 +87,9 @@ private:
     QAction *textAction;
     QAction *fillAction;
     QAction *lineAction;
+
+    QWidget *centralWidget;
+    QHBoxLayout *centralLayout;
 };
 
 #endif

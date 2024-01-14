@@ -4,7 +4,7 @@
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
-    app.setApplicationName("manifold_builder");
+    app.setApplicationName("orbifold_builder");
     app.setApplicationVersion("0.1");
 
     QSurfaceFormat format;

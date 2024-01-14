@@ -10,18 +10,21 @@ MainWindow::MainWindow() {
     createActions();
     createMenus();
 
-    builderScene = new DiagramScene(itemMenu, this);
-    builderScene->setSceneRect(QRectF(0, 0, 1000, 1000));
+    fundamentalPolygonScene = new DiagramScene(itemMenu, this);
+    fundamentalPolygonScene->setSceneRect(QRectF(0, 0, 1000, 1000));
 
-    connect(builderScene, &DiagramScene::itemInserted,this, &MainWindow::itemInserted);
-    connect(builderScene, &DiagramScene::textInserted,this, &MainWindow::textInserted);
+    connect(fundamentalPolygonScene, &DiagramScene::itemInserted,this, &MainWindow::itemInserted);
+    connect(fundamentalPolygonScene, &DiagramScene::textInserted,this, &MainWindow::textInserted);
     createToolbars();
 
-    builderView = new QGraphicsView(builderScene);
+    fundamentalPolygonView = new QGraphicsView(fundamentalPolygonScene);
 
-    builderToolBox = new QToolBox;
-    builderToolBox->addItem(builderView, tr("Fundamental Polygon Builder"));
-    builderToolBox->setMinimumSize(500, 500);
+    fundamentalPolygonToolBox = new QToolBox;
+    fundamentalPolygonToolBox->addItem(fundamentalPolygonView, tr("Fundamental Polygon"));
+    fundamentalPolygonToolBox->setMinimumSize(500, 500);
+
+    hideFundamentalPolygon = true;
+    fundamentalPolygonToolBox->setHidden(hideFundamentalPolygon);
 
     resultsWidget = new ResultsWidget();
     resultsWidget->setMinimumSize(500, 500);
@@ -30,12 +33,12 @@ MainWindow::MainWindow() {
     resultsToolBox->addItem(resultsWidget, tr("Resulting Surface/Orbifold"));
     resultsToolBox->setMinimumSize(500, 500);
 
-    QGridLayout *layout = new QGridLayout;
-    layout->addWidget(builderToolBox, 0, 1);
-    layout->addWidget(resultsToolBox, 0, 2);
+    centralLayout = new QHBoxLayout;
+    centralLayout->addWidget(resultsToolBox);
+    centralLayout->addWidget(fundamentalPolygonToolBox);
 
-    QWidget *centralWidget = new QWidget;
-    centralWidget->setLayout(layout);
+    centralWidget = new QWidget;
+    centralWidget->setLayout(centralLayout);
 
     setCentralWidget(centralWidget);
     setWindowTitle(tr("Orbifold Builder"));
@@ -45,8 +48,8 @@ MainWindow::MainWindow() {
 }
 
 void MainWindow::initStyle() {
-    builderToolBox->setStyleSheet("background-color:rgb(96,96,96); border:none;");
     resultsToolBox->setStyleSheet("background-color:rgb(96,96,96); border:none;");
+    fundamentalPolygonToolBox->setStyleSheet("background-color:rgb(96,96,96); border:none;");
     insertToolBar->setStyleSheet("border-color:rgb(96,96,96);");
     colorToolBar->setStyleSheet("border-color:rgb(96,96,96);");
     selectorToolbar->setStyleSheet("border-color:rgb(96,96,96);");
@@ -62,18 +65,18 @@ void MainWindow::buttonGroupClicked(QAbstractButton *button) {
     }
     const int id = buttonGroup->id(button);
     if (id == InsertTextButton) {
-        builderScene->setMode(DiagramScene::InsertText);
+        fundamentalPolygonScene->setMode(DiagramScene::InsertText);
     } else {
-        builderScene->setItemType(DiagramItem::DiagramType(id));
-        builderScene->setMode(DiagramScene::InsertItem);
+        fundamentalPolygonScene->setItemType(DiagramItem::DiagramType(id));
+        fundamentalPolygonScene->setMode(DiagramScene::InsertItem);
     }
 }
 
 void MainWindow::deleteItem() {
-    QList<QGraphicsItem *> selectedItems = builderScene->selectedItems();
+    QList<QGraphicsItem *> selectedItems = fundamentalPolygonScene->selectedItems();
     for (QGraphicsItem *item : std::as_const(selectedItems)) {
         if (item->type() == Arrow::Type) {
-            builderScene->removeItem(item);
+            fundamentalPolygonScene->removeItem(item);
             Arrow *arrow = qgraphicsitem_cast<Arrow *>(item);
             arrow->startItem()->removeArrow(arrow);
             arrow->endItem()->removeArrow(arrow);
@@ -81,11 +84,11 @@ void MainWindow::deleteItem() {
         }
     }
 
-    selectedItems = builderScene->selectedItems();
+    selectedItems = fundamentalPolygonScene->selectedItems();
     for (QGraphicsItem *item : std::as_const(selectedItems)) {
          if (item->type() == DiagramItem::Type)
              qgraphicsitem_cast<DiagramItem *>(item)->removeArrows();
-        builderScene->removeItem(item);
+         fundamentalPolygonScene->removeItem(item);
          delete item;
      }
 }
@@ -94,19 +97,24 @@ void MainWindow::buildOrbifold() {
     resultsWidget->setShouldPaintGL(true);
 }
 
+void MainWindow::toggleFundamentalPolygon() {
+    hideFundamentalPolygon = !hideFundamentalPolygon;
+    fundamentalPolygonToolBox->setHidden(hideFundamentalPolygon);
+}
+
 void MainWindow::pointerGroupClicked() {
-    builderScene->setMode(DiagramScene::Mode(pointerTypeGroup->checkedId()));
+    fundamentalPolygonScene->setMode(DiagramScene::Mode(pointerTypeGroup->checkedId()));
 }
 
 void MainWindow::itemInserted(DiagramItem *item) {
     pointerTypeGroup->button(int(DiagramScene::MoveItem))->setChecked(true);
-    builderScene->setMode(DiagramScene::Mode(pointerTypeGroup->checkedId()));
+    fundamentalPolygonScene->setMode(DiagramScene::Mode(pointerTypeGroup->checkedId()));
     buttonGroup->button(int(item->diagramType()))->setChecked(false);
 }
 
 void MainWindow::textInserted(QGraphicsTextItem *) {
     buttonGroup->button(InsertTextButton)->setChecked(false);
-    builderScene->setMode(DiagramScene::Mode(pointerTypeGroup->checkedId()));
+    fundamentalPolygonScene->setMode(DiagramScene::Mode(pointerTypeGroup->checkedId()));
 }
 
 void MainWindow::textColorChanged() {
@@ -134,15 +142,15 @@ void MainWindow::lineColorChanged() {
 }
 
 void MainWindow::textButtonTriggered() {
-    builderScene->setTextColor(qvariant_cast<QColor>(textAction->data()));
+    fundamentalPolygonScene->setTextColor(qvariant_cast<QColor>(textAction->data()));
 }
 
 void MainWindow::fillButtonTriggered() {
-    builderScene->setItemColor(qvariant_cast<QColor>(fillAction->data()));
+    fundamentalPolygonScene->setItemColor(qvariant_cast<QColor>(fillAction->data()));
 }
 
 void MainWindow::lineButtonTriggered() {
-    builderScene->setLineColor(qvariant_cast<QColor>(lineAction->data()));
+    fundamentalPolygonScene->setLineColor(qvariant_cast<QColor>(lineAction->data()));
 }
 
 void MainWindow::about() {
@@ -159,6 +167,9 @@ void MainWindow::createActions() {
     buildAction = new QAction("Build", this);
     connect(buildAction, &QAction::triggered, this, &MainWindow::buildOrbifold);
 
+    fundamentalPolygonAction = new QAction(tr("Toggle Fundamental Polygon View"), this);
+    connect(fundamentalPolygonAction, &QAction::triggered, this, &MainWindow::toggleFundamentalPolygon);
+
     exitAction = new QAction(tr("Exit"), this);
     exitAction->setShortcuts(QKeySequence::Quit);
     exitAction->setStatusTip(tr("Quit"));
@@ -173,8 +184,8 @@ void MainWindow::createMenus() {
     fileMenu = menuBar()->addMenu(tr("&File"));
     fileMenu->addAction(exitAction);
 
-    itemMenu = menuBar()->addMenu(tr("&Item"));
-    itemMenu->addAction(deleteAction);
+    itemMenu = menuBar()->addMenu(tr("&View"));
+    itemMenu->addAction(fundamentalPolygonAction);
     itemMenu->addSeparator();
 
     aboutMenu = menuBar()->addMenu(tr("&Help"));
