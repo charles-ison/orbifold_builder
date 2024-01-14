@@ -2,13 +2,13 @@
 
 MobiusStrip::MobiusStrip() {
     float horStepSize = 2 * M_PI / numHorSteps;
-    float vertStepSize = 2.0 / numVertSteps;
+    float vertStepSize = 1.0 / numVertSteps;
 
     int verticesCounter = 0;
     for (int i=0; i<=numHorSteps; i++) {
         float horizontalAngle = -M_PI + horStepSize * i;
         for (int j=0; j<=numVertSteps; j++) {
-            float verticalStep = -1 + vertStepSize * j;
+            float verticalStep = -0.5 + vertStepSize * j;
             float x = cosf(horizontalAngle) * (radius + verticalStep * cosf(horizontalAngle/2));
             float y = sinf(horizontalAngle) * (radius + verticalStep * cosf(horizontalAngle/2));
             float z = verticalStep * sinf(horizontalAngle/2);
