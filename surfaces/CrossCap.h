@@ -5,6 +5,7 @@
 #include "VertexData.h"
 #include "Surface.h"
 
+// TODO: What about the Boy and Roman surfaces as other alternatives for the real projective plane
 class CrossCap : public Surface {
 
 public:

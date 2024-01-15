@@ -8,7 +8,8 @@ Sphere::Sphere() {
     for (int i=0; i<=numVertSteps; i++) {
         float verticalAngle = (M_PI / 2) - vertStepSize * i;
         float z = radius * sinf(verticalAngle);
-        for (int j=0; j<numHorSteps; j++) {
+        int tempNumHorSteps = (i == 0 || i == numVertSteps) ? 1 : numHorSteps;
+        for (int j=0; j<tempNumHorSteps; j++) {
             float horizontalAngle = horStepSize * j;
             float x = radius * cosf(verticalAngle) * cosf(horizontalAngle);
             float y = radius * cosf(verticalAngle) * sinf(horizontalAngle);
@@ -18,26 +19,49 @@ Sphere::Sphere() {
     }
 
     int indexCounter = 0;
-    int quadCounter = 0;
+    int faceCounter = 0;
     for (int i=0; i<numVertSteps; i++) {
         for (int j=0; j<numHorSteps; j++) {
-            if (j != numHorSteps-1) {
-                indices[indexCounter] = quadCounter + 1;
-                indices[indexCounter + 1] = quadCounter;
-                indices[indexCounter + 2] = quadCounter + 1 + numHorSteps;
-                indices[indexCounter + 3] = quadCounter + numHorSteps;
-                indices[indexCounter + 4] = quadCounter + 1 + numHorSteps;
-                indices[indexCounter + 5] = quadCounter;
-            } else {
-                indices[indexCounter] = quadCounter + 1 - numHorSteps;
-                indices[indexCounter + 1] = quadCounter;
-                indices[indexCounter + 2] = quadCounter + 1;
-                indices[indexCounter + 3] = quadCounter + numHorSteps;
-                indices[indexCounter + 4] = quadCounter + 1;
-                indices[indexCounter + 5] = quadCounter;
+            if (i == 0) {
+                indices[indexCounter] = i;
+                indices[indexCounter + 1] = faceCounter + 1;
+                if (j == numHorSteps-1) {
+                    indices[indexCounter + 2] = 1;
+                    faceCounter = 0;
+                } else {
+                    indices[indexCounter + 2] = faceCounter + 2;
+                }
+                indexCounter += 3;
             }
-            indexCounter += 6;
-            quadCounter += 1;
+            else if (i == numVertSteps - 1) {
+                indices[indexCounter] = numVertices - 1;
+                indices[indexCounter + 1] = faceCounter;
+                if (j == numHorSteps-1) {
+                    indices[indexCounter + 2] = faceCounter + 1 - numHorSteps ;
+                } else {
+                    indices[indexCounter + 2] = faceCounter + 1;
+                }
+                indexCounter += 3;
+            }
+            else if (j == numHorSteps-1) {
+                indices[indexCounter] = faceCounter + 1 - numHorSteps;
+                indices[indexCounter + 1] = faceCounter;
+                indices[indexCounter + 2] = faceCounter + 1;
+                indices[indexCounter + 3] = faceCounter + numHorSteps;
+                indices[indexCounter + 4] = faceCounter + 1;
+                indices[indexCounter + 5] = faceCounter;
+                indexCounter += 6;
+            }
+            else {
+                indices[indexCounter] = faceCounter + 1;
+                indices[indexCounter + 1] = faceCounter;
+                indices[indexCounter + 2] = faceCounter + 1 + numHorSteps;
+                indices[indexCounter + 3] = faceCounter + numHorSteps;
+                indices[indexCounter + 4] = faceCounter + 1 + numHorSteps;
+                indices[indexCounter + 5] = faceCounter;
+                indexCounter += 6;
+            }
+            faceCounter += 1;
         }
     }
 }
