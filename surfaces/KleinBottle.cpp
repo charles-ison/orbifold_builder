@@ -1,5 +1,4 @@
 #include "KleinBottle.h"
-#include <iostream>
 
 KleinBottle::KleinBottle() {
     float horStepSize = M_PI / numHorSteps;

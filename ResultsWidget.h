@@ -26,13 +26,13 @@ public:
     using QOpenGLWidget::QOpenGLWidget;
     ~ResultsWidget();
     void setShouldPaintGL(bool newShouldPaintGL);
+    void resizeGL(int w, int h) override;
 
 protected:
     void mousePressEvent(QMouseEvent *e) override;
     void mouseReleaseEvent(QMouseEvent *e) override;
     void timerEvent(QTimerEvent *e) override;
     void initializeGL() override;
-    void resizeGL(int w, int h) override;
     void paintGL() override;
     void initShaders();
 
