@@ -1,35 +1,36 @@
 #include "CrossCap.h"
-#include<cmath>
+#include <cmath>
 
 CrossCap::CrossCap() {
     float horStepSize = 2 * M_PI / numHorSteps;
-    float vertStepSize = 2 * M_PI / numVertSteps;
+    float vertStepSize = M_PI / (2 * numVertSteps);
 
     int verticesCounter = 0;
-    for (int i=0; i<=numHorSteps; i++) {
+    for (int i=0; i<numHorSteps; i++) {
         float horizontalAngle = horStepSize * i;
         for (int j=0; j<=numVertSteps; j++) {
             float verticalAngle = vertStepSize * j;
-            float x = radius * sinf(2 * horizontalAngle) * cosf(verticalAngle);
-            float y = radius * sinf(2 * horizontalAngle) * sinf(verticalAngle);
-            float z = radius * (pow(sinf(horizontalAngle), 2) - pow(cosf(horizontalAngle), 2) * pow(cosf(verticalAngle), 2));
+            float x = radius * cosf(horizontalAngle) * sinf(2 * verticalAngle);
+            float y = radius * sinf(horizontalAngle) * sinf(2 * verticalAngle);
+            float z = radius * (pow(cosf(verticalAngle), 2) - pow(cosf(horizontalAngle), 2) * pow(sinf(verticalAngle), 2));
+
             vertices[verticesCounter] = {QVector3D(x,  y,  z)};
             verticesCounter += 1;
         }
     }
 
     int indexCounter = 0;
-    int quadCounter = 0;
+    int faceCounter = 0;
     for (int i=0; i<numHorSteps; i++) {
         for (int j=0; j<=numVertSteps; j++) {
-            indices[indexCounter] = quadCounter + 1;
-            indices[indexCounter + 1] = quadCounter;
-            indices[indexCounter + 2] = quadCounter + 1 + numVertSteps;
-            indices[indexCounter + 3] = quadCounter + numVertSteps;
-            indices[indexCounter + 4] = quadCounter + 1 + numVertSteps;
-            indices[indexCounter + 5] = quadCounter;
+            indices[indexCounter] = (faceCounter + 1) % numVertices;
+            indices[indexCounter + 1] = faceCounter % numVertices;
+            indices[indexCounter + 2] = (faceCounter + 1 + numVertSteps) % numVertices;
+            indices[indexCounter + 3] = (faceCounter + numVertSteps) % numVertices;
+            indices[indexCounter + 4] = (faceCounter + 1 + numVertSteps) % numVertices;
+            indices[indexCounter + 5] = faceCounter % numVertices;
             indexCounter += 6;
-            quadCounter += 1;
+            faceCounter += 1;
         }
     }
 }
