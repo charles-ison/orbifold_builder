@@ -28,7 +28,8 @@ Torus::Torus() {
                 indices[indexCounter + 3] = (faceCounter + numHorSteps) % numVertices;
                 indices[indexCounter + 4] = (faceCounter + 1) % numVertices;
                 indices[indexCounter + 5] = faceCounter % numVertices;
-            } else {
+            }
+            else {
                 indices[indexCounter] = (faceCounter + 1) % numVertices;
                 indices[indexCounter + 1] = faceCounter % numVertices;
                 indices[indexCounter + 2] = (faceCounter + 1 + numVertSteps) % numVertices;
