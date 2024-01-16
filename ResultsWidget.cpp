@@ -89,8 +89,6 @@ void ResultsWidget::initializeGL() {
     crossCapEngine = new GeometryEngine(crossCap);
     geometryEngine = cubeGeometryEngine;
 
-    projection.setToIdentity();
-
     // Use QBasicTimer because it's faster than QTimer
     timer.start(12, this);
 }
