@@ -5,9 +5,9 @@ Torus::Torus() {
     float vertStepSize = 2 * M_PI / numVertSteps;
 
     int verticesCounter = 0;
-    for (int i=0; i<=numHorSteps; i++) {
+    for (int i=0; i<numHorSteps; i++) {
         float horizontalAngle = horStepSize * i;
-        for (int j=0; j<=numVertSteps; j++) {
+        for (int j=0; j<numVertSteps; j++) {
             float verticalAngle = vertStepSize * j;
             float x = (bigRadius + smallRadius * cosf(verticalAngle)) * cosf(horizontalAngle);
             float y = (bigRadius + smallRadius * cosf(verticalAngle)) * sinf(horizontalAngle);
@@ -18,17 +18,27 @@ Torus::Torus() {
     }
 
     int indexCounter = 0;
-    int quadCounter = 0;
+    int faceCounter = 0;
     for (int i=0; i<numHorSteps; i++) {
-        for (int j=0; j<=numVertSteps; j++) {
-            indices[indexCounter] = quadCounter + 1;
-            indices[indexCounter + 1] = quadCounter;
-            indices[indexCounter + 2] = quadCounter + 1 + numVertSteps;
-            indices[indexCounter + 3] = quadCounter + numVertSteps;
-            indices[indexCounter + 4] = quadCounter + 1 + numVertSteps;
-            indices[indexCounter + 5] = quadCounter;
+        for (int j=0; j<numVertSteps; j++) {
+            if (j == numVertSteps - 1) {
+                indices[indexCounter] = (faceCounter + 1 - numHorSteps) % numVertices;
+                indices[indexCounter + 1] = faceCounter % numVertices;
+                indices[indexCounter + 2] = (faceCounter + 1) % numVertices;
+                indices[indexCounter + 3] = (faceCounter + numHorSteps) % numVertices;
+                indices[indexCounter + 4] = (faceCounter + 1) % numVertices;
+                indices[indexCounter + 5] = faceCounter % numVertices;
+            } else {
+                indices[indexCounter] = (faceCounter + 1) % numVertices;
+                indices[indexCounter + 1] = faceCounter % numVertices;
+                indices[indexCounter + 2] = (faceCounter + 1 + numVertSteps) % numVertices;
+                indices[indexCounter + 3] = (faceCounter + numVertSteps) % numVertices;
+                indices[indexCounter + 4] = (faceCounter + 1 + numVertSteps) % numVertices;
+                indices[indexCounter + 5] = faceCounter % numVertices;
+            }
+
             indexCounter += 6;
-            quadCounter += 1;
+            faceCounter += 1;
         }
     }
 }

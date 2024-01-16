@@ -19,8 +19,8 @@ private:
     static const int numHorSteps = 80;
     float bigRadius = 1;
     float smallRadius = 0.5;
-    static const int numVertices = (numVertSteps+1) * (numHorSteps+1);
-    static const int numIndices = 6 * (numVertSteps+1) * numHorSteps;
+    static const int numVertices = numVertSteps * numHorSteps;
+    static const int numIndices = 6 * numVertSteps * numHorSteps;
     VertexData vertices[numVertices];
     GLushort indices[numIndices];
 };
