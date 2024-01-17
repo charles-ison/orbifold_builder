@@ -53,9 +53,12 @@ void ResultsWidget::mouseReleaseEvent(QMouseEvent *e) {
     angularSpeed += acc;
 }
 
+void ResultsWidget::wheelEvent(QWheelEvent *e) {
+}
+
 void ResultsWidget::timerEvent(QTimerEvent *) {
     // Decrease angular speed (friction)
-    angularSpeed *= 0.99;
+    angularSpeed *= 0.97;
 
     // Stop rotation when speed goes below threshold
     if (angularSpeed < 0.01) {

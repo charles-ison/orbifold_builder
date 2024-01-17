@@ -31,6 +31,7 @@ public:
 protected:
     void mousePressEvent(QMouseEvent *e) override;
     void mouseReleaseEvent(QMouseEvent *e) override;
+    void wheelEvent(QWheelEvent *e) override;
     void timerEvent(QTimerEvent *e) override;
     void initializeGL() override;
     void paintGL() override;
