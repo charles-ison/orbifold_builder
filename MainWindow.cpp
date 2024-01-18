@@ -28,7 +28,6 @@ MainWindow::MainWindow() {
 
     resultsWidget = new ResultsWidget();
     resultsWidget->setMinimumSize(500, 500);
-    resultsWidget->update();
 
     resultsToolBox = new QToolBox;
     resultsToolBox->addItem(resultsWidget, tr("Resulting Surface/Orbifold"));

@@ -1,6 +1,7 @@
 #include "ResultsWidget.h"
 #include <QMouseEvent>
 #include <QtWidgets>
+#include <iostream>
 
 ResultsWidget::~ResultsWidget() {
     // Make sure the context is current when deleting the buffers.
@@ -36,9 +37,11 @@ void ResultsWidget::mousePressEvent(QMouseEvent *e) {
     mousePressPosition = QVector2D(e->position());
 }
 
-void ResultsWidget::mouseReleaseEvent(QMouseEvent *e) {
-    // Mouse release position - mouse press position
-    QVector2D diff = QVector2D(e->position()) - mousePressPosition;
+void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
+    // Mouse move position - mouse press position
+    QVector2D mouseMovePosition = QVector2D(e->position());
+    QVector2D diff = mouseMovePosition - mousePressPosition;
+    mousePressPosition = mouseMovePosition;
 
     // Rotation axis is perpendicular to the mouse position difference vector
     QVector3D n = QVector3D(diff.y(), diff.x(), 0.0).normalized();
@@ -54,11 +57,12 @@ void ResultsWidget::mouseReleaseEvent(QMouseEvent *e) {
 }
 
 void ResultsWidget::wheelEvent(QWheelEvent *e) {
+
 }
 
 void ResultsWidget::timerEvent(QTimerEvent *) {
     // Decrease angular speed (friction)
-    angularSpeed *= 0.97;
+    angularSpeed *= 0.96;
 
     // Stop rotation when speed goes below threshold
     if (angularSpeed < 0.01) {
