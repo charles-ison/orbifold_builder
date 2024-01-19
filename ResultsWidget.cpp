@@ -43,21 +43,21 @@ void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
 
 void ResultsWidget::wheelEvent(QWheelEvent *e) {
     // Rotation axis is perpendicular to the angle delta difference vector
-    QVector3D n = QVector3D(e->angleDelta().y()/2.0, e->angleDelta().x()/2.0, 0.0).normalized();
+    QVector3D n = QVector3D(e->angleDelta().y(), e->angleDelta().x(), 0.0).normalized();
 
     // Accelerate angular speed relative to the length of the mouse sweep
-    qreal acc = 0.12;
+    qreal acc = 2.0;
 
     // Calculate new rotation axis as weighted sum
     rotationAxis = (rotationAxis * angularSpeed - n * acc).normalized();
 
     // Increase angular speed
-    angularSpeed += acc;
+    angularSpeed += (acc/12.0);
 }
 
 void ResultsWidget::timerEvent(QTimerEvent *) {
     // Decrease angular speed (friction)
-    angularSpeed *= 0.92;
+    angularSpeed *= 0.90;
 
     // Stop rotation when speed goes below threshold
     if (angularSpeed < 0.01) {

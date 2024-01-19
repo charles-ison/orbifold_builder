@@ -21,20 +21,24 @@ MainWindow::MainWindow() {
 
     fundamentalPolygonToolBox = new QToolBox;
     fundamentalPolygonToolBox->addItem(fundamentalPolygonView, tr("Fundamental Polygon"));
-    fundamentalPolygonToolBox->setMinimumSize(500, 500);
-
-    hideFundamentalPolygon = true;
-    fundamentalPolygonToolBox->setHidden(hideFundamentalPolygon);
+    fundamentalPolygonToolBox->setMinimumSize(panelWidth, panelHeight);
 
     resultsWidget = new ResultsWidget();
-    resultsWidget->setMinimumSize(500, 500);
+    resultsWidget->setMinimumSize(panelWidth, panelHeight);
 
     resultsToolBox = new QToolBox;
     resultsToolBox->addItem(resultsWidget, tr("Resulting Surface/Orbifold"));
+    resultsToolBox->setMinimumSize(panelWidth, panelWidth);
 
-    centralLayout = new QHBoxLayout;
-    centralLayout->addWidget(resultsToolBox);
-    centralLayout->addWidget(fundamentalPolygonToolBox);
+    centralLayout = new QGridLayout;
+    centralLayout->addWidget(fundamentalPolygonToolBar, 0, 0);
+    centralLayout->addWidget(resultsToolBar, 0, 1);
+    centralLayout->addWidget(fundamentalPolygonToolBox, 1, 0);
+    centralLayout->addWidget(resultsToolBox, 1, 1);
+
+    hideFundamentalPolygon = true;
+    fundamentalPolygonToolBox->setHidden(hideFundamentalPolygon);
+    fundamentalPolygonToolBar->setHidden(hideFundamentalPolygon);
 
     centralWidget = new QWidget;
     centralWidget->setLayout(centralLayout);
@@ -49,10 +53,8 @@ MainWindow::MainWindow() {
 void MainWindow::initStyle() {
     resultsToolBox->setStyleSheet("background-color:rgb(96,96,96); border:none;");
     fundamentalPolygonToolBox->setStyleSheet("background-color:rgb(96,96,96); border:none;");
-    insertToolBar->setStyleSheet("border-color:rgb(96,96,96);");
-    colorToolBar->setStyleSheet("border-color:rgb(96,96,96);");
-    selectorToolbar->setStyleSheet("border-color:rgb(96,96,96);");
-    buildToolbar->setStyleSheet("border-color:rgb(96,96,96);");
+    resultsToolBar->setStyleSheet("border-color:rgb(96,96,96);");
+    fundamentalPolygonToolBar->setStyleSheet("border-color:rgb(96,96,96);");
     setStyleSheet("background-color:rgb(169,169,169);");
 }
 
@@ -98,6 +100,7 @@ void MainWindow::buildOrbifold() {
 
 void MainWindow::toggleFundamentalPolygon() {
     hideFundamentalPolygon = !hideFundamentalPolygon;
+    fundamentalPolygonToolBar->setHidden(hideFundamentalPolygon);
     fundamentalPolygonToolBox->setHidden(hideFundamentalPolygon);
 }
 
@@ -138,7 +141,7 @@ void MainWindow::zoomScaleChanged() {
     zoomAction = qobject_cast<QAction *>(sender());
     zoomButton->menu()->setDefaultAction(zoomAction);
     zoomScale = qvariant_cast<double>(zoomAction->data());
-    resultsWidget->setMinimumSize(zoomScale*resultsWidth, zoomScale*resultsHeight);
+    resultsWidget->setMinimumSize(zoomScale*panelWidth, zoomScale*panelHeight);
 }
 
 void MainWindow::textButtonTriggered() {
@@ -204,11 +207,6 @@ void MainWindow::createToolbars() {
     buttonGroup->addButton(textButton, InsertTextButton);
     textButton->setIcon(QIcon(QPixmap(":/images/textpointer.png")));
 
-    insertToolBar = addToolBar(tr("Edit"));
-    insertToolBar->addWidget(polygonButton);
-    insertToolBar->addWidget(textButton);
-    insertToolBar->setMovable(false);
-
     fillColorToolButton = new QToolButton;
     fillColorToolButton->setPopupMode(QToolButton::MenuButtonPopup);
     fillColorToolButton->setMenu(createColorMenu(&MainWindow::itemColorChanged, Qt::white));
@@ -228,12 +226,6 @@ void MainWindow::createToolbars() {
     lineAction = lineColorToolButton->menu()->defaultAction();
     lineColorToolButton->setIcon(createColorToolButtonIcon(":/images/linecolor.png", Qt::black));
 
-    colorToolBar = addToolBar(tr("Color"));
-    colorToolBar->addWidget(fillColorToolButton);
-    colorToolBar->addWidget(fontColorToolButton);
-    colorToolBar->addWidget(lineColorToolButton);
-    colorToolBar->setMovable(false);
-
     QToolButton *pointerButton = new QToolButton;
     pointerButton->setCheckable(true);
     pointerButton->setChecked(true);
@@ -247,24 +239,29 @@ void MainWindow::createToolbars() {
     pointerTypeGroup->addButton(linePointerButton, int(DiagramScene::InsertLine));
     connect(pointerTypeGroup, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked),this, &MainWindow::pointerGroupClicked);
 
-    selectorToolbar = addToolBar(tr("Selector type"));
-    selectorToolbar->addWidget(pointerButton);
-    selectorToolbar->addWidget(linePointerButton);
-    selectorToolbar->addAction(deleteAction);
-    selectorToolbar->setMovable(false);
+    fundamentalPolygonToolBar = new QToolBar;
+    fundamentalPolygonToolBar->addWidget(polygonButton);
+    fundamentalPolygonToolBar->addWidget(textButton);
+    fundamentalPolygonToolBar->addWidget(fillColorToolButton);
+    fundamentalPolygonToolBar->addWidget(fontColorToolButton);
+    fundamentalPolygonToolBar->addWidget(lineColorToolButton);
+    fundamentalPolygonToolBar->addWidget(pointerButton);
+    fundamentalPolygonToolBar->addWidget(linePointerButton);
+    fundamentalPolygonToolBar->addAction(deleteAction);
+    fundamentalPolygonToolBar->setMovable(false);
 
     zoomButton = new QToolButton;
     zoomButton->setPopupMode(QToolButton::MenuButtonPopup);
     zoomButton->setMenu(createZoomMenu(&MainWindow::zoomScaleChanged));
     zoomAction = zoomButton->menu()->defaultAction();
     zoomButton->setText("Zoom");
-    zoomButton->setMinimumHeight(selectorToolbar->sizeHint().height());
+    zoomButton->setMinimumHeight(fundamentalPolygonToolBar->sizeHint().height());
 
-    buildToolbar = addToolBar(tr("Build"));
-    buildToolbar->addWidget(zoomButton);
-    buildToolbar->addAction(buildAction);
-    buildToolbar->widgetForAction(buildAction)->setMinimumHeight(selectorToolbar->sizeHint().height());
-    buildToolbar->setMovable(false);
+    resultsToolBar = new QToolBar;
+    resultsToolBar->addWidget(zoomButton);
+    resultsToolBar->addAction(buildAction);
+    resultsToolBar->widgetForAction(buildAction)->setMinimumHeight(fundamentalPolygonToolBar->sizeHint().height());
+    resultsToolBar->setMovable(false);
 }
 
 QToolButton *MainWindow::createButton(const QString &text, DiagramItem::DiagramType type) {

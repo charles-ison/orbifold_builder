@@ -60,8 +60,8 @@ private:
     QGraphicsView *fundamentalPolygonView;
     QToolBox *fundamentalPolygonToolBox;
 
-    int resultsHeight = 500;
-    int resultsWidth = 500;
+    int panelWidth = 500;
+    int panelHeight = 500;
     double zoomScale = 1.0;
     ResultsWidget *resultsWidget;
     QToolBox *resultsToolBox;
@@ -77,10 +77,8 @@ private:
     QMenu *itemMenu;
     QMenu *aboutMenu;
 
-    QToolBar *insertToolBar;
-    QToolBar *colorToolBar;
-    QToolBar *selectorToolbar;
-    QToolBar *buildToolbar;
+    QToolBar *resultsToolBar;
+    QToolBar *fundamentalPolygonToolBar;
 
     QButtonGroup *buttonGroup;
     QButtonGroup *pointerTypeGroup;
@@ -95,7 +93,7 @@ private:
     QAction *lineAction;
 
     QWidget *centralWidget;
-    QHBoxLayout *centralLayout;
+    QGridLayout *centralLayout;
 };
 
 #endif
