@@ -31,7 +31,6 @@ MainWindow::MainWindow() {
 
     resultsToolBox = new QToolBox;
     resultsToolBox->addItem(resultsWidget, tr("Resulting Surface/Orbifold"));
-    resultsToolBox->setMinimumSize(500, 500);
 
     centralLayout = new QHBoxLayout;
     centralLayout->addWidget(resultsToolBox);
@@ -119,26 +118,27 @@ void MainWindow::textInserted(QGraphicsTextItem *) {
 
 void MainWindow::textColorChanged() {
     textAction = qobject_cast<QAction *>(sender());
-    fontColorToolButton->setIcon(createColorToolButtonIcon(
-                                     ":/images/textpointer.png",
-                                     qvariant_cast<QColor>(textAction->data())));
+    fontColorToolButton->setIcon(createColorToolButtonIcon(":/images/textpointer.png",qvariant_cast<QColor>(textAction->data())));
     textButtonTriggered();
 }
 
 void MainWindow::itemColorChanged() {
     fillAction = qobject_cast<QAction *>(sender());
-    fillColorToolButton->setIcon(createColorToolButtonIcon(
-                                     ":/images/floodfill.png",
-                                     qvariant_cast<QColor>(fillAction->data())));
+    fillColorToolButton->setIcon(createColorToolButtonIcon(":/images/floodfill.png",qvariant_cast<QColor>(fillAction->data())));
     fillButtonTriggered();
 }
 
 void MainWindow::lineColorChanged() {
     lineAction = qobject_cast<QAction *>(sender());
-    lineColorToolButton->setIcon(createColorToolButtonIcon(
-                                     ":/images/linecolor.png",
-                                     qvariant_cast<QColor>(lineAction->data())));
+    lineColorToolButton->setIcon(createColorToolButtonIcon(":/images/linecolor.png",qvariant_cast<QColor>(lineAction->data())));
     lineButtonTriggered();
+}
+
+void MainWindow::zoomScaleChanged() {
+    zoomAction = qobject_cast<QAction *>(sender());
+    zoomButton->menu()->setDefaultAction(zoomAction);
+    zoomScale = qvariant_cast<double>(zoomAction->data());
+    resultsWidget->setMinimumSize(zoomScale*resultsWidth, zoomScale*resultsHeight);
 }
 
 void MainWindow::textButtonTriggered() {
@@ -213,9 +213,7 @@ void MainWindow::createToolbars() {
     fillColorToolButton->setPopupMode(QToolButton::MenuButtonPopup);
     fillColorToolButton->setMenu(createColorMenu(&MainWindow::itemColorChanged, Qt::white));
     fillAction = fillColorToolButton->menu()->defaultAction();
-    fillColorToolButton->setIcon(createColorToolButtonIcon(
-            ":/images/floodfill.png", Qt::white));
-    connect(fillColorToolButton, &QAbstractButton::clicked,this, &MainWindow::fillButtonTriggered);
+    fillColorToolButton->setIcon(createColorToolButtonIcon(":/images/floodfill.png", Qt::white));
 
     fontColorToolButton = new QToolButton;
     fontColorToolButton->setPopupMode(QToolButton::MenuButtonPopup);
@@ -223,15 +221,12 @@ void MainWindow::createToolbars() {
     textAction = fontColorToolButton->menu()->defaultAction();
     fontColorToolButton->setIcon(createColorToolButtonIcon(":/images/textpointer.png", Qt::black));
     fontColorToolButton->setAutoFillBackground(true);
-    connect(fontColorToolButton, &QAbstractButton::clicked,this, &MainWindow::textButtonTriggered);
 
     lineColorToolButton = new QToolButton;
     lineColorToolButton->setPopupMode(QToolButton::MenuButtonPopup);
     lineColorToolButton->setMenu(createColorMenu(&MainWindow::lineColorChanged, Qt::black));
     lineAction = lineColorToolButton->menu()->defaultAction();
-    lineColorToolButton->setIcon(createColorToolButtonIcon(
-                                     ":/images/linecolor.png", Qt::black));
-    connect(lineColorToolButton, &QAbstractButton::clicked,this, &MainWindow::lineButtonTriggered);
+    lineColorToolButton->setIcon(createColorToolButtonIcon(":/images/linecolor.png", Qt::black));
 
     colorToolBar = addToolBar(tr("Color"));
     colorToolBar->addWidget(fillColorToolButton);
@@ -258,7 +253,15 @@ void MainWindow::createToolbars() {
     selectorToolbar->addAction(deleteAction);
     selectorToolbar->setMovable(false);
 
+    zoomButton = new QToolButton;
+    zoomButton->setPopupMode(QToolButton::MenuButtonPopup);
+    zoomButton->setMenu(createZoomMenu(&MainWindow::zoomScaleChanged));
+    zoomAction = zoomButton->menu()->defaultAction();
+    zoomButton->setText("Zoom");
+    zoomButton->setMinimumHeight(selectorToolbar->sizeHint().height());
+
     buildToolbar = addToolBar(tr("Build"));
+    buildToolbar->addWidget(zoomButton);
     buildToolbar->addAction(buildAction);
     buildToolbar->widgetForAction(buildAction)->setMinimumHeight(selectorToolbar->sizeHint().height());
     buildToolbar->setMovable(false);
@@ -277,8 +280,7 @@ QToolButton *MainWindow::createButton(const QString &text, DiagramItem::DiagramT
     return button;
 }
 
-template<typename PointerToMemberFunction>
-QMenu *MainWindow::createColorMenu(const PointerToMemberFunction &slot, QColor defaultColor) {
+template<typename PointerToMemberFunction> QMenu *MainWindow::createColorMenu(const PointerToMemberFunction &slot, QColor defaultColor) {
     QList<QColor> colors;
     colors << Qt::black << Qt::white << Qt::red << Qt::blue << Qt::yellow;
     QStringList names;
@@ -295,6 +297,24 @@ QMenu *MainWindow::createColorMenu(const PointerToMemberFunction &slot, QColor d
             colorMenu->setDefaultAction(action);
     }
     return colorMenu;
+}
+
+template<typename PointerToMemberFunction> QMenu *MainWindow::createZoomMenu(const PointerToMemberFunction &slot) {
+    QList<double> zoomScales;
+    zoomScales << 0.5 << 0.6 << 0.7 << 0.8 << 0.9 << 1.0 << 1.1 << 1.2 << 1.3 << 1.4 << 1.5;
+    QStringList zoomScaleNames;
+    zoomScaleNames << tr("50%") << tr("60%") << tr("70%") << tr("80%") << tr("90%") << tr("100%") << tr("110%") << tr("120%") << tr("130%") << tr("140%") << tr("150%");
+
+    QMenu *zoomMenu = new QMenu(this);
+    for (int i = 0; i < zoomScales.count(); ++i) {
+        QAction *action = new QAction(zoomScaleNames.at(i), this);
+        action->setData(zoomScales.at(i));
+        connect(action, &QAction::triggered, this, slot);
+        zoomMenu->addAction(action);
+        if (zoomScales.at(i) == 1.0)
+            zoomMenu->setDefaultAction(action);
+    }
+    return zoomMenu;
 }
 
 QIcon MainWindow::createColorToolButtonIcon(const QString &imageFile, QColor color) {

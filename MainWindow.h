@@ -41,6 +41,7 @@ private slots:
     void fillButtonTriggered();
     void lineButtonTriggered();
     void about();
+    void zoomScaleChanged();
 
 private:
     bool hideFundamentalPolygon;
@@ -50,8 +51,8 @@ private:
     void initStyle();
     QToolButton *createButton(const QString &text, DiagramItem::DiagramType type);
 
-    template<typename PointerToMemberFunction>
-    QMenu *createColorMenu(const PointerToMemberFunction &slot, QColor defaultColor);
+    template<typename PointerToMemberFunction> QMenu *createColorMenu(const PointerToMemberFunction &slot, QColor defaultColor);
+    template<typename PointerToMemberFunction> QMenu *createZoomMenu(const PointerToMemberFunction &slot);
     QIcon createColorToolButtonIcon(const QString &image, QColor color);
     QIcon createColorIcon(QColor color);
 
@@ -59,6 +60,9 @@ private:
     QGraphicsView *fundamentalPolygonView;
     QToolBox *fundamentalPolygonToolBox;
 
+    int resultsHeight = 500;
+    int resultsWidth = 500;
+    double zoomScale = 1.0;
     ResultsWidget *resultsWidget;
     QToolBox *resultsToolBox;
 
@@ -66,6 +70,7 @@ private:
     QAction *deleteAction;
     QAction *aboutAction;
     QAction *buildAction;
+    QAction *zoomAction;
     QAction *fundamentalPolygonAction;
 
     QMenu *fileMenu;
@@ -84,6 +89,7 @@ private:
     QToolButton *lineColorToolButton;
     QToolButton *polygonButton;
     QToolButton *textButton;
+    QToolButton *zoomButton;
     QAction *textAction;
     QAction *fillAction;
     QAction *lineAction;

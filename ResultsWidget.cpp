@@ -16,7 +16,6 @@ ResultsWidget::~ResultsWidget() {
 
 void ResultsWidget::setShouldPaintGL(bool newShouldPaintGL) {
     shouldPaintGL = newShouldPaintGL;
-    update();
     if (geometryEngine == cubeGeometryEngine) {
         geometryEngine = sphereGeometryEngine;
     } else if (geometryEngine == sphereGeometryEngine) {
@@ -30,6 +29,7 @@ void ResultsWidget::setShouldPaintGL(bool newShouldPaintGL) {
     } else {
         geometryEngine = cubeGeometryEngine;
     }
+    update();
 }
 
 void ResultsWidget::mousePressEvent(QMouseEvent *e) {
@@ -43,10 +43,10 @@ void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
 
 void ResultsWidget::wheelEvent(QWheelEvent *e) {
     // Rotation axis is perpendicular to the angle delta difference vector
-    QVector3D n = QVector3D(e->angleDelta().y(), e->angleDelta().x(), 0.0).normalized();
+    QVector3D n = QVector3D(e->angleDelta().y()/2.0, e->angleDelta().x()/2.0, 0.0).normalized();
 
     // Accelerate angular speed relative to the length of the mouse sweep
-    qreal acc = 0.13;
+    qreal acc = 0.12;
 
     // Calculate new rotation axis as weighted sum
     rotationAxis = (rotationAxis * angularSpeed - n * acc).normalized();
@@ -57,7 +57,7 @@ void ResultsWidget::wheelEvent(QWheelEvent *e) {
 
 void ResultsWidget::timerEvent(QTimerEvent *) {
     // Decrease angular speed (friction)
-    angularSpeed *= 0.93;
+    angularSpeed *= 0.92;
 
     // Stop rotation when speed goes below threshold
     if (angularSpeed < 0.01) {
