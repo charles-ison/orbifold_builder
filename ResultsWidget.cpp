@@ -1,33 +1,33 @@
 #include "ResultsWidget.h"
 #include <QMouseEvent>
 #include <QtWidgets>
-#include <iostream>
 
 ResultsWidget::~ResultsWidget() {
     // Make sure the context is current when deleting the buffers.
     makeCurrent();
-    delete cubeGeometryEngine;
-    delete sphereGeometryEngine;
-    delete torusGeometryEngine;
+    delete cubeEngine;
+    delete sphereEngine;
+    delete torusEngine;
     delete mobiusStripEngine;
+    delete crossCapEngine;
     delete kleinBottleEngine;
     doneCurrent();
 }
 
-void ResultsWidget::setShouldPaintGL(bool newShouldPaintGL) {
-    shouldPaintGL = newShouldPaintGL;
-    if (geometryEngine == cubeGeometryEngine) {
-        geometryEngine = sphereGeometryEngine;
-    } else if (geometryEngine == sphereGeometryEngine) {
-        geometryEngine = torusGeometryEngine;
-    } else if (geometryEngine == torusGeometryEngine) {
+void ResultsWidget::addSurface(surface newSurface) {
+    shouldPaintGL = true;
+    if (newSurface == surface::cube) {
+        geometryEngine = cubeEngine;
+    } else if (newSurface == surface::sphere) {
+        geometryEngine = sphereEngine;
+    } else if (newSurface == surface::torus) {
+        geometryEngine = torusEngine;
+    } else if (newSurface == surface::mobiusStrip) {
         geometryEngine = mobiusStripEngine;
-    } else if (geometryEngine == mobiusStripEngine) {
+    } else if (newSurface == surface::crossCap) {
         geometryEngine = crossCapEngine;
-    } else if (geometryEngine == crossCapEngine) {
+    } else if (newSurface == surface::kleinBottle) {
         geometryEngine = kleinBottleEngine;
-    } else {
-        geometryEngine = cubeGeometryEngine;
     }
     update();
 }
@@ -77,19 +77,18 @@ void ResultsWidget::initializeGL() {
 
     initShaders();
 
-    cube = new Cube();
-    sphere = new Sphere();
-    torus = new Torus();
-    mobiusStrip = new MobiusStrip();
-    kleinBottle = new KleinBottle();
-    crossCap = new CrossCap();
-    cubeGeometryEngine = new GeometryEngine(cube);
-    sphereGeometryEngine = new GeometryEngine(sphere);
-    torusGeometryEngine = new GeometryEngine(torus);
-    mobiusStripEngine = new GeometryEngine(mobiusStrip);
-    kleinBottleEngine = new GeometryEngine(kleinBottle);
-    crossCapEngine = new GeometryEngine(crossCap);
-    geometryEngine = cubeGeometryEngine;
+    cubeSurface = new Cube();
+    sphereSurface = new Sphere();
+    torusSurface = new Torus();
+    mobiusStripSurface = new MobiusStrip();
+    kleinBottleSurface = new KleinBottle();
+    crossCapSurface = new CrossCap();
+    cubeEngine = new GeometryEngine(cubeSurface);
+    sphereEngine = new GeometryEngine(sphereSurface);
+    torusEngine = new GeometryEngine(torusSurface);
+    mobiusStripEngine = new GeometryEngine(mobiusStripSurface);
+    kleinBottleEngine = new GeometryEngine(kleinBottleSurface);
+    crossCapEngine = new GeometryEngine(crossCapSurface);
 
     // Use QBasicTimer because it's faster than QTimer
     timer.start(12, this);

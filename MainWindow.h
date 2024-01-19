@@ -29,7 +29,7 @@ public:
 private slots:
     void buttonGroupClicked(QAbstractButton *button);
     void deleteItem();
-    void buildOrbifold();
+    void addSurface();
     void toggleFundamentalPolygon();
     void pointerGroupClicked();
     void itemInserted(DiagramItem *item);
@@ -53,6 +53,7 @@ private:
 
     template<typename PointerToMemberFunction> QMenu *createColorMenu(const PointerToMemberFunction &slot, QColor defaultColor);
     template<typename PointerToMemberFunction> QMenu *createZoomMenu(const PointerToMemberFunction &slot);
+    template<typename PointerToMemberFunction> QMenu *createAddSurfaceMenu(const PointerToMemberFunction &slot);
     QIcon createColorToolButtonIcon(const QString &image, QColor color);
     QIcon createColorIcon(QColor color);
 
@@ -69,7 +70,7 @@ private:
     QAction *exitAction;
     QAction *deleteAction;
     QAction *aboutAction;
-    QAction *buildAction;
+    QAction *addSurfaceAction;
     QAction *zoomAction;
     QAction *fundamentalPolygonAction;
 
@@ -88,6 +89,7 @@ private:
     QToolButton *polygonButton;
     QToolButton *textButton;
     QToolButton *zoomButton;
+    QToolButton *addSurfaceButton;
     QAction *textAction;
     QAction *fillAction;
     QAction *lineAction;

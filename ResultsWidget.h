@@ -25,7 +25,8 @@ class ResultsWidget : public QOpenGLWidget, protected QOpenGLFunctions {
 public:
     using QOpenGLWidget::QOpenGLWidget;
     ~ResultsWidget();
-    void setShouldPaintGL(bool newShouldPaintGL);
+    enum surface {sphere, cube, torus, mobiusStrip, crossCap, kleinBottle};
+    void addSurface(surface newSurface);
     void resizeGL(int w, int h) override;
 
 protected:
@@ -38,17 +39,17 @@ protected:
     void initShaders();
 
 private:
-    Cube *cube;
-    Sphere *sphere;
-    Torus *torus;
-    MobiusStrip *mobiusStrip;
-    KleinBottle *kleinBottle;
-    CrossCap *crossCap;
+    Cube *cubeSurface;
+    Sphere *sphereSurface;
+    Torus *torusSurface;
+    MobiusStrip *mobiusStripSurface;
+    KleinBottle *kleinBottleSurface;
+    CrossCap *crossCapSurface;
     QBasicTimer timer;
     QOpenGLShaderProgram program;
-    GeometryEngine *cubeGeometryEngine = nullptr;
-    GeometryEngine *sphereGeometryEngine = nullptr;
-    GeometryEngine *torusGeometryEngine = nullptr;
+    GeometryEngine *cubeEngine = nullptr;
+    GeometryEngine *sphereEngine = nullptr;
+    GeometryEngine *torusEngine = nullptr;
     GeometryEngine *mobiusStripEngine = nullptr;
     GeometryEngine *kleinBottleEngine = nullptr;
     GeometryEngine *crossCapEngine = nullptr;

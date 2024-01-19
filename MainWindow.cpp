@@ -94,8 +94,11 @@ void MainWindow::deleteItem() {
      }
 }
 
-void MainWindow::buildOrbifold() {
-    resultsWidget->setShouldPaintGL(true);
+void MainWindow::addSurface() {
+    addSurfaceAction = qobject_cast<QAction *>(sender());
+    addSurfaceButton->menu()->setDefaultAction(addSurfaceAction);
+    ResultsWidget::surface surface  = qvariant_cast<ResultsWidget::surface>(addSurfaceAction->data());
+    resultsWidget->addSurface(surface);
 }
 
 void MainWindow::toggleFundamentalPolygon() {
@@ -166,9 +169,6 @@ void MainWindow::createActions() {
     deleteAction->setShortcut(tr("Delete"));
     deleteAction->setStatusTip(tr("Delete item from diagram"));
     connect(deleteAction, &QAction::triggered, this, &MainWindow::deleteItem);
-
-    buildAction = new QAction("Build", this);
-    connect(buildAction, &QAction::triggered, this, &MainWindow::buildOrbifold);
 
     fundamentalPolygonAction = new QAction(tr("Toggle Fundamental Polygon View"), this);
     connect(fundamentalPolygonAction, &QAction::triggered, this, &MainWindow::toggleFundamentalPolygon);
@@ -257,10 +257,16 @@ void MainWindow::createToolbars() {
     zoomButton->setText("Zoom");
     zoomButton->setMinimumHeight(fundamentalPolygonToolBar->sizeHint().height());
 
+    addSurfaceButton = new QToolButton;
+    addSurfaceButton->setPopupMode(QToolButton::MenuButtonPopup);
+    addSurfaceButton->setMenu(createAddSurfaceMenu(&MainWindow::addSurface));
+    addSurfaceAction = addSurfaceButton->menu()->defaultAction();
+    addSurfaceButton->setText("Add");
+    addSurfaceButton->setMinimumHeight(fundamentalPolygonToolBar->sizeHint().height());
+
     resultsToolBar = new QToolBar;
     resultsToolBar->addWidget(zoomButton);
-    resultsToolBar->addAction(buildAction);
-    resultsToolBar->widgetForAction(buildAction)->setMinimumHeight(fundamentalPolygonToolBar->sizeHint().height());
+    resultsToolBar->addWidget(addSurfaceButton);
     resultsToolBar->setMovable(false);
 }
 
@@ -312,6 +318,24 @@ template<typename PointerToMemberFunction> QMenu *MainWindow::createZoomMenu(con
             zoomMenu->setDefaultAction(action);
     }
     return zoomMenu;
+}
+
+template<typename PointerToMemberFunction> QMenu *MainWindow::createAddSurfaceMenu(const PointerToMemberFunction &slot) {
+    QList<ResultsWidget::surface> surfaceEnums;
+    surfaceEnums << ResultsWidget::surface::cube << ResultsWidget::surface::sphere << ResultsWidget::surface::torus << ResultsWidget::surface::mobiusStrip << ResultsWidget::surface::crossCap << ResultsWidget::surface::kleinBottle;
+    QStringList surfaceNames;
+    surfaceNames << tr("Cube") << tr("Sphere") << tr("Torus") << tr("Mobius Strip") << tr("Cross-cap") << tr("Klein Bottle");
+
+    QMenu *surfaceMenu = new QMenu(this);
+    for (int i = 0; i < surfaceEnums.count(); ++i) {
+        QAction *action = new QAction(surfaceNames.at(i), this);
+        action->setData(surfaceEnums.at(i));
+        connect(action, &QAction::triggered, this, slot);
+        surfaceMenu->addAction(action);
+        if (surfaceEnums.at(i) == 1.0)
+            surfaceMenu->setDefaultAction(action);
+    }
+    return surfaceMenu;
 }
 
 QIcon MainWindow::createColorToolButtonIcon(const QString &imageFile, QColor color) {
