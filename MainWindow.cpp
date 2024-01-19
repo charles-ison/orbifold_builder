@@ -141,7 +141,7 @@ void MainWindow::zoomScaleChanged() {
     zoomAction = qobject_cast<QAction *>(sender());
     zoomButton->menu()->setDefaultAction(zoomAction);
     zoomScale = qvariant_cast<double>(zoomAction->data());
-    resultsWidget->setMinimumSize(zoomScale*panelWidth, zoomScale*panelHeight);
+    resultsWidget->setMinimumSize(zoomScale*resultsToolBox->width(), zoomScale*this->resultsToolBox->height());
 }
 
 void MainWindow::textButtonTriggered() {
@@ -298,9 +298,9 @@ template<typename PointerToMemberFunction> QMenu *MainWindow::createColorMenu(co
 
 template<typename PointerToMemberFunction> QMenu *MainWindow::createZoomMenu(const PointerToMemberFunction &slot) {
     QList<double> zoomScales;
-    zoomScales << 0.5 << 0.6 << 0.7 << 0.8 << 0.9 << 1.0 << 1.1 << 1.2 << 1.3 << 1.4 << 1.5;
+    zoomScales << 0.8 << 1.0 << 1.2 << 1.4 << 1.6 << 1.8 << 2.0;
     QStringList zoomScaleNames;
-    zoomScaleNames << tr("50%") << tr("60%") << tr("70%") << tr("80%") << tr("90%") << tr("100%") << tr("110%") << tr("120%") << tr("130%") << tr("140%") << tr("150%");
+    zoomScaleNames << tr("80%") << tr("100%") << tr("120%") << tr("140%") << tr("160%") << tr("180%") << tr("200%");
 
     QMenu *zoomMenu = new QMenu(this);
     for (int i = 0; i < zoomScales.count(); ++i) {
