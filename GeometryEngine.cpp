@@ -8,7 +8,7 @@ GeometryEngine::GeometryEngine(Surface* surface) : indexBuf(QOpenGLBuffer::Index
     indexBuf.create();
 
     // Initializes surface geometry and transfers it to VBOs
-    initGeometry(surface);
+    initSurface(surface);
 }
 
 GeometryEngine::~GeometryEngine() {
@@ -16,7 +16,7 @@ GeometryEngine::~GeometryEngine() {
     indexBuf.destroy();
 }
 
-void GeometryEngine::initGeometry(Surface* surface) {
+void GeometryEngine::initSurface(Surface* surface) {
     int numVertices = surface->getNumVertices();
     VertexData vertices[numVertices];
     VertexData *verticesPointer = surface->getVertices();
@@ -40,7 +40,7 @@ void GeometryEngine::initGeometry(Surface* surface) {
     indexBuf.allocate(indices, numIndices * sizeof(GLushort));
 }
 
-void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program) {
+void GeometryEngine::drawSurface(QOpenGLShaderProgram *program) {
     // Tell OpenGL which VBOs to use
     arrayBuf.bind();
     indexBuf.bind();
@@ -51,6 +51,7 @@ void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program) {
     program->setAttributeBuffer(vertexLocation, GL_FLOAT, 0, 3, sizeof(VertexData));
 
     // Draw geometry using indices from VBO 1
-    //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, nullptr);
     glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_SHORT, nullptr);
+    //glDrawElements(GL_POINTS, numIndices, GL_UNSIGNED_SHORT, nullptr);
+    //glDrawElements(GL_LINES, numIndices, GL_UNSIGNED_SHORT, nullptr);
 }

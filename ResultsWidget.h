@@ -15,6 +15,7 @@
 #include "surfaces/MobiusStrip.h"
 #include "surfaces/KleinBottle.h"
 #include "surfaces/CrossCap.h"
+#include <vector>
 
 class GeometryEngine;
 
@@ -60,6 +61,7 @@ private:
     qreal angularSpeed = 0;
     QQuaternion rotation;
     bool shouldPaintGL = false;
+    std::vector<VertexData> linePoints;
 };
 
 #endif

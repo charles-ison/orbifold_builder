@@ -38,7 +38,7 @@ void ResultsWidget::mousePressEvent(QMouseEvent *e) {
 }
 
 void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
-
+    linePoints.push_back({QVector3D(e->position().x(), e->position().y(), 0.0)});
 }
 
 void ResultsWidget::wheelEvent(QWheelEvent *e) {
@@ -146,8 +146,9 @@ void ResultsWidget::paintGL() {
 
         // Set modelview-projection matrix
         program.setUniformValue("mvp_matrix", projection * matrix);
+        program.setUniformValue("line_color", 153.0/255.0, 204.0/255.0, 255.0/255.0);
 
         // Draw cube geometry
-        geometryEngine->drawGeometry(&program);
+        geometryEngine->drawSurface(&program);
     }
 }

@@ -10,10 +10,10 @@ class GeometryEngine : protected QOpenGLFunctions {
 public:
     GeometryEngine(Surface* surface);
     virtual ~GeometryEngine();
-    void drawGeometry(QOpenGLShaderProgram *program);
+    void drawSurface(QOpenGLShaderProgram *program);
 
 private:
-    void initGeometry(Surface* surface);
+    void initSurface(Surface* surface);
 
     int numIndices;
     Surface* surface;
