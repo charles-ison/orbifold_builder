@@ -35,11 +35,11 @@ void ResultsWidget::mousePressEvent(QMouseEvent *e) {
 
 void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
     //TODO: Fix scale issue
-    float parentWidthScale = (float) this->parentWidget()->width() / initialParentWidth;
-    float parentHeightScale = (float) this->parentWidget()->height() / initialParentHeight;
+    float parentWidthScale = (float) parentWidget()->width() / initialParentWidth;
+    float parentHeightScale = (float) parentWidget()->height() / initialParentHeight;
 
-    float x = (e->position().x() - (this->width()/2)) / (this->width()/(8*parentWidthScale));
-    float y = -(e->position().y() - (this->height()/2)) / (this->height()/(4*parentHeightScale));
+    float x = (e->position().x() - (width()/2.0)) / (width()/(8*parentWidthScale));
+    float y = -(e->position().y() - (height()/2.0)) / (height()/(4*parentHeightScale));
     float z = 0.0;
 
     lineVertices.push_back({QVector3D(x, y, z)});
