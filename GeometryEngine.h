@@ -8,17 +8,21 @@
 
 class GeometryEngine : protected QOpenGLFunctions {
 public:
-    GeometryEngine(Surface* surface);
+    GeometryEngine();
     virtual ~GeometryEngine();
     void drawSurface(QOpenGLShaderProgram *program);
-
-private:
+    void drawLine(QOpenGLShaderProgram *program);
+    void initLine(std::vector<VertexData> lineVerticesVector);
     void initSurface(Surface* surface);
 
+private:
     int numIndices;
-    Surface* surface;
     QOpenGLBuffer arrayBuf;
     QOpenGLBuffer indexBuf;
+
+    int numLineVertices;
+    QOpenGLBuffer lineArrayBuf;
+    QOpenGLBuffer lineIndexBuf;
 };
 
 #endif

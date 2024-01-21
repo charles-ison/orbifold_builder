@@ -5,29 +5,24 @@
 ResultsWidget::~ResultsWidget() {
     // Make sure the context is current when deleting the buffers.
     makeCurrent();
-    delete cubeEngine;
-    delete sphereEngine;
-    delete torusEngine;
-    delete mobiusStripEngine;
-    delete crossCapEngine;
-    delete kleinBottleEngine;
+    delete geometryEngine;
     doneCurrent();
 }
 
 void ResultsWidget::addSurface(surface newSurface) {
     shouldPaintGL = true;
     if (newSurface == surface::cube) {
-        geometryEngine = cubeEngine;
+        geometryEngine->initSurface(cubeSurface);
     } else if (newSurface == surface::sphere) {
-        geometryEngine = sphereEngine;
+        geometryEngine->initSurface(sphereSurface);
     } else if (newSurface == surface::torus) {
-        geometryEngine = torusEngine;
+        geometryEngine->initSurface(torusSurface);
     } else if (newSurface == surface::mobiusStrip) {
-        geometryEngine = mobiusStripEngine;
+        geometryEngine->initSurface(mobiusStripSurface);
     } else if (newSurface == surface::crossCap) {
-        geometryEngine = crossCapEngine;
+        geometryEngine->initSurface(crossCapSurface);
     } else if (newSurface == surface::kleinBottle) {
-        geometryEngine = kleinBottleEngine;
+        geometryEngine->initSurface(kleinBottleSurface);
     }
     update();
 }
@@ -38,7 +33,13 @@ void ResultsWidget::mousePressEvent(QMouseEvent *e) {
 }
 
 void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
-    linePoints.push_back({QVector3D(e->position().x(), e->position().y(), 0.0)});
+    //TODO: fix scaling size bug here
+    float x = (e->position().x() - (this->width()/2)) / (this->width()/8);
+    float y = -(e->position().y() - (this->height()/2)) / (this->height()/4);
+    float z = 0.0;
+    lineVertices.push_back({QVector3D(x, y, z)});
+    geometryEngine->initLine(lineVertices);
+    update();
 }
 
 void ResultsWidget::wheelEvent(QWheelEvent *e) {
@@ -83,12 +84,7 @@ void ResultsWidget::initializeGL() {
     mobiusStripSurface = new MobiusStrip();
     kleinBottleSurface = new KleinBottle();
     crossCapSurface = new CrossCap();
-    cubeEngine = new GeometryEngine(cubeSurface);
-    sphereEngine = new GeometryEngine(sphereSurface);
-    torusEngine = new GeometryEngine(torusSurface);
-    mobiusStripEngine = new GeometryEngine(mobiusStripSurface);
-    kleinBottleEngine = new GeometryEngine(kleinBottleSurface);
-    crossCapEngine = new GeometryEngine(crossCapSurface);
+    geometryEngine = new GeometryEngine();
 
     // Use QBasicTimer because it's faster than QTimer
     timer.start(12, this);
@@ -113,6 +109,7 @@ void ResultsWidget::initShaders() {
 }
 
 void ResultsWidget::resizeGL(int w, int h) {
+
     // Calculate aspect ratio
     qreal aspect = qreal(w) / qreal(h ? h : 1);
 
@@ -148,7 +145,17 @@ void ResultsWidget::paintGL() {
         program.setUniformValue("mvp_matrix", projection * matrix);
         program.setUniformValue("line_color", 153.0/255.0, 204.0/255.0, 255.0/255.0);
 
-        // Draw cube geometry
+        // Draw geometry
         geometryEngine->drawSurface(&program);
+        //geometryEngine->drawLine(&program);
+
+        glBegin(GL_LINE_STRIP);
+        for (int i=0; i<lineVertices.size(); i++) {
+            float x = lineVertices[i].position.x();
+            float y = lineVertices[i].position.y();
+            float z = lineVertices[i].position.z();
+            glVertex2f(x, y);
+        }
+        glEnd();
     }
 }

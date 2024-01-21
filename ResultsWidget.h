@@ -15,7 +15,6 @@
 #include "surfaces/MobiusStrip.h"
 #include "surfaces/KleinBottle.h"
 #include "surfaces/CrossCap.h"
-#include <vector>
 
 class GeometryEngine;
 
@@ -48,12 +47,6 @@ private:
     CrossCap *crossCapSurface;
     QBasicTimer timer;
     QOpenGLShaderProgram program;
-    GeometryEngine *cubeEngine = nullptr;
-    GeometryEngine *sphereEngine = nullptr;
-    GeometryEngine *torusEngine = nullptr;
-    GeometryEngine *mobiusStripEngine = nullptr;
-    GeometryEngine *kleinBottleEngine = nullptr;
-    GeometryEngine *crossCapEngine = nullptr;
     GeometryEngine *geometryEngine = nullptr;
     QMatrix4x4 projection;
     QVector2D mousePressPosition;
@@ -61,7 +54,7 @@ private:
     qreal angularSpeed = 0;
     QQuaternion rotation;
     bool shouldPaintGL = false;
-    std::vector<VertexData> linePoints;
+    std::vector<VertexData> lineVertices;
 };
 
 #endif
