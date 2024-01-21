@@ -39,6 +39,7 @@ protected:
     void initShaders();
 
 private:
+    Surface *currentSurface;
     Cube *cubeSurface;
     Sphere *sphereSurface;
     Torus *torusSurface;

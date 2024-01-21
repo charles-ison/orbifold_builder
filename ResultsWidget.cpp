@@ -2,6 +2,8 @@
 #include <QMouseEvent>
 #include <QtWidgets>
 #include <iostream>
+#include <cmath>
+#include <limits>
 
 ResultsWidget::~ResultsWidget() {
     // Make sure the context is current when deleting the buffers.
@@ -13,18 +15,19 @@ ResultsWidget::~ResultsWidget() {
 void ResultsWidget::addSurface(surface newSurface) {
     shouldPaintGL = true;
     if (newSurface == surface::cube) {
-        geometryEngine->initSurface(cubeSurface);
+        currentSurface = cubeSurface;
     } else if (newSurface == surface::sphere) {
-        geometryEngine->initSurface(sphereSurface);
+        currentSurface = sphereSurface;
     } else if (newSurface == surface::torus) {
-        geometryEngine->initSurface(torusSurface);
+        currentSurface = torusSurface;
     } else if (newSurface == surface::mobiusStrip) {
-        geometryEngine->initSurface(mobiusStripSurface);
+        currentSurface = mobiusStripSurface;
     } else if (newSurface == surface::crossCap) {
-        geometryEngine->initSurface(crossCapSurface);
+        currentSurface = crossCapSurface;
     } else if (newSurface == surface::kleinBottle) {
-        geometryEngine->initSurface(kleinBottleSurface);
+        currentSurface = kleinBottleSurface;
     }
+    geometryEngine->initSurface(currentSurface);
     update();
 }
 
@@ -35,16 +38,32 @@ void ResultsWidget::mousePressEvent(QMouseEvent *e) {
 
 void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
     //TODO: Fix scale issue
+    //TODO: Clean-up this code
     float parentWidthScale = (float) parentWidget()->width() / initialParentWidth;
     float parentHeightScale = (float) parentWidget()->height() / initialParentHeight;
 
     float x = (e->position().x() - (width()/2.0)) / (width()/(8*parentWidthScale));
     float y = -(e->position().y() - (height()/2.0)) / (height()/(4*parentHeightScale));
-    float z = 0.0;
 
-    lineVertices.push_back({QVector3D(x, y, z)});
-    geometryEngine->initLine(lineVertices);
-    update();
+    int numVertices = currentSurface->getNumVertices();
+    VertexData *verticesPointer = currentSurface->getVertices();
+    float closestDistance = std::numeric_limits<float>::max();
+    QVector3D closestSurfacePosition;
+
+    for (int i=0; i<numVertices; i++) {
+        QVector3D surfacePosition = verticesPointer[i].position;
+        float distance = sqrt(pow(x - surfacePosition.x(), 2) + pow(y - surfacePosition.y(), 2));
+        if (distance < closestDistance) {
+            closestDistance = distance;
+            closestSurfacePosition = surfacePosition;
+        }
+    }
+
+    if (closestDistance < 0.1) {
+        lineVertices.push_back({closestSurfacePosition});
+        geometryEngine->initLine(lineVertices);
+        update();
+    }
 }
 
 void ResultsWidget::wheelEvent(QWheelEvent *e) {
