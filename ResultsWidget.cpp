@@ -151,7 +151,6 @@ void ResultsWidget::paintGL() {
 
         // Set modelview-projection matrix
         program.setUniformValue("mvp_matrix", projection * matrix);
-        program.setUniformValue("line_color", 153.0/255.0, 204.0/255.0, 255.0/255.0);
 
         // Draw geometry
         geometryEngine->drawSurface(&program);
