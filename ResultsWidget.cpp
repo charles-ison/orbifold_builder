@@ -34,6 +34,7 @@ void ResultsWidget::mousePressEvent(QMouseEvent *e) {
 }
 
 void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
+    //TODO: Fix scale issue
     float parentWidthScale = (float) this->parentWidget()->width() / initialParentWidth;
     float parentHeightScale = (float) this->parentWidget()->height() / initialParentHeight;
 
@@ -154,15 +155,6 @@ void ResultsWidget::paintGL() {
 
         // Draw geometry
         geometryEngine->drawSurface(&program);
-        //geometryEngine->drawLine(&program);
-
-        glBegin(GL_LINE_STRIP);
-        for (int i=0; i<lineVertices.size(); i++) {
-            float x = lineVertices[i].position.x();
-            float y = lineVertices[i].position.y();
-            float z = lineVertices[i].position.z();
-            glVertex2f(x, y);
-        }
-        glEnd();
+        geometryEngine->drawLine(&program);
     }
 }

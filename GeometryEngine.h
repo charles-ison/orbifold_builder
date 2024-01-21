@@ -22,7 +22,6 @@ private:
 
     int numLineVertices;
     QOpenGLBuffer lineArrayBuf;
-    QOpenGLBuffer lineIndexBuf;
 };
 
 #endif

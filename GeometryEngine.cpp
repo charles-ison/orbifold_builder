@@ -6,17 +6,13 @@ GeometryEngine::GeometryEngine() : indexBuf(QOpenGLBuffer::IndexBuffer) {
     // Generate VBOs
     arrayBuf.create();
     indexBuf.create();
-
     lineArrayBuf.create();
-    lineIndexBuf.create();
 }
 
 GeometryEngine::~GeometryEngine() {
     arrayBuf.destroy();
     indexBuf.destroy();
-
     lineArrayBuf.destroy();
-    lineIndexBuf.destroy();
 }
 
 void GeometryEngine::initSurface(Surface* surface) {
@@ -53,15 +49,6 @@ void GeometryEngine::initLine(std::vector<VertexData> lineVerticesVector) {
     // Transfer vertex data to VBO 0
     lineArrayBuf.bind();
     lineArrayBuf.allocate(lineVertices, numLineVertices * sizeof(VertexData));
-
-    GLushort indices[numLineVertices];
-    for (int i=0; i<numLineVertices; i++) {
-        indices[i] = i;
-    }
-
-    // Transfer index data to VBO 1
-    lineIndexBuf.bind();
-    lineIndexBuf.allocate(indices, numLineVertices * sizeof(GLushort));
 }
 
 void GeometryEngine::drawSurface(QOpenGLShaderProgram *program) {
@@ -81,7 +68,6 @@ void GeometryEngine::drawSurface(QOpenGLShaderProgram *program) {
 void GeometryEngine::drawLine(QOpenGLShaderProgram *program) {
     // Tell OpenGL which VBOs to use
     lineArrayBuf.bind();
-    lineIndexBuf.bind();
 
     // Tell OpenGL programmable pipeline how to locate vertex position data
     int vertexLocation = program->attributeLocation("a_position");
@@ -89,5 +75,5 @@ void GeometryEngine::drawLine(QOpenGLShaderProgram *program) {
     program->setAttributeBuffer(vertexLocation, GL_FLOAT, 0, 3, sizeof(VertexData));
 
     // Draw geometry using indices from VBO 1
-    glDrawElements(GL_LINE_STRIP, numLineVertices, GL_UNSIGNED_SHORT, nullptr);
+    glDrawArrays(GL_LINE_STRIP, 0, numLineVertices);
 }
