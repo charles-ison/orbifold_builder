@@ -1,6 +1,7 @@
 #include "ResultsWidget.h"
 #include <QMouseEvent>
 #include <QtWidgets>
+#include <iostream>
 
 ResultsWidget::~ResultsWidget() {
     // Make sure the context is current when deleting the buffers.
@@ -33,10 +34,13 @@ void ResultsWidget::mousePressEvent(QMouseEvent *e) {
 }
 
 void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
-    //TODO: fix scaling size bug here
-    float x = (e->position().x() - (this->width()/2)) / (this->width()/8);
-    float y = -(e->position().y() - (this->height()/2)) / (this->height()/4);
+    float parentWidthScale = (float) this->parentWidget()->width() / initialParentWidth;
+    float parentHeightScale = (float) this->parentWidget()->height() / initialParentHeight;
+
+    float x = (e->position().x() - (this->width()/2)) / (this->width()/(8*parentWidthScale));
+    float y = -(e->position().y() - (this->height()/2)) / (this->height()/(4*parentHeightScale));
     float z = 0.0;
+
     lineVertices.push_back({QVector3D(x, y, z)});
     geometryEngine->initLine(lineVertices);
     update();
@@ -85,6 +89,9 @@ void ResultsWidget::initializeGL() {
     kleinBottleSurface = new KleinBottle();
     crossCapSurface = new CrossCap();
     geometryEngine = new GeometryEngine();
+
+    initialParentWidth = this->parentWidget()->width();
+    initialParentHeight = this->parentWidget()->height();
 
     // Use QBasicTimer because it's faster than QTimer
     timer.start(12, this);

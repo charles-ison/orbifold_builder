@@ -55,6 +55,8 @@ private:
     QQuaternion rotation;
     bool shouldPaintGL = false;
     std::vector<VertexData> lineVertices;
+    int initialParentWidth;
+    int initialParentHeight;
 };
 
 #endif
