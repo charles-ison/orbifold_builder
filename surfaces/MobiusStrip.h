@@ -15,7 +15,7 @@ public:
     int getNumIndices();
 
 private:
-    static const int numVertSteps = 100;
+    static const int numVertSteps = 200;
     static const int numHorSteps = 200;
     float radius = 1.0;
     static const int numVertices = (numVertSteps+1) * (numHorSteps+1);

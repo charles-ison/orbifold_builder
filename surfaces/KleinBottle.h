@@ -16,8 +16,8 @@ public:
 
 private:
     int floorMod(int a, int n);
-    static const int numVertSteps = 100;
-    static const int numHorSteps = 100;
+    static const int numVertSteps = 200;
+    static const int numHorSteps = 200;
     float a = 0.5;
     float b = 1.0;
     float c = 0.5;
