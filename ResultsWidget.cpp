@@ -42,22 +42,22 @@ void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
 
     int numVertices = currentSurface->getNumVertices();
     VertexData *verticesPointer = currentSurface->getVertices();
-    float closestXYDistance = std::numeric_limits<float>::max();
-    QVector3D closestSurfacePosition;
+    float smallestZDistance = std::numeric_limits<float>::max();
+    QVector3D closestVertexPosition;
 
     for (int i=0; i<numVertices; i++) {
         QVector3D vertexPosition = verticesPointer[i].position;
         QVector3D surfacePosition = mvp_matrix.map(vertexPosition);
 
         float xyDistance = sqrt(pow(x - surfacePosition.x(), 2) + pow(y - surfacePosition.y(), 2));
-        if (xyDistance < closestXYDistance and vertexPosition.z() > 0) {
-            closestXYDistance = xyDistance;
-            closestSurfacePosition = vertexPosition;
+        if (xyDistance < 0.01 && surfacePosition.z() < smallestZDistance) {
+            smallestZDistance = surfacePosition.z();
+            closestVertexPosition = vertexPosition;
         }
     }
 
-    if (closestXYDistance < 0.1) {
-        lineVertices.push_back({closestSurfacePosition});
+    if (smallestZDistance != std::numeric_limits<float>::min()) {
+        lineVertices.push_back({closestVertexPosition});
         geometryEngine->initLine(lineVertices);
         update();
     }
