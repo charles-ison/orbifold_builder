@@ -50,6 +50,7 @@ private:
     QOpenGLShaderProgram program;
     GeometryEngine *geometryEngine = nullptr;
     QMatrix4x4 projection;
+    QMatrix4x4 mvp_matrix;
     QVector2D mousePressPosition;
     QVector3D rotationAxis;
     qreal angularSpeed = 0;

@@ -37,13 +37,8 @@ void ResultsWidget::mousePressEvent(QMouseEvent *e) {
 }
 
 void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
-    //TODO: Fix scale issue
-    //TODO: Clean-up this code
-    float parentWidthScale = (float) parentWidget()->width() / initialParentWidth;
-    float parentHeightScale = (float) parentWidget()->height() / initialParentHeight;
-
-    float x = (e->position().x() - (width()/2.0)) / (width()/(8*parentWidthScale));
-    float y = -(e->position().y() - (height()/2.0)) / (height()/(4*parentHeightScale));
+    float x = (e->position().x() - (width()/2.0)) / (width()/2.0);
+    float y = -(e->position().y() - (height()/2.0)) / (height()/2.0);
 
     int numVertices = currentSurface->getNumVertices();
     VertexData *verticesPointer = currentSurface->getVertices();
@@ -51,11 +46,13 @@ void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
     QVector3D closestSurfacePosition;
 
     for (int i=0; i<numVertices; i++) {
-        QVector3D surfacePosition = verticesPointer[i].position;
+        QVector3D vertexPosition = verticesPointer[i].position;
+        QVector3D surfacePosition = mvp_matrix.map(vertexPosition);
+
         float xyDistance = sqrt(pow(x - surfacePosition.x(), 2) + pow(y - surfacePosition.y(), 2));
-        if (xyDistance < closestXYDistance and surfacePosition.z() > 0) {
+        if (xyDistance < closestXYDistance and vertexPosition.z() > 0) {
             closestXYDistance = xyDistance;
-            closestSurfacePosition = surfacePosition;
+            closestSurfacePosition = vertexPosition;
         }
     }
 
@@ -167,6 +164,7 @@ void ResultsWidget::paintGL() {
         QMatrix4x4 matrix;
         matrix.translate(0.0, 0.0, -5.0);
         matrix.rotate(rotation);
+        mvp_matrix = projection * matrix;
 
         // Set modelview-projection matrix
         program.setUniformValue("mvp_matrix", projection * matrix);
