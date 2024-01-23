@@ -80,6 +80,6 @@ void GeometryEngine::drawLine(QOpenGLShaderProgram *program) {
     program->setUniformValue("use_line_color", (GLfloat)1.0);
 
     // Draw geometry using indices from VBO 1
-    glPointSize(3.0);
-    glDrawArrays(GL_POINTS, 0, numLineVertices);
+    glLineWidth(10.0);
+    glDrawArrays(GL_LINE_STRIP, 0, numLineVertices);
 }

@@ -15,6 +15,7 @@
 #include "surfaces/MobiusStrip.h"
 #include "surfaces/KleinBottle.h"
 #include "surfaces/CrossCap.h"
+#include <unordered_set>
 
 class GeometryEngine;
 
@@ -40,6 +41,7 @@ protected:
 
 private:
     void updateLineVertices(bool surfaceVertexFound, QVector3D closestVertexPosition);
+    void checkLineVerticesForLoop(QVector3D newVertexPosition);
 
     Surface *currentSurface;
     Cube *cubeSurface;
@@ -53,10 +55,10 @@ private:
     GeometryEngine *geometryEngine = nullptr;
     QMatrix4x4 projection;
     QMatrix4x4 mvp_matrix;
-    QVector2D mousePressPosition;
     QVector3D rotationAxis;
     qreal angularSpeed = 0;
     QQuaternion rotation;
+    bool isDrawingMode = true;
     bool shouldPaintGL = false;
     std::vector<VertexData> lineVertices;
     int initialParentWidth;

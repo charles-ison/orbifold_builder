@@ -1,9 +1,9 @@
 #include "ResultsWidget.h"
 #include <QMouseEvent>
 #include <QtWidgets>
-#include <iostream>
 #include <cmath>
 #include <limits>
+#include <algorithm>
 
 ResultsWidget::~ResultsWidget() {
     // Make sure the context is current when deleting the buffers.
@@ -32,11 +32,15 @@ void ResultsWidget::addSurface(surface newSurface) {
 }
 
 void ResultsWidget::mousePressEvent(QMouseEvent *e) {
-    // Save mouse press position
-    mousePressPosition = QVector2D(e->position());
+    lineVertices.clear();
+    isDrawingMode = true;
 }
 
 void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
+    if (not isDrawingMode or not shouldPaintGL) {
+        return;
+    }
+
     QVector3D closestVertexPosition;
     bool surfaceVertexFound = false;
     float smallestZDistance = std::numeric_limits<float>::max();
@@ -64,9 +68,21 @@ void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
 
 void ResultsWidget::updateLineVertices(bool surfaceVertexFound, QVector3D closestVertexPosition) {
     if (surfaceVertexFound) {
+        checkLineVerticesForLoop(closestVertexPosition);
         lineVertices.push_back({closestVertexPosition});
     } else {
         lineVertices.clear();
+    }
+}
+
+void ResultsWidget::checkLineVerticesForLoop(QVector3D newVertexPosition) {
+    if (lineVertices.size() < 10) {
+        return;
+    }
+    QVector3D oldVertexPosition = lineVertices[0].position;
+    float distance = sqrt(pow(oldVertexPosition.x() - newVertexPosition.x(), 2) + pow(oldVertexPosition.y() - newVertexPosition.y(), 2) + pow(oldVertexPosition.z() - newVertexPosition.z(), 2));
+    if (distance < 0.05) {
+        isDrawingMode = false;
     }
 }
 
