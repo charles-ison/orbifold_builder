@@ -39,6 +39,8 @@ protected:
     void initShaders();
 
 private:
+    void updateLineVertices(bool surfaceVertexFound, QVector3D closestVertexPosition);
+
     Surface *currentSurface;
     Cube *cubeSurface;
     Sphere *sphereSurface;

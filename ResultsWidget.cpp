@@ -37,31 +37,39 @@ void ResultsWidget::mousePressEvent(QMouseEvent *e) {
 }
 
 void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
-    float x = (e->position().x() - (width()/2.0)) / (width()/2.0);
-    float y = -(e->position().y() - (height()/2.0)) / (height()/2.0);
-
+    QVector3D closestVertexPosition;
+    bool surfaceVertexFound = false;
+    float smallestZDistance = std::numeric_limits<float>::max();
     int numVertices = currentSurface->getNumVertices();
     VertexData *verticesPointer = currentSurface->getVertices();
-    float smallestZDistance = std::numeric_limits<float>::max();
-    QVector3D closestVertexPosition;
+    float x = (e->position().x() - (width()/2.0)) / (width()/2.0);
+    float y = -(e->position().y() - (height()/2.0)) / (height()/2.0);
 
     for (int i=0; i<numVertices; i++) {
         QVector3D vertexPosition = verticesPointer[i].position;
         QVector3D surfacePosition = mvp_matrix.map(vertexPosition);
-
         float xyDistance = sqrt(pow(x - surfacePosition.x(), 2) + pow(y - surfacePosition.y(), 2));
+
         if (xyDistance < 0.01 && surfacePosition.z() < smallestZDistance) {
             smallestZDistance = surfacePosition.z();
             closestVertexPosition = vertexPosition;
+            surfaceVertexFound = true;
         }
     }
 
-    if (smallestZDistance != std::numeric_limits<float>::min()) {
+    updateLineVertices(surfaceVertexFound, closestVertexPosition);
+    geometryEngine->initLine(lineVertices);
+    update();
+}
+
+void ResultsWidget::updateLineVertices(bool surfaceVertexFound, QVector3D closestVertexPosition) {
+    if (surfaceVertexFound) {
         lineVertices.push_back({closestVertexPosition});
-        geometryEngine->initLine(lineVertices);
-        update();
+    } else {
+        lineVertices.clear();
     }
 }
+
 
 void ResultsWidget::wheelEvent(QWheelEvent *e) {
     // Rotation axis is perpendicular to the angle delta difference vector
