@@ -131,8 +131,10 @@ void ResultsWidget::initializeGL() {
     crossCapSurface = new CrossCap();
     geometryEngine = new GeometryEngine();
 
-    initialParentWidth = this->parentWidget()->width();
-    initialParentHeight = this->parentWidget()->height();
+    isDrawingMode = true;
+    shouldPaintGL = false;
+    lineDrawingColor = Qt::white;
+
 
     // Use QBasicTimer because it's faster than QTimer
     timer.start(12, this);
@@ -195,6 +197,10 @@ void ResultsWidget::paintGL() {
 
         // Draw geometry
         geometryEngine->drawSurface(&program);
-        geometryEngine->drawLine(&program);
+        geometryEngine->drawLine(&program, lineDrawingColor);
     }
+}
+
+void ResultsWidget::setLineDrawingColor(QColor newColor) {
+    lineDrawingColor = newColor;
 }

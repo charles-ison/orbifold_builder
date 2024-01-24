@@ -31,6 +31,7 @@ private slots:
     void deleteItem();
     void addSurface();
     void toggleFundamentalPolygon();
+    void drawingLineColorChanged();
     void pointerGroupClicked();
     void itemInserted(DiagramItem *item);
     void textInserted(QGraphicsTextItem *item);
@@ -72,6 +73,7 @@ private:
     QAction *aboutAction;
     QAction *addSurfaceAction;
     QAction *zoomAction;
+    QAction *drawLineAction;
     QAction *fundamentalPolygonAction;
 
     QMenu *fileMenu;
@@ -90,6 +92,7 @@ private:
     QToolButton *textButton;
     QToolButton *zoomButton;
     QToolButton *addSurfaceButton;
+    QToolButton *drawLineButton;
     QAction *textAction;
     QAction *fillAction;
     QAction *lineAction;

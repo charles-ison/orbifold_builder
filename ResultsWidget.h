@@ -28,6 +28,7 @@ public:
     ~ResultsWidget();
     enum surface {sphere, cube, torus, mobiusStrip, crossCap, kleinBottle};
     void addSurface(surface newSurface);
+    void setLineDrawingColor(QColor newColor);
     void resizeGL(int w, int h) override;
 
 protected:
@@ -58,11 +59,10 @@ private:
     QVector3D rotationAxis;
     qreal angularSpeed = 0;
     QQuaternion rotation;
-    bool isDrawingMode = true;
-    bool shouldPaintGL = false;
+    bool isDrawingMode;
+    bool shouldPaintGL;
     std::vector<VertexData> lineVertices;
-    int initialParentWidth;
-    int initialParentHeight;
+    QColor lineDrawingColor;
 };
 
 #endif

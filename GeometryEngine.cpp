@@ -1,3 +1,4 @@
+#include <QtGui/qcolor.h>
 #include "GeometryEngine.h"
 
 GeometryEngine::GeometryEngine() : indexBuf(QOpenGLBuffer::IndexBuffer) {
@@ -67,7 +68,7 @@ void GeometryEngine::drawSurface(QOpenGLShaderProgram *program) {
     glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_SHORT, nullptr);
 }
 
-void GeometryEngine::drawLine(QOpenGLShaderProgram *program) {
+void GeometryEngine::drawLine(QOpenGLShaderProgram *program, QColor color) {
     // Tell OpenGL which VBOs to use
     lineArrayBuf.bind();
 
@@ -76,7 +77,8 @@ void GeometryEngine::drawLine(QOpenGLShaderProgram *program) {
     program->enableAttributeArray(vertexLocation);
     program->setAttributeBuffer(vertexLocation, GL_FLOAT, 0, 3, sizeof(VertexData));
 
-    program->setUniformValue("line_color", 1.0, 1.0, 1.0);
+    QRgb rgb = color.rgb();
+    program->setUniformValue("line_color", qRed(rgb), qGreen(rgb), qBlue(rgb));
     program->setUniformValue("use_line_color", (GLfloat)1.0);
 
     // Draw geometry using indices from VBO 1

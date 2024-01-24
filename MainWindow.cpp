@@ -107,6 +107,14 @@ void MainWindow::toggleFundamentalPolygon() {
     fundamentalPolygonToolBox->setHidden(hideFundamentalPolygon);
 }
 
+void MainWindow::drawingLineColorChanged() {
+    drawLineAction = qobject_cast<QAction *>(sender());
+    drawLineButton->menu()->setDefaultAction(drawLineAction);
+    QColor newColor = qvariant_cast<QColor>(drawLineAction->data());
+    drawLineButton->setIcon(createColorToolButtonIcon(":/images/linecolor.png",newColor));
+    resultsWidget->setLineDrawingColor(newColor);
+}
+
 void MainWindow::pointerGroupClicked() {
     fundamentalPolygonScene->setMode(DiagramScene::Mode(pointerTypeGroup->checkedId()));
 }
@@ -264,9 +272,17 @@ void MainWindow::createToolbars() {
     addSurfaceButton->setText("Add");
     addSurfaceButton->setMinimumHeight(fundamentalPolygonToolBar->sizeHint().height());
 
+    drawLineButton = new QToolButton;
+    drawLineButton->setPopupMode(QToolButton::MenuButtonPopup);
+    drawLineButton->setMenu(createColorMenu(&MainWindow::drawingLineColorChanged, Qt::white));
+    drawLineAction = drawLineButton->menu()->defaultAction();
+    drawLineButton->setIcon(createColorToolButtonIcon(":/images/linecolor.png", Qt::white));
+    drawLineButton->setMinimumHeight(fundamentalPolygonToolBar->sizeHint().height());
+
     resultsToolBar = new QToolBar;
     resultsToolBar->addWidget(zoomButton);
     resultsToolBar->addWidget(addSurfaceButton);
+    resultsToolBar->addWidget(drawLineButton);
     resultsToolBar->setMovable(false);
 }
 
