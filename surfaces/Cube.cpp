@@ -3,6 +3,7 @@
 Cube::Cube() {
     initVertices();
     initIndices();
+    initNeighbors();
 }
 
 void Cube::initVertices() {

@@ -3,6 +3,7 @@
 MobiusStrip::MobiusStrip() {
     initVertices();
     initIndices();
+    initNeighbors();
 }
 
 void MobiusStrip::initVertices() {

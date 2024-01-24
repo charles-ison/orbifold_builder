@@ -3,6 +3,7 @@
 Sphere::Sphere() {
     initVertices();
     initIndices();
+    initNeighbors();
 }
 
 void Sphere::initVertices() {

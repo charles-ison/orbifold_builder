@@ -3,6 +3,7 @@
 Torus::Torus() {
     initVertices();
     initIndices();
+    initNeighbors();
 }
 
 void Torus::initVertices() {

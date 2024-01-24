@@ -4,6 +4,7 @@
 CrossCap::CrossCap() {
     initVertices();
     initIndices();
+    initNeighbors();
 }
 
 void CrossCap::initVertices() {

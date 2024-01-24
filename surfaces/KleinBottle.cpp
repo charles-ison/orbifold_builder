@@ -3,6 +3,7 @@
 KleinBottle::KleinBottle() {
     initVertices();
     initIndices();
+    initNeighbors();
 }
 
 void KleinBottle::initVertices() {

@@ -18,8 +18,8 @@ private:
     void initVertices();
     void initIndices();
     int floorMod(int a, int n);
-    static const int numVertSteps = 100;
-    static const int numHorSteps = 300;
+    static const int numVertSteps = 180;
+    static const int numHorSteps = 180;
     float a = 0.5;
     float b = 1.0;
     float c = 0.5;

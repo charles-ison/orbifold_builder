@@ -20,6 +20,7 @@ qt_add_executable(orbifold_builder
     Main.cpp
     MainWindow.cpp MainWindow.h
     ResultsWidget.cpp ResultsWidget.h
+    surfaces/Surface.cpp surfaces/Surface.h
     surfaces/Cube.cpp surfaces/Cube.h
     surfaces/Sphere.cpp surfaces/Sphere.h
     surfaces/Torus.cpp surfaces/Torus.h
