@@ -1,6 +1,11 @@
 #include "Cube.h"
 
 Cube::Cube() {
+    initVertices();
+    initIndices();
+}
+
+void Cube::initVertices() {
     vertices[0] = {QVector3D(1.0f,  -1.0f,  1.0f)};
     vertices[1] = {QVector3D( 1.0f,  1.0f,  1.0f)};
     vertices[2] = {QVector3D(-1.0f,  1.0f,  1.0f)};
@@ -9,7 +14,9 @@ Cube::Cube() {
     vertices[5] = {QVector3D(1.0f,  1.0f,  -1.0f)};
     vertices[6] = {QVector3D(-1.0f,  1.0f,  -1.0f)};
     vertices[7] = {QVector3D(-1.0f,  -1.0f,  -1.0f)};
+}
 
+void Cube::initIndices() {
     indices[0] = 0; indices[1] = 1; indices[2] = 2; indices[3] = 2; indices[4] = 3; indices[5] = 0;
     indices[6] = 3; indices[7] = 2; indices[8] = 6; indices[9] = 6; indices[10] = 7; indices[11] = 3;
     indices[12] = 3; indices[13] = 7; indices[14] = 4; indices[15] = 4; indices[16] = 0; indices[17] = 3;

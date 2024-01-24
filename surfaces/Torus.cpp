@@ -1,6 +1,11 @@
 #include "Torus.h"
 
 Torus::Torus() {
+    initVertices();
+    initIndices();
+}
+
+void Torus::initVertices() {
     float horStepSize = 2 * M_PI / numHorSteps;
     float vertStepSize = 2 * M_PI / numVertSteps;
 
@@ -16,7 +21,9 @@ Torus::Torus() {
             verticesCounter += 1;
         }
     }
+}
 
+void Torus::initIndices() {
     int indexCounter = 0;
     int faceCounter = 0;
     for (int i=0; i<numHorSteps; i++) {

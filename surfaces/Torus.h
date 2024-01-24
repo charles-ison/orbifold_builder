@@ -15,6 +15,8 @@ public:
     int getNumIndices();
 
 private:
+    void initVertices();
+    void initIndices();
     static const int numVertSteps = 200;
     static const int numHorSteps = 200;
     float bigRadius = 1;

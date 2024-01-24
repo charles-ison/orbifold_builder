@@ -15,6 +15,8 @@ public:
     int getNumIndices();
 
 private:
+    void initVertices();
+    void initIndices();
     int floorMod(int a, int n);
     static const int numVertSteps = 100;
     static const int numHorSteps = 300;

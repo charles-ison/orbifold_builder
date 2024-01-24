@@ -15,6 +15,8 @@ public:
     int getNumIndices();
 
 private:
+    void initVertices();
+    void initIndices();
     static const int numVertices = 8;
     static const int numIndices = 36;
     VertexData vertices[numVertices];

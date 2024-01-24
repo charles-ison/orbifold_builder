@@ -1,6 +1,11 @@
 #include "Sphere.h"
 
 Sphere::Sphere() {
+    initVertices();
+    initIndices();
+}
+
+void Sphere::initVertices() {
     float vertStepSize = M_PI / numVertSteps;
     float horStepSize = 2 * M_PI / numHorSteps;
 
@@ -17,7 +22,9 @@ Sphere::Sphere() {
             verticesCounter += 1;
         }
     }
+}
 
+void Sphere::initIndices() {
     int indexCounter = 0;
     int faceCounter = 0;
     for (int i=0; i<numVertSteps; i++) {

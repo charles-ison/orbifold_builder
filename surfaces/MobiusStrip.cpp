@@ -1,6 +1,11 @@
 #include "MobiusStrip.h"
 
 MobiusStrip::MobiusStrip() {
+    initVertices();
+    initIndices();
+}
+
+void MobiusStrip::initVertices() {
     float horStepSize = 2 * M_PI / numHorSteps;
     float vertStepSize = 1.0 / numVertSteps;
 
@@ -17,7 +22,9 @@ MobiusStrip::MobiusStrip() {
             verticesCounter += 1;
         }
     }
+}
 
+void MobiusStrip::initIndices() {
     int indexCounter = 0;
     int quadCounter = 0;
     for (int i=0; i<numHorSteps; i++) {

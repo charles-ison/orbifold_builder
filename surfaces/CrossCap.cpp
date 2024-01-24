@@ -2,6 +2,11 @@
 #include <cmath>
 
 CrossCap::CrossCap() {
+    initVertices();
+    initIndices();
+}
+
+void CrossCap::initVertices() {
     float horStepSize = 2 * M_PI / numHorSteps;
     float vertStepSize = M_PI / (2 * numVertSteps);
 
@@ -18,7 +23,9 @@ CrossCap::CrossCap() {
             verticesCounter += 1;
         }
     }
+}
 
+void CrossCap::initIndices() {
     int indexCounter = 0;
     int faceCounter = 0;
     for (int i=0; i<numHorSteps; i++) {

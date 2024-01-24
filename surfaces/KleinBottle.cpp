@@ -1,6 +1,11 @@
 #include "KleinBottle.h"
 
 KleinBottle::KleinBottle() {
+    initVertices();
+    initIndices();
+}
+
+void KleinBottle::initVertices() {
     float horStepSize = M_PI / numHorSteps;
     float vertStepSize = 2 * M_PI / numVertSteps;
 
@@ -30,7 +35,9 @@ KleinBottle::KleinBottle() {
             verticesCounter += 1;
         }
     }
+}
 
+void KleinBottle::initIndices() {
     int indexCounter = 0;
     int faceCounter = 0;
     for (int i=0; i<2*numHorSteps; i++) {
