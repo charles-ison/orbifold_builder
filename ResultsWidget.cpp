@@ -83,7 +83,7 @@ void ResultsWidget::checkLineVerticesForLoop(QVector3D newVertexPosition) {
     for (int i=0; i<=lineVertices.size()-numRecentVerticesToExcludeForLoopChecking; i++) {
         QVector3D oldVertexPosition = lineVertices[i].position;
         float distance = sqrt(pow(oldVertexPosition.x() - newVertexPosition.x(), 2) + pow(oldVertexPosition.y() - newVertexPosition.y(), 2) + pow(oldVertexPosition.z() - newVertexPosition.z(), 2));
-        if (distance < 0.01) {
+        if (distance < 0.02) {
             isDrawingMode = false;
             for (int j=0; j<i; j++) {
                 lineVertices.erase(lineVertices.begin());
