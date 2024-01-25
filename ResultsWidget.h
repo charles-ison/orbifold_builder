@@ -41,8 +41,10 @@ protected:
     void initShaders();
 
 private:
-    void updateLineVertices(bool surfaceVertexFound, QVector3D closestVertexPosition);
-    void checkLineVerticesForLoop(QVector3D newVertexPosition);
+    void updateLineVertices(bool surfaceVertexFound, VertexData newVertex);
+    std::vector<VertexData*> getIntermediateVertices(VertexData newVertex);
+    void checkLineVerticesForLoop(VertexData newVertex);
+    bool verticesAreNeighbors(VertexData vertex1, VertexData vertex2);
 
     Surface *currentSurface;
     Cube *cubeSurface;

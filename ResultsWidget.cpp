@@ -3,6 +3,9 @@
 #include <QtWidgets>
 #include <cmath>
 #include <limits>
+#include <queue>
+#include <tuple>
+#include <iostream>
 
 ResultsWidget::~ResultsWidget() {
     // Make sure the context is current when deleting the buffers.
@@ -40,7 +43,7 @@ void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
         return;
     }
 
-    QVector3D closestVertexPosition;
+    VertexData closestVertex;
     bool surfaceVertexFound = false;
     float smallestZDistance = std::numeric_limits<float>::max();
     int numVertices = currentSurface->getNumVertices();
@@ -49,41 +52,71 @@ void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
     float y = -(e->position().y() - (height()/2.0)) / (height()/2.0);
 
     for (int i=0; i<numVertices; i++) {
-        QVector3D vertexPosition = verticesPointer[i].position;
-        QVector3D surfacePosition = mvp_matrix.map(vertexPosition);
+        VertexData vertex = verticesPointer[i];
+        QVector3D surfacePosition = mvp_matrix.map(vertex.position);
         float xyDistance = sqrt(pow(x - surfacePosition.x(), 2) + pow(y - surfacePosition.y(), 2));
 
         if (xyDistance < 0.01 && surfacePosition.z() < smallestZDistance) {
             smallestZDistance = surfacePosition.z();
-            closestVertexPosition = vertexPosition;
+            closestVertex = vertex;
             surfaceVertexFound = true;
         }
     }
 
-    updateLineVertices(surfaceVertexFound, closestVertexPosition);
+    updateLineVertices(surfaceVertexFound, closestVertex);
     geometryEngine->initLine(lineVertices);
     update();
 }
 
-void ResultsWidget::updateLineVertices(bool surfaceVertexFound, QVector3D closestVertexPosition) {
+void ResultsWidget::updateLineVertices(bool surfaceVertexFound, VertexData newVertex) {
     if (surfaceVertexFound) {
-        checkLineVerticesForLoop(closestVertexPosition);
-        lineVertices.push_back({closestVertexPosition});
+        std::vector<VertexData*> intermediateVertices = getIntermediateVertices(newVertex);
+        checkLineVerticesForLoop(newVertex);
+        lineVertices.push_back(newVertex);
     } else {
         lineVertices.clear();
     }
 }
 
-void ResultsWidget::checkLineVerticesForLoop(QVector3D newVertexPosition) {
+std::vector<VertexData*> ResultsWidget::getIntermediateVertices(VertexData newVertex) {
+    std::vector<VertexData*> intermediateVertices;
+    if (lineVertices.size() == 0) {
+        return intermediateVertices;
+    }
+
+    std::queue<std::tuple<VertexData*, std::vector<VertexData*>>> verticesToCheck;
+    std::make_tuple(newVertex, intermediateVertices);
+    //verticesToCheck.push();
+
+    VertexData lastVertex = lineVertices.back();
+    if (verticesAreNeighbors(newVertex, lastVertex)) {
+        return intermediateVertices;
+    } else {
+        return intermediateVertices;
+    }
+}
+
+bool ResultsWidget::verticesAreNeighbors(VertexData vertex1, VertexData vertex2) {
+    QVector3D vertex2Position = vertex2.position;
+    for (auto neighbor : vertex1.neighbors) {
+        if (neighbor->position == vertex2Position) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void ResultsWidget::checkLineVerticesForLoop(VertexData newVertex) {
     int numRecentVerticesToExcludeForLoopChecking = 20;
     if (lineVertices.size() < numRecentVerticesToExcludeForLoopChecking) {
         return;
     }
 
+    QVector3D newVertexPosition = newVertex.position;
     for (int i=0; i<=lineVertices.size()-numRecentVerticesToExcludeForLoopChecking; i++) {
         QVector3D oldVertexPosition = lineVertices[i].position;
         float distance = sqrt(pow(oldVertexPosition.x() - newVertexPosition.x(), 2) + pow(oldVertexPosition.y() - newVertexPosition.y(), 2) + pow(oldVertexPosition.z() - newVertexPosition.z(), 2));
-        if (distance < 0.02) {
+        if (distance < 0.05) {
             isDrawingMode = false;
             for (int j=0; j<i; j++) {
                 lineVertices.erase(lineVertices.begin());
