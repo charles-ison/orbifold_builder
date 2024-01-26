@@ -15,7 +15,6 @@
 #include "surfaces/MobiusStrip.h"
 #include "surfaces/KleinBottle.h"
 #include "surfaces/CrossCap.h"
-#include <unordered_set>
 
 class GeometryEngine;
 
