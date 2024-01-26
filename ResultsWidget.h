@@ -41,7 +41,7 @@ protected:
     void initShaders();
 
 private:
-    void updateLineVertices(VertexData *newVertex);
+    void addLineVertices(VertexData *newVertex);
     std::vector<VertexData*> getNewVertices(VertexData *newVertex);
     void checkLineVerticesForLoop(VertexData *newVertex);
     void cutSurface(QMouseEvent *e);

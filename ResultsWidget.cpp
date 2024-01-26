@@ -35,7 +35,7 @@ void ResultsWidget::addSurface(surface newSurface) {
 }
 
 void ResultsWidget::toggleCutting() {
-    cuttingEnabled = true;
+    cuttingEnabled = !cuttingEnabled;
 }
 
 void ResultsWidget::mousePressEvent(QMouseEvent *e) {
@@ -48,7 +48,43 @@ void ResultsWidget::mousePressEvent(QMouseEvent *e) {
 }
 
 void ResultsWidget::cutSurface(QMouseEvent *e) {
+    VertexData *startingVertex = getVertexFromMouseEvent(e);
+    if (startingVertex == nullptr) {
+        return;
+    }
 
+    std::unordered_map<VertexData*, int> verticesAlreadyCut;
+    std::unordered_map<VertexData*, int> lineVerticesMap;
+    for (VertexData* vertex : lineVertices) {
+        lineVerticesMap.insert({vertex, 0});
+    }
+
+    if (lineVerticesMap.find(startingVertex) != lineVerticesMap.end()) {
+        return;
+    }
+
+    std::queue<VertexData*> verticesToCut;
+    verticesToCut.push(startingVertex);
+
+    while (!verticesToCut.empty()) {
+        VertexData* vertexToCut = verticesToCut.front();
+        verticesToCut.pop();
+        verticesAlreadyCut.insert({vertexToCut, 0});
+
+        for (VertexData* neighbor : vertexToCut->neighbors) {
+            if (lineVerticesMap.find(neighbor) == lineVerticesMap.end() && verticesAlreadyCut.find(neighbor) == verticesAlreadyCut.end() ) {
+                verticesToCut.push(neighbor);
+            }
+        }
+
+        for(auto itr = lineVertices.begin(); itr != lineVertices.end(); itr++ ) {
+            if (*itr == vertexToCut) {
+                std::cout << "hi3" << std::endl;
+                lineVertices.erase(itr);
+            }
+        }
+    }
+    update();
 }
 
 void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
@@ -61,9 +97,8 @@ void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
     VertexData *vertex = getVertexFromMouseEvent(e);
     if (vertex == nullptr) {
         lineVertices.clear();
-        std::cout << "hi" << std::endl;
     } else if (lineVertices.size() == 0 || vertex != lineVertices.back()) {
-        updateLineVertices(vertex);
+        addLineVertices(vertex);
     }
 
     geometryEngine->initLine(lineVertices);
@@ -96,7 +131,7 @@ VertexData* ResultsWidget::getVertexFromMouseEvent(QMouseEvent *e) {
     }
 }
 
-void ResultsWidget::updateLineVertices(VertexData *newVertex) {
+void ResultsWidget::addLineVertices(VertexData *newVertex) {
     std::vector<VertexData *> newVertices = getNewVertices(newVertex);
     for (int i = newVertices.size() - 1; i > -1; i--) {
         checkLineVerticesForLoop(newVertices[i]);
@@ -125,7 +160,7 @@ std::vector<VertexData*> ResultsWidget::getNewVertices(VertexData *newVertex) {
         }
         checkedVertices.insert({nextVertex, 0});
 
-        for (auto neighbor : nextVertex->neighbors) {
+        for (VertexData* neighbor : nextVertex->neighbors) {
             if (neighbor->position == lastVertexPosition) {
                 return nextPath;
             } else if(checkedVertices.find(neighbor) == checkedVertices.end()) {
@@ -203,6 +238,7 @@ void ResultsWidget::initializeGL() {
     isDrawingMode = true;
     shouldPaintGL = false;
     loopDetected = false;
+    cuttingEnabled = false;
     lineDrawingColor = Qt::white;
 
     // Use QBasicTimer because it's faster than QTimer
