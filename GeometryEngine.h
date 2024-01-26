@@ -12,7 +12,7 @@ public:
     virtual ~GeometryEngine();
     void drawSurface(QOpenGLShaderProgram *program);
     void drawLine(QOpenGLShaderProgram *program, QColor color);
-    void initLine(std::vector<VertexData> lineVerticesVector);
+    void initLine(std::vector<VertexData*> lineVerticesVector);
     void initSurface(Surface* surface);
 
 private:

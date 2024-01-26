@@ -40,11 +40,12 @@ void GeometryEngine::initSurface(Surface* surface) {
     indexBuf.allocate(indices, numIndices * sizeof(GLushort));
 }
 
-void GeometryEngine::initLine(std::vector<VertexData> lineVerticesVector) {
+void GeometryEngine::initLine(std::vector<VertexData*> lineVerticesVector) {
     numLineVertices = lineVerticesVector.size();
     VertexData lineVertices[numLineVertices];
+
     for (int i=0; i<numLineVertices; i++) {
-        lineVertices[i] = lineVerticesVector[i];
+        lineVertices[i] = *lineVerticesVector[i];
     }
 
     // Transfer vertex data to VBO 0

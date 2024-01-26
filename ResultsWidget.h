@@ -41,10 +41,10 @@ protected:
     void initShaders();
 
 private:
-    void updateLineVertices(bool surfaceVertexFound, VertexData newVertex);
-    std::vector<VertexData*> getIntermediateVertices(VertexData newVertex);
-    void checkLineVerticesForLoop(VertexData newVertex);
-    bool verticesAreNeighbors(VertexData vertex1, VertexData vertex2);
+    void updateLineVertices(bool surfaceVertexFound, VertexData *newVertex);
+    std::vector<VertexData*> getIntermediateVertices(VertexData *newVertex);
+    void checkLineVerticesForLoop(VertexData *newVertex);
+    bool verticesAreNeighbors(VertexData *vertex1, VertexData *vertex2);
 
     Surface *currentSurface;
     Cube *cubeSurface;
@@ -63,7 +63,7 @@ private:
     QQuaternion rotation;
     bool isDrawingMode;
     bool shouldPaintGL;
-    std::vector<VertexData> lineVertices;
+    std::vector<VertexData*> lineVertices;
     QColor lineDrawingColor;
 };
 
