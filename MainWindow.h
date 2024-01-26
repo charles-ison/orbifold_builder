@@ -30,6 +30,7 @@ private slots:
     void buttonGroupClicked(QAbstractButton *button);
     void deleteItem();
     void addSurface();
+    void cutSurface();
     void toggleFundamentalPolygon();
     void drawingLineColorChanged();
     void pointerGroupClicked();
@@ -74,6 +75,7 @@ private:
     QAction *addSurfaceAction;
     QAction *zoomAction;
     QAction *drawLineAction;
+    QAction *cutAction;
     QAction *fundamentalPolygonAction;
 
     QMenu *fileMenu;

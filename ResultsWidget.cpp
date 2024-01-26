@@ -33,6 +33,10 @@ void ResultsWidget::addSurface(surface newSurface) {
     update();
 }
 
+void ResultsWidget::cutSurface() {
+    std::cout << "hi" << std::endl;
+}
+
 void ResultsWidget::mousePressEvent(QMouseEvent *e) {
     lineVertices.clear();
     isDrawingMode = true;

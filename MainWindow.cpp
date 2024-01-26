@@ -101,6 +101,10 @@ void MainWindow::addSurface() {
     resultsWidget->addSurface(surface);
 }
 
+void MainWindow::cutSurface() {
+    resultsWidget->cutSurface();
+}
+
 void MainWindow::toggleFundamentalPolygon() {
     hideFundamentalPolygon = !hideFundamentalPolygon;
     fundamentalPolygonToolBar->setHidden(hideFundamentalPolygon);
@@ -189,6 +193,9 @@ void MainWindow::createActions() {
     aboutAction = new QAction(tr("About"), this);
     aboutAction->setShortcut(tr("F1"));
     connect(aboutAction, &QAction::triggered, this, &MainWindow::about);
+
+    cutAction = new QAction(tr("Cut"), this);
+    connect(cutAction, &QAction::triggered, this, &MainWindow::cutSurface);
 }
 
 void MainWindow::createMenus() {
@@ -258,31 +265,35 @@ void MainWindow::createToolbars() {
     fundamentalPolygonToolBar->addAction(deleteAction);
     fundamentalPolygonToolBar->setMovable(false);
 
-    zoomButton = new QToolButton;
-    zoomButton->setPopupMode(QToolButton::MenuButtonPopup);
-    zoomButton->setMenu(createZoomMenu(&MainWindow::zoomScaleChanged));
-    zoomAction = zoomButton->menu()->defaultAction();
-    zoomButton->setText("Zoom");
-    zoomButton->setMinimumHeight(fundamentalPolygonToolBar->sizeHint().height());
+    int fundamentalPolygonToolBarHeight = fundamentalPolygonToolBar->sizeHint().height();
 
     addSurfaceButton = new QToolButton;
     addSurfaceButton->setPopupMode(QToolButton::MenuButtonPopup);
     addSurfaceButton->setMenu(createAddSurfaceMenu(&MainWindow::addSurface));
     addSurfaceAction = addSurfaceButton->menu()->defaultAction();
     addSurfaceButton->setText("Add");
-    addSurfaceButton->setMinimumHeight(fundamentalPolygonToolBar->sizeHint().height());
+    addSurfaceButton->setMinimumHeight(fundamentalPolygonToolBarHeight);
 
     drawLineButton = new QToolButton;
     drawLineButton->setPopupMode(QToolButton::MenuButtonPopup);
     drawLineButton->setMenu(createColorMenu(&MainWindow::drawingLineColorChanged, Qt::white));
     drawLineAction = drawLineButton->menu()->defaultAction();
     drawLineButton->setIcon(createColorToolButtonIcon(":/images/linecolor.png", Qt::white));
-    drawLineButton->setMinimumHeight(fundamentalPolygonToolBar->sizeHint().height());
+    drawLineButton->setMinimumHeight(fundamentalPolygonToolBarHeight);
+
+    zoomButton = new QToolButton;
+    zoomButton->setPopupMode(QToolButton::MenuButtonPopup);
+    zoomButton->setMenu(createZoomMenu(&MainWindow::zoomScaleChanged));
+    zoomAction = zoomButton->menu()->defaultAction();
+    zoomButton->setText("Zoom");
+    zoomButton->setMinimumHeight(fundamentalPolygonToolBarHeight);
 
     resultsToolBar = new QToolBar;
-    resultsToolBar->addWidget(zoomButton);
     resultsToolBar->addWidget(addSurfaceButton);
     resultsToolBar->addWidget(drawLineButton);
+    resultsToolBar->addAction(cutAction);
+    resultsToolBar->addWidget(zoomButton);
+    resultsToolBar->widgetForAction(cutAction)->setMinimumHeight(fundamentalPolygonToolBarHeight);
     resultsToolBar->setMovable(false);
 }
 

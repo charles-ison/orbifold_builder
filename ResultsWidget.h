@@ -27,6 +27,7 @@ public:
     ~ResultsWidget();
     enum surface {sphere, cube, torus, mobiusStrip, crossCap, kleinBottle};
     void addSurface(surface newSurface);
+    void cutSurface();
     void setLineDrawingColor(QColor newColor);
     void resizeGL(int w, int h) override;
 
