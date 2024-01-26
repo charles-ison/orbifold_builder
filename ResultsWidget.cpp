@@ -16,6 +16,7 @@ ResultsWidget::~ResultsWidget() {
 
 void ResultsWidget::addSurface(surface newSurface) {
     shouldPaintGL = true;
+    loopDetected = false;
     if (newSurface == surface::cube) {
         currentSurface = cubeSurface;
     } else if (newSurface == surface::sphere) {
@@ -33,13 +34,21 @@ void ResultsWidget::addSurface(surface newSurface) {
     update();
 }
 
-void ResultsWidget::cutSurface() {
-    std::cout << "hi" << std::endl;
+void ResultsWidget::toggleCutting() {
+    cuttingEnabled = true;
 }
 
 void ResultsWidget::mousePressEvent(QMouseEvent *e) {
-    lineVertices.clear();
-    isDrawingMode = true;
+    if (cuttingEnabled && loopDetected) {
+        cutSurface(e);
+    } else {
+        lineVertices.clear();
+        isDrawingMode = true;
+    }
+}
+
+void ResultsWidget::cutSurface(QMouseEvent *e) {
+
 }
 
 void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
@@ -47,6 +56,21 @@ void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
         return;
     }
 
+    loopDetected = false;
+
+    VertexData *vertex = getVertexFromMouseEvent(e);
+    if (vertex == nullptr) {
+        lineVertices.clear();
+        std::cout << "hi" << std::endl;
+    } else if (lineVertices.size() == 0 || vertex != lineVertices.back()) {
+        updateLineVertices(vertex);
+    }
+
+    geometryEngine->initLine(lineVertices);
+    update();
+}
+
+VertexData* ResultsWidget::getVertexFromMouseEvent(QMouseEvent *e) {
     VertexData *closestVertex = new VertexData;
     bool surfaceVertexFound = false;
     float smallestZDistance = std::numeric_limits<float>::max();
@@ -65,23 +89,18 @@ void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
             surfaceVertexFound = true;
         }
     }
-
-    if (lineVertices.size() == 0 || closestVertex != lineVertices.back()) {
-        updateLineVertices(surfaceVertexFound, closestVertex);
-        geometryEngine->initLine(lineVertices);
-        update();
+    if (surfaceVertexFound) {
+        return closestVertex;
+    } else {
+        return nullptr;
     }
 }
 
-void ResultsWidget::updateLineVertices(bool surfaceVertexFound, VertexData *newVertex) {
-    if (surfaceVertexFound) {
-        std::vector<VertexData *> newVertices = getNewVertices(newVertex);
-        for (int i = newVertices.size() - 1; i > -1; i--) {
-            checkLineVerticesForLoop(newVertices[i]);
-            lineVertices.push_back(newVertices[i]);
-        }
-    } else {
-        lineVertices.clear();
+void ResultsWidget::updateLineVertices(VertexData *newVertex) {
+    std::vector<VertexData *> newVertices = getNewVertices(newVertex);
+    for (int i = newVertices.size() - 1; i > -1; i--) {
+        checkLineVerticesForLoop(newVertices[i]);
+        lineVertices.push_back(newVertices[i]);
     }
 }
 
@@ -128,6 +147,7 @@ void ResultsWidget::checkLineVerticesForLoop(VertexData *newVertex) {
     for (int i=0; i<=lineVertices.size()-numRecentVerticesToExcludeForLoopChecking; i++) {
         if (lineVertices[i] == newVertex) {
             isDrawingMode = false;
+            loopDetected = true;
             for (int j=0; j<i; j++) {
                 lineVertices.erase(lineVertices.begin());
             }
@@ -182,8 +202,8 @@ void ResultsWidget::initializeGL() {
 
     isDrawingMode = true;
     shouldPaintGL = false;
+    loopDetected = false;
     lineDrawingColor = Qt::white;
-
 
     // Use QBasicTimer because it's faster than QTimer
     timer.start(12, this);

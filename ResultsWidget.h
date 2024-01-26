@@ -27,7 +27,7 @@ public:
     ~ResultsWidget();
     enum surface {sphere, cube, torus, mobiusStrip, crossCap, kleinBottle};
     void addSurface(surface newSurface);
-    void cutSurface();
+    void toggleCutting();
     void setLineDrawingColor(QColor newColor);
     void resizeGL(int w, int h) override;
 
@@ -41,9 +41,11 @@ protected:
     void initShaders();
 
 private:
-    void updateLineVertices(bool surfaceVertexFound, VertexData *newVertex);
+    void updateLineVertices(VertexData *newVertex);
     std::vector<VertexData*> getNewVertices(VertexData *newVertex);
     void checkLineVerticesForLoop(VertexData *newVertex);
+    void cutSurface(QMouseEvent *e);
+    VertexData* getVertexFromMouseEvent(QMouseEvent *e);
 
     Surface *currentSurface;
     Cube *cubeSurface;
@@ -60,10 +62,12 @@ private:
     QVector3D rotationAxis;
     qreal angularSpeed = 0;
     QQuaternion rotation;
-    bool isDrawingMode;
-    bool shouldPaintGL;
     std::vector<VertexData*> lineVertices;
     QColor lineDrawingColor;
+    bool isDrawingMode;
+    bool shouldPaintGL;
+    bool loopDetected;
+    bool cuttingEnabled;
 };
 
 #endif
