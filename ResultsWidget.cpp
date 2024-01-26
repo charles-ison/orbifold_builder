@@ -39,10 +39,13 @@ void ResultsWidget::toggleCutting() {
 }
 
 void ResultsWidget::mousePressEvent(QMouseEvent *e) {
+
     if (cuttingEnabled && loopDetected) {
         cutSurface(e);
     } else {
-        lineVertices.clear();
+        //TODO: Remove
+        mouseMoveEvent(e);
+        //lineVertices.clear();
         isDrawingMode = true;
     }
 }
@@ -69,20 +72,18 @@ void ResultsWidget::cutSurface(QMouseEvent *e) {
     while (!verticesToCut.empty()) {
         VertexData* vertexToCut = verticesToCut.front();
         verticesToCut.pop();
+
+        if (verticesAlreadyCut.find(vertexToCut) != verticesAlreadyCut.end()) {
+            continue;
+        }
         verticesAlreadyCut.insert({vertexToCut, 0});
 
         for (VertexData* neighbor : vertexToCut->neighbors) {
-            if (lineVerticesMap.find(neighbor) == lineVerticesMap.end() && verticesAlreadyCut.find(neighbor) == verticesAlreadyCut.end() ) {
+            if (lineVerticesMap.find(neighbor) == lineVerticesMap.end() && verticesAlreadyCut.find(neighbor) == verticesAlreadyCut.end()) {
                 verticesToCut.push(neighbor);
             }
         }
-
-        for(auto itr = lineVertices.begin(); itr != lineVertices.end(); itr++ ) {
-            if (*itr == vertexToCut) {
-                std::cout << "hi3" << std::endl;
-                lineVertices.erase(itr);
-            }
-        }
+        currentSurface->removeVertex(vertexToCut);
     }
     update();
 }
@@ -118,7 +119,8 @@ VertexData* ResultsWidget::getVertexFromMouseEvent(QMouseEvent *e) {
         QVector3D surfacePosition = mvp_matrix.map(verticesPointer[i].position);
         float xyDistance = sqrt(pow(x - surfacePosition.x(), 2) + pow(y - surfacePosition.y(), 2));
 
-        if (xyDistance < 0.01 && surfacePosition.z() < smallestZDistance) {
+        //TODO: Change back to 0.01
+        if (xyDistance < 0.1 && surfacePosition.z() < smallestZDistance) {
             smallestZDistance = surfacePosition.z();
             closestVertex = &verticesPointer[i];
             surfaceVertexFound = true;
@@ -174,7 +176,8 @@ std::vector<VertexData*> ResultsWidget::getNewVertices(VertexData *newVertex) {
 }
 
 void ResultsWidget::checkLineVerticesForLoop(VertexData *newVertex) {
-    int numRecentVerticesToExcludeForLoopChecking = 5;
+    //TODO: Change back to 5
+    int numRecentVerticesToExcludeForLoopChecking = 3;
     if (lineVertices.size() < numRecentVerticesToExcludeForLoopChecking) {
         return;
     }
