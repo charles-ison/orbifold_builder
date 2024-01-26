@@ -320,9 +320,9 @@ template<typename PointerToMemberFunction> QMenu *MainWindow::createColorMenu(co
 
 template<typename PointerToMemberFunction> QMenu *MainWindow::createZoomMenu(const PointerToMemberFunction &slot) {
     QList<double> zoomScales;
-    zoomScales << 0.8 << 1.0 << 1.2 << 1.4 << 1.6 << 1.8 << 2.0;
+    zoomScales << 0.5 << 1.0 << 1.5 << 2.0 << 2.5 << 3.0 << 3.5 << 4.0;
     QStringList zoomScaleNames;
-    zoomScaleNames << tr("80%") << tr("100%") << tr("120%") << tr("140%") << tr("160%") << tr("180%") << tr("200%");
+    zoomScaleNames << tr("50%") << tr("100%") << tr("150%") << tr("200%") << tr("250%") << tr("300%") << tr("350%") << tr("400%");
 
     QMenu *zoomMenu = new QMenu(this);
     for (int i = 0; i < zoomScales.count(); ++i) {

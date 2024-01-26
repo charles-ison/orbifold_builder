@@ -69,40 +69,47 @@ void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
 
 void ResultsWidget::updateLineVertices(bool surfaceVertexFound, VertexData *newVertex) {
     if (surfaceVertexFound) {
-        std::vector<VertexData*> intermediateVertices = getIntermediateVertices(newVertex);
-        checkLineVerticesForLoop(newVertex);
-        lineVertices.push_back(newVertex);
+        std::vector<VertexData*> newVertices = getNewVertices(newVertex);
+        for (int i=newVertices.size()-1; i>-1; i--) {
+            checkLineVerticesForLoop(newVertices[i]);
+            lineVertices.push_back(newVertices[i]);
+        }
     } else {
         lineVertices.clear();
     }
 }
 
-std::vector<VertexData*> ResultsWidget::getIntermediateVertices(VertexData *newVertex) {
-    std::vector<VertexData*> intermediateVertices;
+std::vector<VertexData*> ResultsWidget::getNewVertices(VertexData *newVertex) {
+    std::vector<VertexData*> newVertices = {newVertex};
     if (lineVertices.size() == 0) {
-        return intermediateVertices;
+        return newVertices;
     }
 
-    std::queue<std::tuple<VertexData*, std::vector<VertexData*>>> verticesToCheck;
-    std::make_tuple(newVertex, intermediateVertices);
-    //verticesToCheck.push();
+    std::unordered_map<VertexData*, int> checkedVertices;
+    std::queue<std::vector<VertexData*>> potentialPaths;
+    potentialPaths.push(newVertices);
 
-    VertexData *lastVertex = lineVertices.back();
-    if (verticesAreNeighbors(newVertex, lastVertex)) {
-        return intermediateVertices;
-    } else {
-        return intermediateVertices;
-    }
-}
+    QVector3D lastVertexPosition = lineVertices.back()->position;
+    while(!potentialPaths.empty()) {
+        std::vector<VertexData*> nextPath = potentialPaths.front();
+        VertexData *nextVertex = nextPath.back();
+        potentialPaths.pop();
 
-bool ResultsWidget::verticesAreNeighbors(VertexData *vertex1, VertexData *vertex2) {
-    QVector3D vertex2Position = vertex2->position;
-    for (auto neighbor : vertex1->neighbors) {
-        if (neighbor->position == vertex2Position) {
-            return true;
+        if(checkedVertices.find(nextVertex) != checkedVertices.end()) {
+            continue;
+        }
+        checkedVertices.insert({nextVertex, 0});
+
+        for (auto neighbor : nextVertex->neighbors) {
+            if (neighbor->position == lastVertexPosition) {
+                return nextPath;
+            } else if(checkedVertices.find(neighbor) == checkedVertices.end()) {
+                nextPath.push_back(neighbor);
+                potentialPaths.push(nextPath);
+            }
         }
     }
-    return false;
+    std::cout << "No connecting path found between drawing vertices using BFS." << std::endl;
 }
 
 void ResultsWidget::checkLineVerticesForLoop(VertexData *newVertex) {

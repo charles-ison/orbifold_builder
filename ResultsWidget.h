@@ -42,9 +42,8 @@ protected:
 
 private:
     void updateLineVertices(bool surfaceVertexFound, VertexData *newVertex);
-    std::vector<VertexData*> getIntermediateVertices(VertexData *newVertex);
+    std::vector<VertexData*> getNewVertices(VertexData *newVertex);
     void checkLineVerticesForLoop(VertexData *newVertex);
-    bool verticesAreNeighbors(VertexData *vertex1, VertexData *vertex2);
 
     Surface *currentSurface;
     Cube *cubeSurface;
