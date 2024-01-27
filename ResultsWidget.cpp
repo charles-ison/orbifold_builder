@@ -18,23 +18,17 @@ void ResultsWidget::addSurface(surface newSurface) {
     shouldPaintGL = true;
     loopDetected = false;
     if (newSurface == surface::cube) {
-        currentSurface = cubeSurface;
-        testSurface->copySurface(cubeSurface);
+        testSurface->copySurface(new Cube());
     } else if (newSurface == surface::sphere) {
-        currentSurface = sphereSurface;
-        testSurface->copySurface(sphereSurface);
+        testSurface->copySurface(new Sphere());
     } else if (newSurface == surface::torus) {
-        currentSurface = torusSurface;
-        testSurface->copySurface(torusSurface);
+        testSurface->copySurface(new Torus());
     } else if (newSurface == surface::mobiusStrip) {
-        currentSurface = mobiusStripSurface;
-        testSurface->copySurface(mobiusStripSurface);
+        testSurface->copySurface(new MobiusStrip());
     } else if (newSurface == surface::crossCap) {
-        currentSurface = crossCapSurface;
-        testSurface->copySurface(crossCapSurface);
+        testSurface->copySurface(new CrossCap);
     } else if (newSurface == surface::kleinBottle) {
-        currentSurface = kleinBottleSurface;
-        testSurface->copySurface(kleinBottleSurface);
+        testSurface->copySurface(new KleinBottle());
     }
     geometryEngine->initSurface(testSurface);
     update();
@@ -60,6 +54,7 @@ void ResultsWidget::cutSurface(QMouseEvent *e) {
     if (startingVertex == nullptr) {
         return;
     }
+
 
     std::unordered_map<VertexData*, int> verticesToNotCut;
     for (VertexData* vertex : lineVertices) {
@@ -231,13 +226,6 @@ void ResultsWidget::initializeGL() {
     glClearColor(96.0/255, 96.0/255, 96.0/255, 1.0);
 
     initShaders();
-
-    cubeSurface = new Cube();
-    sphereSurface = new Sphere();
-    torusSurface = new Torus();
-    mobiusStripSurface = new MobiusStrip();
-    kleinBottleSurface = new KleinBottle();
-    crossCapSurface = new CrossCap();
     geometryEngine = new GeometryEngine();
     testSurface = new TestSurface();
 

@@ -48,13 +48,6 @@ private:
     void cutSurface(QMouseEvent *e);
     VertexData* getVertexFromMouseEvent(QMouseEvent *e);
 
-    Surface *currentSurface;
-    Cube *cubeSurface;
-    Sphere *sphereSurface;
-    Torus *torusSurface;
-    MobiusStrip *mobiusStripSurface;
-    KleinBottle *kleinBottleSurface;
-    CrossCap *crossCapSurface;
     TestSurface *testSurface;
     QBasicTimer timer;
     QOpenGLShaderProgram program;
