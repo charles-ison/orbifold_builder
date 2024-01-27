@@ -1,6 +1,6 @@
-#include "TestSurface.h"
+#include "Mesh.h"
 
-void TestSurface::copySurface(Surface *surface) {
+void Mesh::copySurface(Surface *surface) {
     vertices.clear();
     indices.clear();
 
@@ -17,23 +17,15 @@ void TestSurface::copySurface(Surface *surface) {
     }
 }
 
-std::vector<VertexData*> TestSurface::getVertices() {
+std::vector<VertexData*> Mesh::getVertices() {
     return vertices;
 }
 
-std::vector<GLushort> TestSurface::getIndices() {
+std::vector<GLushort> Mesh::getIndices() {
     return indices;
 }
 
-int TestSurface::getNumVertices() {
-    return vertices.size();
-}
-
-int TestSurface::getNumIndices() {
-    return indices.size();
-}
-
-void TestSurface::cutVertex(VertexData *vertexToCut) {
+void Mesh::cutVertex(VertexData *vertexToCut) {
     int deletedIndex = 0;
     for (auto itr = vertices.begin(); itr != vertices.end(); ++itr) {
         if (vertexToCut == *itr) {

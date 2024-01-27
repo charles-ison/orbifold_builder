@@ -1,18 +1,16 @@
-#ifndef TEST_SURFACE_H
-#define TEST_SURFACE_H
+#ifndef MESH_H
+#define MESH_H
 
 #include <QOpenGLFunctions>
-#include "VertexData.h"
-#include "Surface.h"
+#include "surfaces/VertexData.h"
+#include "surfaces/Surface.h"
 
-class TestSurface {
+class Mesh {
 
 public:
     void copySurface(Surface *surface);
     std::vector<GLushort> getIndices();
     std::vector<VertexData*> getVertices();
-    int getNumVertices();
-    int getNumIndices();
     void cutVertex(VertexData *vertexToCut);
 
 private:

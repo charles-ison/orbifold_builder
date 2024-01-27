@@ -20,6 +20,7 @@ qt_add_executable(orbifold_builder
     Main.cpp
     MainWindow.cpp MainWindow.h
     ResultsWidget.cpp ResultsWidget.h
+    Mesh.cpp Mesh.h
     surfaces/Surface.cpp surfaces/Surface.h
     surfaces/Cube.cpp surfaces/Cube.h
     surfaces/Sphere.cpp surfaces/Sphere.h
@@ -27,7 +28,6 @@ qt_add_executable(orbifold_builder
     surfaces/MobiusStrip.cpp surfaces/MobiusStrip.h
     surfaces/KleinBottle.cpp surfaces/KleinBottle.h
     surfaces/CrossCap.cpp surfaces/CrossCap.h
-    surfaces/TestSurface.cpp surfaces/TestSurface.h
     surfaces/VertexData.h
 )
 

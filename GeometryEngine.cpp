@@ -16,10 +16,10 @@ GeometryEngine::~GeometryEngine() {
     lineArrayBuf.destroy();
 }
 
-void GeometryEngine::initSurface(TestSurface* surface) {
-    int numVertices = surface->getNumVertices();
+void GeometryEngine::initMesh(Mesh* mesh) {
+    std::vector<VertexData*> surfaceVertices = mesh->getVertices();
+    int numVertices = surfaceVertices.size();
     VertexData vertices[numVertices];
-    std::vector<VertexData*> surfaceVertices = surface->getVertices();
     for (int i=0; i<numVertices; i++) {
         vertices[i] = *surfaceVertices[i];
     }
@@ -28,9 +28,9 @@ void GeometryEngine::initSurface(TestSurface* surface) {
     arrayBuf.bind();
     arrayBuf.allocate(vertices, numVertices * sizeof(VertexData));
 
-    numIndices = surface->getNumIndices();
+    std::vector<GLushort> surfaceIndices = mesh->getIndices();
+    numIndices = surfaceIndices.size();
     GLushort indices[numIndices];
-    std::vector<GLushort> surfaceIndices = surface->getIndices();
     for (int i=0; i<numIndices; i++) {
         indices[i] = surfaceIndices[i];
     }
@@ -53,7 +53,7 @@ void GeometryEngine::initLine(std::vector<VertexData*> lineVerticesVector) {
     lineArrayBuf.allocate(lineVertices, numLineVertices * sizeof(VertexData));
 }
 
-void GeometryEngine::drawSurface(QOpenGLShaderProgram *program) {
+void GeometryEngine::drawMesh(QOpenGLShaderProgram *program) {
     // Tell OpenGL which VBOs to use
     arrayBuf.bind();
     indexBuf.bind();

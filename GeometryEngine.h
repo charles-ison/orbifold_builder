@@ -4,16 +4,16 @@
 #include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLBuffer>
-#include "surfaces/TestSurface.h"
+#include "Mesh.h"
 
 class GeometryEngine : protected QOpenGLFunctions {
 public:
     GeometryEngine();
     virtual ~GeometryEngine();
-    void drawSurface(QOpenGLShaderProgram *program);
+    void drawMesh(QOpenGLShaderProgram *program);
     void drawLine(QOpenGLShaderProgram *program, QColor color);
     void initLine(std::vector<VertexData*> lineVerticesVector);
-    void initSurface(TestSurface* surface);
+    void initMesh(Mesh* mesh);
 
 private:
     int numIndices;

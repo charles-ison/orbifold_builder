@@ -18,19 +18,19 @@ void ResultsWidget::addSurface(surface newSurface) {
     shouldPaintGL = true;
     loopDetected = false;
     if (newSurface == surface::cube) {
-        testSurface->copySurface(new Cube());
+        mesh->copySurface(new Cube());
     } else if (newSurface == surface::sphere) {
-        testSurface->copySurface(new Sphere());
+        mesh->copySurface(new Sphere());
     } else if (newSurface == surface::torus) {
-        testSurface->copySurface(new Torus());
+        mesh->copySurface(new Torus());
     } else if (newSurface == surface::mobiusStrip) {
-        testSurface->copySurface(new MobiusStrip());
+        mesh->copySurface(new MobiusStrip());
     } else if (newSurface == surface::crossCap) {
-        testSurface->copySurface(new CrossCap);
+        mesh->copySurface(new CrossCap);
     } else if (newSurface == surface::kleinBottle) {
-        testSurface->copySurface(new KleinBottle());
+        mesh->copySurface(new KleinBottle());
     }
-    geometryEngine->initSurface(testSurface);
+    geometryEngine->initMesh(mesh);
     update();
 }
 
@@ -78,9 +78,9 @@ void ResultsWidget::cutSurface(QMouseEvent *e) {
                 verticesToNotCut.insert({neighbor, 0});
             }
         }
-        testSurface->cutVertex(vertexToCut);
+        mesh->cutVertex(vertexToCut);
     }
-    geometryEngine->initSurface(testSurface);
+    geometryEngine->initMesh(mesh);
     update();
 }
 
@@ -107,12 +107,11 @@ VertexData* ResultsWidget::getVertexFromMouseEvent(QMouseEvent *e) {
     VertexData *closestVertex = new VertexData;
     bool surfaceVertexFound = false;
     float smallestZDistance = std::numeric_limits<float>::max();
-    int numVertices = testSurface->getNumVertices();
-    std::vector<VertexData*> vertices = testSurface->getVertices();
+    std::vector<VertexData*> vertices = mesh->getVertices();
     float x = (e->position().x() - (width()/2.0)) / (width()/2.0);
     float y = -(e->position().y() - (height()/2.0)) / (height()/2.0);
 
-    for (int i=0; i<numVertices; i++) {
+    for (int i=0; i<vertices.size(); i++) {
         QVector3D surfacePosition = mvp_matrix.map(vertices[i]->position);
         float xyDistance = sqrt(pow(x - surfacePosition.x(), 2) + pow(y - surfacePosition.y(), 2));
 
@@ -227,7 +226,7 @@ void ResultsWidget::initializeGL() {
 
     initShaders();
     geometryEngine = new GeometryEngine();
-    testSurface = new TestSurface();
+    mesh = new Mesh();
 
     isDrawingMode = true;
     shouldPaintGL = false;
@@ -295,7 +294,7 @@ void ResultsWidget::paintGL() {
         program.setUniformValue("mvp_matrix", projection * matrix);
 
         // Draw geometry
-        geometryEngine->drawSurface(&program);
+        geometryEngine->drawMesh(&program);
         geometryEngine->drawLine(&program, lineDrawingColor);
     }
 }

@@ -15,7 +15,7 @@
 #include "surfaces/MobiusStrip.h"
 #include "surfaces/KleinBottle.h"
 #include "surfaces/CrossCap.h"
-#include "surfaces/TestSurface.h"
+#include "Mesh.h"
 
 class GeometryEngine;
 
@@ -48,7 +48,7 @@ private:
     void cutSurface(QMouseEvent *e);
     VertexData* getVertexFromMouseEvent(QMouseEvent *e);
 
-    TestSurface *testSurface;
+    Mesh *mesh;
     QBasicTimer timer;
     QOpenGLShaderProgram program;
     GeometryEngine *geometryEngine = nullptr;
