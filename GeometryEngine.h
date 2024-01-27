@@ -4,7 +4,7 @@
 #include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLBuffer>
-#include "surfaces/Surface.h"
+#include "surfaces/TestSurface.h"
 
 class GeometryEngine : protected QOpenGLFunctions {
 public:
@@ -13,7 +13,7 @@ public:
     void drawSurface(QOpenGLShaderProgram *program);
     void drawLine(QOpenGLShaderProgram *program, QColor color);
     void initLine(std::vector<VertexData*> lineVerticesVector);
-    void initSurface(Surface* surface);
+    void initSurface(TestSurface* surface);
 
 private:
     int numIndices;

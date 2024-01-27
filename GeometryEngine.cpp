@@ -16,12 +16,12 @@ GeometryEngine::~GeometryEngine() {
     lineArrayBuf.destroy();
 }
 
-void GeometryEngine::initSurface(Surface* surface) {
+void GeometryEngine::initSurface(TestSurface* surface) {
     int numVertices = surface->getNumVertices();
     VertexData vertices[numVertices];
-    VertexData *verticesPointer = surface->getVertices();
+    std::vector<VertexData*> surfaceVertices = surface->getVertices();
     for (int i=0; i<numVertices; i++) {
-        vertices[i] = verticesPointer[i];
+        vertices[i] = *surfaceVertices[i];
     }
 
     // Transfer vertex data to VBO 0
@@ -30,9 +30,9 @@ void GeometryEngine::initSurface(Surface* surface) {
 
     numIndices = surface->getNumIndices();
     GLushort indices[numIndices];
-    GLushort *indicesPointer = surface->getIndices();
+    std::vector<GLushort> surfaceIndices = surface->getIndices();
     for (int i=0; i<numIndices; i++) {
-        indices[i] = indicesPointer[i];
+        indices[i] = surfaceIndices[i];
     }
 
     // Transfer index data to VBO 1
@@ -66,7 +66,7 @@ void GeometryEngine::drawSurface(QOpenGLShaderProgram *program) {
     program->setUniformValue("use_line_color", (GLfloat)0.0);
 
     // Draw geometry using indices from VBO 1
-    glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_SHORT, nullptr);
+    glDrawElements(GL_TRIANGLE_STRIP, numIndices, GL_UNSIGNED_SHORT, nullptr);
 }
 
 void GeometryEngine::drawLine(QOpenGLShaderProgram *program, QColor color) {

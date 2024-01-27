@@ -15,6 +15,7 @@
 #include "surfaces/MobiusStrip.h"
 #include "surfaces/KleinBottle.h"
 #include "surfaces/CrossCap.h"
+#include "surfaces/TestSurface.h"
 
 class GeometryEngine;
 
@@ -54,6 +55,7 @@ private:
     MobiusStrip *mobiusStripSurface;
     KleinBottle *kleinBottleSurface;
     CrossCap *crossCapSurface;
+    TestSurface *testSurface;
     QBasicTimer timer;
     QOpenGLShaderProgram program;
     GeometryEngine *geometryEngine = nullptr;

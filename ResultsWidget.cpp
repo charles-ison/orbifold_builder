@@ -19,18 +19,24 @@ void ResultsWidget::addSurface(surface newSurface) {
     loopDetected = false;
     if (newSurface == surface::cube) {
         currentSurface = cubeSurface;
+        testSurface->copySurface(cubeSurface);
     } else if (newSurface == surface::sphere) {
         currentSurface = sphereSurface;
+        testSurface->copySurface(sphereSurface);
     } else if (newSurface == surface::torus) {
         currentSurface = torusSurface;
+        testSurface->copySurface(torusSurface);
     } else if (newSurface == surface::mobiusStrip) {
         currentSurface = mobiusStripSurface;
+        testSurface->copySurface(mobiusStripSurface);
     } else if (newSurface == surface::crossCap) {
         currentSurface = crossCapSurface;
+        testSurface->copySurface(crossCapSurface);
     } else if (newSurface == surface::kleinBottle) {
         currentSurface = kleinBottleSurface;
+        testSurface->copySurface(kleinBottleSurface);
     }
-    geometryEngine->initSurface(currentSurface);
+    geometryEngine->initSurface(testSurface);
     update();
 }
 
@@ -39,13 +45,12 @@ void ResultsWidget::toggleCutting() {
 }
 
 void ResultsWidget::mousePressEvent(QMouseEvent *e) {
-
     if (cuttingEnabled && loopDetected) {
         cutSurface(e);
     } else {
-        //TODO: Remove
-        mouseMoveEvent(e);
-        //lineVertices.clear();
+        //TODO: Uncomment and comment out clear() for testing
+        //mouseMoveEvent(e);
+        lineVertices.clear();
         isDrawingMode = true;
     }
 }
@@ -83,8 +88,9 @@ void ResultsWidget::cutSurface(QMouseEvent *e) {
                 verticesToCut.push(neighbor);
             }
         }
-        currentSurface->removeVertex(vertexToCut);
+        testSurface->cutVertex(vertexToCut);
     }
+    geometryEngine->initSurface(testSurface);
     update();
 }
 
@@ -93,6 +99,7 @@ void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
         return;
     }
 
+    //TODO: Comment for testing
     loopDetected = false;
 
     VertexData *vertex = getVertexFromMouseEvent(e);
@@ -110,19 +117,19 @@ VertexData* ResultsWidget::getVertexFromMouseEvent(QMouseEvent *e) {
     VertexData *closestVertex = new VertexData;
     bool surfaceVertexFound = false;
     float smallestZDistance = std::numeric_limits<float>::max();
-    int numVertices = currentSurface->getNumVertices();
-    VertexData *verticesPointer = currentSurface->getVertices();
+    int numVertices = testSurface->getNumVertices();
+    std::vector<VertexData*> vertices = testSurface->getVertices();
     float x = (e->position().x() - (width()/2.0)) / (width()/2.0);
     float y = -(e->position().y() - (height()/2.0)) / (height()/2.0);
 
     for (int i=0; i<numVertices; i++) {
-        QVector3D surfacePosition = mvp_matrix.map(verticesPointer[i].position);
+        QVector3D surfacePosition = mvp_matrix.map(vertices[i]->position);
         float xyDistance = sqrt(pow(x - surfacePosition.x(), 2) + pow(y - surfacePosition.y(), 2));
 
-        //TODO: Change back to 0.01
-        if (xyDistance < 0.1 && surfacePosition.z() < smallestZDistance) {
+        //TODO: Change to 0.1 for testing
+        if (xyDistance < 0.01 && surfacePosition.z() < smallestZDistance) {
             smallestZDistance = surfacePosition.z();
-            closestVertex = &verticesPointer[i];
+            closestVertex = vertices[i];
             surfaceVertexFound = true;
         }
     }
@@ -176,8 +183,8 @@ std::vector<VertexData*> ResultsWidget::getNewVertices(VertexData *newVertex) {
 }
 
 void ResultsWidget::checkLineVerticesForLoop(VertexData *newVertex) {
-    //TODO: Change back to 5
-    int numRecentVerticesToExcludeForLoopChecking = 3;
+    //TODO: Change to 3 for testing
+    int numRecentVerticesToExcludeForLoopChecking = 5;
     if (lineVertices.size() < numRecentVerticesToExcludeForLoopChecking) {
         return;
     }
@@ -237,6 +244,7 @@ void ResultsWidget::initializeGL() {
     kleinBottleSurface = new KleinBottle();
     crossCapSurface = new CrossCap();
     geometryEngine = new GeometryEngine();
+    testSurface = new TestSurface();
 
     isDrawingMode = true;
     shouldPaintGL = false;
