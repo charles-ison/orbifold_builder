@@ -61,13 +61,12 @@ void ResultsWidget::cutSurface(QMouseEvent *e) {
         return;
     }
 
-    std::unordered_map<VertexData*, int> verticesAlreadyCut;
-    std::unordered_map<VertexData*, int> lineVerticesMap;
+    std::unordered_map<VertexData*, int> verticesToNotCut;
     for (VertexData* vertex : lineVertices) {
-        lineVerticesMap.insert({vertex, 0});
+        verticesToNotCut.insert({vertex, 0});
     }
 
-    if (lineVerticesMap.find(startingVertex) != lineVerticesMap.end()) {
+    if (verticesToNotCut.find(startingVertex) != verticesToNotCut.end()) {
         return;
     }
 
@@ -78,14 +77,10 @@ void ResultsWidget::cutSurface(QMouseEvent *e) {
         VertexData* vertexToCut = verticesToCut.front();
         verticesToCut.pop();
 
-        if (verticesAlreadyCut.find(vertexToCut) != verticesAlreadyCut.end()) {
-            continue;
-        }
-        verticesAlreadyCut.insert({vertexToCut, 0});
-
         for (VertexData* neighbor : vertexToCut->neighbors) {
-            if (lineVerticesMap.find(neighbor) == lineVerticesMap.end() && verticesAlreadyCut.find(neighbor) == verticesAlreadyCut.end()) {
+            if (verticesToNotCut.find(neighbor) == verticesToNotCut.end()) {
                 verticesToCut.push(neighbor);
+                verticesToNotCut.insert({neighbor, 0});
             }
         }
         testSurface->cutVertex(vertexToCut);
