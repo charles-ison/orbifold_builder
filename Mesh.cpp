@@ -1,4 +1,5 @@
 #include "Mesh.h"
+#include <iostream>
 
 void Mesh::copySurface(Surface *surface) {
     vertices.clear();
@@ -30,6 +31,7 @@ void Mesh::cutVertex(VertexData *vertexToCut) {
     for (auto itr = vertices.begin(); itr != vertices.end(); ++itr) {
         if (vertexToCut == *itr) {
             vertices.erase(itr);
+            //std::cout << "deletedIndex: " << deletedIndex << std::endl;
             break;
         }
         deletedIndex++;
@@ -39,6 +41,11 @@ void Mesh::cutVertex(VertexData *vertexToCut) {
     int numIndicesRemoved = 0;
     while ((i+numIndicesRemoved)<indices.size()) {
         while (deletedIndex == indices[i+numIndicesRemoved] || deletedIndex == indices[i+numIndicesRemoved+1] || deletedIndex == indices[i+numIndicesRemoved+2]) {
+            //std::cout << "Removed triangle:" << std::endl;
+            //std::cout << "indices[i+numIndicesRemoved]: " << indices[i+numIndicesRemoved] << std::endl;
+            //std::cout << "indices[i+numIndicesRemoved+1]: " << indices[i+numIndicesRemoved+1] << std::endl;
+            //std::cout << "indices[i+numIndicesRemoved+2]: " << indices[i+numIndicesRemoved+2] << std::endl;
+
             numIndicesRemoved += 3;
         }
         if ((i+numIndicesRemoved)>=indices.size()) {

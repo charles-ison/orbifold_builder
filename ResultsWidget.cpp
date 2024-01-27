@@ -78,7 +78,20 @@ void ResultsWidget::cutSurface(QMouseEvent *e) {
                 verticesToNotCut.insert({neighbor, 0});
             }
         }
+
+        //std::cout << "indices before:" << std::endl;
+        //std::vector<GLushort> indices1 = mesh->getIndices();
+        //for (int i=0; i<indices1.size(); i+=3) {
+        //    std::cout << indices1[i] << ", " << indices1[i+1] << ", " << indices1[i+2] << std::endl;
+        //}
+
         mesh->cutVertex(vertexToCut);
+
+        //std::cout << "indices after:" << std::endl;
+        //std::vector<GLushort> indices2 = mesh->getIndices();
+        //for (int i=0; i<indices2.size(); i+=3) {
+        //    std::cout << indices2[i] << ", " << indices2[i+1] << ", " << indices2[i+2] << std::endl;
+        //}
     }
     geometryEngine->initMesh(mesh);
     update();

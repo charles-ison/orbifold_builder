@@ -66,7 +66,7 @@ void GeometryEngine::drawMesh(QOpenGLShaderProgram *program) {
     program->setUniformValue("use_line_color", (GLfloat)0.0);
 
     // Draw geometry using indices from VBO 1
-    glDrawElements(GL_TRIANGLE_STRIP, numIndices, GL_UNSIGNED_SHORT, nullptr);
+    glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_SHORT, nullptr);
 }
 
 void GeometryEngine::drawLine(QOpenGLShaderProgram *program, QColor color) {
