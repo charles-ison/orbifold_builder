@@ -17,6 +17,7 @@ ResultsWidget::~ResultsWidget() {
 void ResultsWidget::addSurface(surface newSurface) {
     shouldPaintGL = true;
     loopDetected = false;
+    lineVertices.clear();
     if (newSurface == surface::cube) {
         mesh->copySurface(new Cube());
     } else if (newSurface == surface::sphere) {
@@ -31,6 +32,7 @@ void ResultsWidget::addSurface(surface newSurface) {
         mesh->copySurface(new KleinBottle());
     }
     geometryEngine->initMesh(mesh);
+    geometryEngine->initLine(lineVertices);
     update();
 }
 
