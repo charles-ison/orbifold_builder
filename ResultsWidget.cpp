@@ -4,7 +4,7 @@
 #include <cmath>
 #include <limits>
 #include <queue>
-#include <tuple>
+#include <unordered_set>
 #include <iostream>
 
 ResultsWidget::~ResultsWidget() {
@@ -57,10 +57,11 @@ void ResultsWidget::cutSurface(QMouseEvent *e) {
         return;
     }
 
-
-    std::unordered_map<std::string, int> verticesToNotCut;
+    //TODO: Hashing on vertex position string isn't ideal, could refactor to be more robust later
+    //std::unordered_map<std::string, int> verticesToNotCut;
+    std::unordered_set<std::string> verticesToNotCut;
     for (VertexData* vertex : lineVertices) {
-        verticesToNotCut.insert({vertex->toString(), 0});
+        verticesToNotCut.insert(vertex->toString());
     }
 
     if (verticesToNotCut.find(startingVertex->toString()) != verticesToNotCut.end()) {
@@ -78,7 +79,7 @@ void ResultsWidget::cutSurface(QMouseEvent *e) {
             std::string neighborString = neighbor->toString();
             if (verticesToNotCut.find(neighborString) == verticesToNotCut.end()) {
                 verticesToCut.push(neighbor);
-                verticesToNotCut.insert({neighborString, 0});
+                verticesToNotCut.insert(neighborString);
             }
         }
         mesh->cutVertex(vertexToCut);
