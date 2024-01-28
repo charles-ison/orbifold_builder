@@ -2,10 +2,11 @@
 #define VERTEXDATA_H
 
 #include <QOpenGLShaderProgram>
+#include <set>
 
 struct VertexData {
     QVector3D position;
-    std::vector<VertexData*> neighbors;
+    std::set<VertexData*> neighbors;
 };
 
 #endif

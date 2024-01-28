@@ -10,13 +10,13 @@ void Surface::initNeighbors() {
         GLushort index2 = indices[i+1];
         GLushort index3 = indices[i+2];
 
-        vertices[index1].neighbors.push_back(&vertices[index2]);
-        vertices[index1].neighbors.push_back(&vertices[index3]);
+        vertices[index1].neighbors.insert(&vertices[index2]);
+        vertices[index1].neighbors.insert(&vertices[index3]);
 
-        vertices[index2].neighbors.push_back(&vertices[index1]);
-        vertices[index2].neighbors.push_back(&vertices[index3]);
+        vertices[index2].neighbors.insert(&vertices[index1]);
+        vertices[index2].neighbors.insert(&vertices[index3]);
 
-        vertices[index3].neighbors.push_back(&vertices[index1]);
-        vertices[index3].neighbors.push_back(&vertices[index2]);
+        vertices[index3].neighbors.insert(&vertices[index1]);
+        vertices[index3].neighbors.insert(&vertices[index2]);
     }
 }
