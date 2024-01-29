@@ -28,7 +28,7 @@ qt_add_executable(orbifold_builder
     surfaces/MobiusStrip.cpp surfaces/MobiusStrip.h
     surfaces/KleinBottle.cpp surfaces/KleinBottle.h
     surfaces/CrossCap.cpp surfaces/CrossCap.h
-    surfaces/VertexData.h
+        surfaces/Vertex.h
 )
 
 set_target_properties(orbifold_builder PROPERTIES

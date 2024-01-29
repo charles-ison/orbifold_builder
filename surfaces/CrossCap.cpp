@@ -43,7 +43,7 @@ void CrossCap::initIndices() {
     }
 }
 
-VertexData* CrossCap::getVertices() {
+Vertex* CrossCap::getVertices() {
     return vertices;
 }
 

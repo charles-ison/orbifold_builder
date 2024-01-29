@@ -2,7 +2,7 @@
 #define KLEIN_BOTTLE_H
 
 #include <QOpenGLFunctions>
-#include "VertexData.h"
+#include "Vertex.h"
 #include "Surface.h"
 
 class KleinBottle : public Surface {
@@ -10,7 +10,7 @@ class KleinBottle : public Surface {
 public:
     KleinBottle();
     GLushort* getIndices();
-    VertexData* getVertices();
+    Vertex* getVertices();
     int getNumVertices();
     int getNumIndices();
 
@@ -25,7 +25,7 @@ private:
     float c = 0.5;
     static const int numVertices = 2 * numVertSteps * numHorSteps;
     static const int numIndices = 2 * 6 * numVertSteps * numHorSteps;
-    VertexData vertices[numVertices];
+    Vertex vertices[numVertices];
     GLushort indices[numIndices];
 };
 

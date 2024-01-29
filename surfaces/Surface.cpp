@@ -1,7 +1,7 @@
 #include "Surface.h"
 
 void Surface::initNeighbors() {
-    VertexData* vertices = getVertices();
+    Vertex* vertices = getVertices();
     GLushort* indices = getIndices();
     int numIndices = getNumIndices();
 

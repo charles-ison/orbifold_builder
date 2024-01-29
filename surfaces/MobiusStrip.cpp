@@ -42,7 +42,7 @@ void MobiusStrip::initIndices() {
     }
 }
 
-VertexData* MobiusStrip::getVertices() {
+Vertex* MobiusStrip::getVertices() {
     return vertices;
 }
 

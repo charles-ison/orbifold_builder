@@ -52,14 +52,14 @@ void ResultsWidget::mousePressEvent(QMouseEvent *e) {
 }
 
 void ResultsWidget::cutSurface(QMouseEvent *e) {
-    VertexData *startingVertex = getVertexFromMouseEvent(e);
+    Vertex *startingVertex = getVertexFromMouseEvent(e);
     if (startingVertex == nullptr) {
         return;
     }
 
     //TODO: Hashing on vertex position string isn't ideal, could refactor to be more robust later
     std::unordered_set<std::string> verticesToNotCut;
-    for (VertexData* vertex : lineVertices) {
+    for (Vertex* vertex : lineVertices) {
         verticesToNotCut.insert(vertex->toString());
     }
 
@@ -67,15 +67,15 @@ void ResultsWidget::cutSurface(QMouseEvent *e) {
         return;
     }
 
-    std::queue<VertexData*> verticesToCut;
+    std::queue<Vertex*> verticesToCut;
     verticesToCut.push(startingVertex);
 
     while (!verticesToCut.empty()) {
-        VertexData* vertexToCut = verticesToCut.front();
+        Vertex* vertexToCut = verticesToCut.front();
         mesh->cutVertex(vertexToCut);
         verticesToCut.pop();
 
-        for (VertexData* neighbor : vertexToCut->neighbors) {
+        for (Vertex* neighbor : vertexToCut->neighbors) {
             std::string neighborString = neighbor->toString();
             if (verticesToNotCut.find(neighborString) == verticesToNotCut.end()) {
                 verticesToCut.push(neighbor);
@@ -95,7 +95,7 @@ void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
     //TODO: Comment for testing
     loopDetected = false;
 
-    VertexData *vertex = getVertexFromMouseEvent(e);
+    Vertex *vertex = getVertexFromMouseEvent(e);
     if (vertex == nullptr) {
         lineVertices.clear();
     } else if (lineVertices.size() == 0 || vertex != lineVertices.back()) {
@@ -106,11 +106,11 @@ void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
     update();
 }
 
-VertexData* ResultsWidget::getVertexFromMouseEvent(QMouseEvent *e) {
-    VertexData *closestVertex = new VertexData;
+Vertex* ResultsWidget::getVertexFromMouseEvent(QMouseEvent *e) {
+    Vertex *closestVertex = new Vertex;
     bool surfaceVertexFound = false;
     float smallestZDistance = std::numeric_limits<float>::max();
-    std::vector<VertexData*> vertices = mesh->getVertices();
+    std::vector<Vertex*> vertices = mesh->getVertices();
     float x = (e->position().x() - (width()/2.0)) / (width()/2.0);
     float y = -(e->position().y() - (height()/2.0)) / (height()/2.0);
 
@@ -132,28 +132,28 @@ VertexData* ResultsWidget::getVertexFromMouseEvent(QMouseEvent *e) {
     }
 }
 
-void ResultsWidget::addLineVertices(VertexData *newVertex) {
-    std::vector<VertexData *> newVertices = getNewVertices(newVertex);
+void ResultsWidget::addLineVertices(Vertex *newVertex) {
+    std::vector<Vertex *> newVertices = getNewVertices(newVertex);
     for (int i = newVertices.size() - 1; i > -1; i--) {
         checkLineVerticesForLoop(newVertices[i]);
         lineVertices.push_back(newVertices[i]);
     }
 }
 
-std::vector<VertexData*> ResultsWidget::getNewVertices(VertexData *newVertex) {
-    std::vector<VertexData*> newVertices = {newVertex};
+std::vector<Vertex*> ResultsWidget::getNewVertices(Vertex *newVertex) {
+    std::vector<Vertex*> newVertices = {newVertex};
     if (lineVertices.size() == 0) {
         return newVertices;
     }
 
-    std::unordered_map<VertexData*, int> checkedVertices;
-    std::queue<std::vector<VertexData*>> potentialPaths;
+    std::unordered_map<Vertex*, int> checkedVertices;
+    std::queue<std::vector<Vertex*>> potentialPaths;
     potentialPaths.push(newVertices);
     QVector3D lastVertexPosition = lineVertices.back()->position;
 
     while(!potentialPaths.empty()) {
-        std::vector<VertexData*> nextPath = potentialPaths.front();
-        VertexData *nextVertex = nextPath.back();
+        std::vector<Vertex*> nextPath = potentialPaths.front();
+        Vertex *nextVertex = nextPath.back();
         potentialPaths.pop();
 
         if(checkedVertices.find(nextVertex) != checkedVertices.end()) {
@@ -161,11 +161,11 @@ std::vector<VertexData*> ResultsWidget::getNewVertices(VertexData *newVertex) {
         }
         checkedVertices.insert({nextVertex, 0});
 
-        for (VertexData* neighbor : nextVertex->neighbors) {
+        for (Vertex* neighbor : nextVertex->neighbors) {
             if (neighbor->position == lastVertexPosition) {
                 return nextPath;
             } else if(checkedVertices.find(neighbor) == checkedVertices.end()) {
-                std::vector<VertexData*> newPotentialPath = nextPath;
+                std::vector<Vertex*> newPotentialPath = nextPath;
                 newPotentialPath.push_back(neighbor);
                 potentialPaths.push(newPotentialPath);
             }
@@ -174,7 +174,7 @@ std::vector<VertexData*> ResultsWidget::getNewVertices(VertexData *newVertex) {
     std::cout << "No connecting path found between drawing vertices using BFS." << std::endl;
 }
 
-void ResultsWidget::checkLineVerticesForLoop(VertexData *newVertex) {
+void ResultsWidget::checkLineVerticesForLoop(Vertex *newVertex) {
     //TODO: Change to 3 for testing
     int numRecentVerticesToExcludeForLoopChecking = 5;
     if (lineVertices.size() < numRecentVerticesToExcludeForLoopChecking) {

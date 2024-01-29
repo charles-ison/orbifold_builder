@@ -2,7 +2,7 @@
 #define MESH_H
 
 #include <QOpenGLFunctions>
-#include "surfaces/VertexData.h"
+#include "surfaces/Vertex.h"
 #include "surfaces/Surface.h"
 
 class Mesh {
@@ -10,12 +10,12 @@ class Mesh {
 public:
     void copySurface(Surface *surface);
     std::vector<GLushort> getIndices();
-    std::vector<VertexData*> getVertices();
-    void cutVertex(VertexData *vertexToCut);
+    std::vector<Vertex*> getVertices();
+    void cutVertex(Vertex *vertexToCut);
 
 private:
     int getUpdateIndex(int deletedIndex, int index);
-    std::vector<VertexData*> vertices;
+    std::vector<Vertex*> vertices;
     std::vector<GLushort> indices;
 };
 

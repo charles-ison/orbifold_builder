@@ -26,7 +26,7 @@ void Cube::initIndices() {
     indices[30] = 1; indices[31] = 5; indices[32] = 6; indices[33] = 6; indices[34] = 2; indices[35] = 1;
 }
 
-VertexData* Cube::getVertices() {
+Vertex* Cube::getVertices() {
     return vertices;
 }
 

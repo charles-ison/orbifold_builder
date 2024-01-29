@@ -2,7 +2,7 @@
 #define MOBIUS_STRIP_H
 
 #include <QOpenGLFunctions>
-#include "VertexData.h"
+#include "Vertex.h"
 #include "Surface.h"
 
 class MobiusStrip : public Surface {
@@ -10,7 +10,7 @@ class MobiusStrip : public Surface {
 public:
     MobiusStrip();
     GLushort* getIndices();
-    VertexData* getVertices();
+    Vertex* getVertices();
     int getNumVertices();
     int getNumIndices();
 
@@ -22,7 +22,7 @@ private:
     float radius = 1.0;
     static const int numVertices = (numVertSteps+1) * (numHorSteps+1);
     static const int numIndices = 6 * (numVertSteps+1) * numHorSteps;
-    VertexData vertices[numVertices];
+    Vertex vertices[numVertices];
     GLushort indices[numIndices];
 };
 

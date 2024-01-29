@@ -74,7 +74,7 @@ void Sphere::initIndices() {
     }
 }
 
-VertexData* Sphere::getVertices() {
+Vertex* Sphere::getVertices() {
     return vertices;
 }
 

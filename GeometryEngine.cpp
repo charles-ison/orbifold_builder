@@ -17,16 +17,16 @@ GeometryEngine::~GeometryEngine() {
 }
 
 void GeometryEngine::initMesh(Mesh* mesh) {
-    std::vector<VertexData*> surfaceVertices = mesh->getVertices();
+    std::vector<Vertex*> surfaceVertices = mesh->getVertices();
     int numVertices = surfaceVertices.size();
-    VertexData vertices[numVertices];
+    Vertex vertices[numVertices];
     for (int i=0; i<numVertices; i++) {
         vertices[i] = *surfaceVertices[i];
     }
 
     // Transfer vertex data to VBO 0
     arrayBuf.bind();
-    arrayBuf.allocate(vertices, numVertices * sizeof(VertexData));
+    arrayBuf.allocate(vertices, numVertices * sizeof(Vertex));
 
     std::vector<GLushort> surfaceIndices = mesh->getIndices();
     numIndices = surfaceIndices.size();
@@ -40,9 +40,9 @@ void GeometryEngine::initMesh(Mesh* mesh) {
     indexBuf.allocate(indices, numIndices * sizeof(GLushort));
 }
 
-void GeometryEngine::initLine(std::vector<VertexData*> lineVerticesVector) {
+void GeometryEngine::initLine(std::vector<Vertex*> lineVerticesVector) {
     numLineVertices = lineVerticesVector.size();
-    VertexData lineVertices[numLineVertices];
+    Vertex lineVertices[numLineVertices];
 
     for (int i=0; i<numLineVertices; i++) {
         lineVertices[i] = *lineVerticesVector[i];
@@ -50,7 +50,7 @@ void GeometryEngine::initLine(std::vector<VertexData*> lineVerticesVector) {
 
     // Transfer vertex data to VBO 0
     lineArrayBuf.bind();
-    lineArrayBuf.allocate(lineVertices, numLineVertices * sizeof(VertexData));
+    lineArrayBuf.allocate(lineVertices, numLineVertices * sizeof(Vertex));
 }
 
 void GeometryEngine::drawMesh(QOpenGLShaderProgram *program) {
@@ -61,7 +61,7 @@ void GeometryEngine::drawMesh(QOpenGLShaderProgram *program) {
     // Tell OpenGL programmable pipeline how to locate vertex position data
     int vertexLocation = program->attributeLocation("a_position");
     program->enableAttributeArray(vertexLocation);
-    program->setAttributeBuffer(vertexLocation, GL_FLOAT, 0, 3, sizeof(VertexData));
+    program->setAttributeBuffer(vertexLocation, GL_FLOAT, 0, 3, sizeof(Vertex));
 
     program->setUniformValue("use_line_color", (GLfloat)0.0);
 
@@ -76,7 +76,7 @@ void GeometryEngine::drawLine(QOpenGLShaderProgram *program, QColor color) {
     // Tell OpenGL programmable pipeline how to locate vertex position data
     int vertexLocation = program->attributeLocation("a_position");
     program->enableAttributeArray(vertexLocation);
-    program->setAttributeBuffer(vertexLocation, GL_FLOAT, 0, 3, sizeof(VertexData));
+    program->setAttributeBuffer(vertexLocation, GL_FLOAT, 0, 3, sizeof(Vertex));
 
     QRgb rgb = color.rgb();
     program->setUniformValue("line_color", qRed(rgb), qGreen(rgb), qBlue(rgb));

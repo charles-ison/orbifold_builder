@@ -5,7 +5,7 @@ void Mesh::copySurface(Surface *surface) {
     indices.clear();
 
     int numVertices = surface->getNumVertices();
-    VertexData* surfaceVertices = surface->getVertices();
+    Vertex* surfaceVertices = surface->getVertices();
     for (int i=0; i<numVertices; i++) {
         vertices.push_back(&surfaceVertices[i]);
     }
@@ -17,7 +17,7 @@ void Mesh::copySurface(Surface *surface) {
     }
 }
 
-std::vector<VertexData*> Mesh::getVertices() {
+std::vector<Vertex*> Mesh::getVertices() {
     return vertices;
 }
 
@@ -32,7 +32,7 @@ int Mesh::getUpdateIndex(int deletedIndex, int index) {
     return index;
 }
 
-void Mesh::cutVertex(VertexData *vertexToCut) {
+void Mesh::cutVertex(Vertex *vertexToCut) {
     int deletedIndex = 0;
     for (auto itr = vertices.begin(); itr != vertices.end(); ++itr) {
         if (vertexToCut == *itr) {

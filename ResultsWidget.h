@@ -42,11 +42,11 @@ protected:
     void initShaders();
 
 private:
-    void addLineVertices(VertexData *newVertex);
-    std::vector<VertexData*> getNewVertices(VertexData *newVertex);
-    void checkLineVerticesForLoop(VertexData *newVertex);
+    void addLineVertices(Vertex *newVertex);
+    std::vector<Vertex*> getNewVertices(Vertex *newVertex);
+    void checkLineVerticesForLoop(Vertex *newVertex);
     void cutSurface(QMouseEvent *e);
-    VertexData* getVertexFromMouseEvent(QMouseEvent *e);
+    Vertex* getVertexFromMouseEvent(QMouseEvent *e);
 
     Mesh *mesh;
     QBasicTimer timer;
@@ -57,7 +57,7 @@ private:
     QVector3D rotationAxis;
     qreal angularSpeed = 0;
     QQuaternion rotation;
-    std::vector<VertexData*> lineVertices;
+    std::vector<Vertex*> lineVertices;
     QColor lineDrawingColor;
     bool isDrawingMode;
     bool shouldPaintGL;

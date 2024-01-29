@@ -2,7 +2,7 @@
 #define TORUS_H
 
 #include <QOpenGLFunctions>
-#include "VertexData.h"
+#include "Vertex.h"
 #include "Surface.h"
 
 class Torus : public Surface {
@@ -10,7 +10,7 @@ class Torus : public Surface {
 public:
     Torus();
     GLushort* getIndices();
-    VertexData* getVertices();
+    Vertex* getVertices();
     int getNumVertices();
     int getNumIndices();
 
@@ -23,7 +23,7 @@ private:
     float smallRadius = 0.5;
     static const int numVertices = numVertSteps * numHorSteps;
     static const int numIndices = 6 * numVertSteps * numHorSteps;
-    VertexData vertices[numVertices];
+    Vertex vertices[numVertices];
     GLushort indices[numIndices];
 };
 

@@ -2,7 +2,7 @@
 #define CUBE_H
 
 #include <QOpenGLFunctions>
-#include "VertexData.h"
+#include "Vertex.h"
 #include "Surface.h"
 
 class Cube : public Surface {
@@ -10,7 +10,7 @@ class Cube : public Surface {
 public:
     Cube();
     GLushort* getIndices();
-    VertexData* getVertices();
+    Vertex* getVertices();
     int getNumVertices();
     int getNumIndices();
 
@@ -19,7 +19,7 @@ private:
     void initIndices();
     static const int numVertices = 8;
     static const int numIndices = 36;
-    VertexData vertices[numVertices];
+    Vertex vertices[numVertices];
     GLushort indices[numIndices];
 };
 

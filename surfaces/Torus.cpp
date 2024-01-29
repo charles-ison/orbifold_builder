@@ -52,7 +52,7 @@ void Torus::initIndices() {
     }
 }
 
-VertexData* Torus::getVertices() {
+Vertex* Torus::getVertices() {
     return vertices;
 }
 

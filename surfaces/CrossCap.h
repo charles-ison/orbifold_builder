@@ -2,7 +2,7 @@
 #define CROSS_CAP_H
 
 #include <QOpenGLFunctions>
-#include "VertexData.h"
+#include "Vertex.h"
 #include "Surface.h"
 
 class CrossCap : public Surface {
@@ -10,7 +10,7 @@ class CrossCap : public Surface {
 public:
     CrossCap();
     GLushort* getIndices();
-    VertexData* getVertices();
+    Vertex* getVertices();
     int getNumVertices();
     int getNumIndices();
 
@@ -22,7 +22,7 @@ private:
     float radius = 1.3;
     static const int numVertices = (numVertSteps+1) * numHorSteps;
     static const int numIndices = 6 * (numVertSteps+1) * numHorSteps;
-    VertexData vertices[numVertices];
+    Vertex vertices[numVertices];
     GLushort indices[numIndices];
 };
 

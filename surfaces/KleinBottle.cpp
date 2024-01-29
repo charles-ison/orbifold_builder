@@ -89,7 +89,7 @@ int KleinBottle::floorMod(int a, int n) {
     return a - n * q;
 }
 
-VertexData* KleinBottle::getVertices() {
+Vertex* KleinBottle::getVertices() {
     return vertices;
 }
 
