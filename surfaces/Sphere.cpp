@@ -79,7 +79,7 @@ void Sphere::initTriangles() {
 
 }
 
-std::vector<Triangle*> Sphere::getTriangles() {
+std::vector<Triangle> Sphere::getTriangles() {
     return {};
 }
 

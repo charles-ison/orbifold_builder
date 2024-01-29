@@ -11,7 +11,7 @@ public:
     Cube();
     GLushort* getIndices();
     Vertex* getVertices();
-    std::vector<Triangle*> getTriangles();
+    std::vector<Triangle> getTriangles();
     int getNumVertices();
     int getNumIndices();
 
@@ -23,6 +23,7 @@ private:
     static const int numIndices = 36;
     Vertex vertices[numVertices];
     GLushort indices[numIndices];
+    std::vector<Triangle> triangles;
 };
 
 #endif

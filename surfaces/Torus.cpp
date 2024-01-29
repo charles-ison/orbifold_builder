@@ -57,7 +57,7 @@ void Torus::initTriangles() {
 
 }
 
-std::vector<Triangle*> Torus::getTriangles() {
+std::vector<Triangle> Torus::getTriangles() {
     return {};
 }
 

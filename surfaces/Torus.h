@@ -11,7 +11,7 @@ public:
     Torus();
     GLushort* getIndices();
     Vertex* getVertices();
-    std::vector<Triangle*> getTriangles();
+    std::vector<Triangle> getTriangles();
     int getNumVertices();
     int getNumIndices();
 

@@ -28,11 +28,12 @@ void Cube::initIndices() {
 }
 
 void Cube::initTriangles() {
-
+    Triangle triangle1 = {.vertexIndices={0, 1, 2}};
+    triangles.push_back(triangle1);
 }
 
-std::vector<Triangle*> Cube::getTriangles() {
-    return {};
+std::vector<Triangle> Cube::getTriangles() {
+    return triangles;
 }
 
 Vertex* Cube::getVertices() {

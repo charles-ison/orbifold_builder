@@ -48,7 +48,7 @@ void CrossCap::initTriangles() {
 
 }
 
-std::vector<Triangle*> CrossCap::getTriangles() {
+std::vector<Triangle> CrossCap::getTriangles() {
     return {};
 }
 

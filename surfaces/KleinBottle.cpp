@@ -89,7 +89,7 @@ void KleinBottle::initTriangles() {
 
 }
 
-std::vector<Triangle*> KleinBottle::getTriangles() {
+std::vector<Triangle> KleinBottle::getTriangles() {
     return {};
 }
 

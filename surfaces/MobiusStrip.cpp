@@ -47,7 +47,7 @@ void MobiusStrip::initTriangles() {
 
 }
 
-std::vector<Triangle*> MobiusStrip::getTriangles() {
+std::vector<Triangle> MobiusStrip::getTriangles() {
     return {};
 }
 
