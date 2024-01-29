@@ -146,7 +146,7 @@ std::vector<Vertex*> ResultsWidget::getNewVertices(Vertex *newVertex) {
         return newVertices;
     }
 
-    std::unordered_map<Vertex*, int> checkedVertices;
+    std::unordered_set<Vertex*> checkedVertices;
     std::queue<std::vector<Vertex*>> potentialPaths;
     potentialPaths.push(newVertices);
     QVector3D lastVertexPosition = lineVertices.back()->position;
@@ -156,11 +156,6 @@ std::vector<Vertex*> ResultsWidget::getNewVertices(Vertex *newVertex) {
         Vertex *nextVertex = nextPath.back();
         potentialPaths.pop();
 
-        if(checkedVertices.find(nextVertex) != checkedVertices.end()) {
-            continue;
-        }
-        checkedVertices.insert({nextVertex, 0});
-
         for (Vertex* neighbor : nextVertex->neighbors) {
             if (neighbor->position == lastVertexPosition) {
                 return nextPath;
@@ -168,10 +163,11 @@ std::vector<Vertex*> ResultsWidget::getNewVertices(Vertex *newVertex) {
                 std::vector<Vertex*> newPotentialPath = nextPath;
                 newPotentialPath.push_back(neighbor);
                 potentialPaths.push(newPotentialPath);
+                checkedVertices.insert(neighbor);
             }
         }
     }
-    std::cout << "No connecting path found between drawing vertices using BFS." << std::endl;
+    return {newVertex};
 }
 
 void ResultsWidget::checkLineVerticesForLoop(Vertex *newVertex) {
