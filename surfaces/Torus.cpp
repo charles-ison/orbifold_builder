@@ -57,6 +57,10 @@ void Torus::initTriangles() {
 
 }
 
+std::vector<Triangle*> Torus::getTriangles() {
+    return {};
+}
+
 Vertex* Torus::getVertices() {
     return vertices;
 }

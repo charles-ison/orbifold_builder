@@ -47,6 +47,10 @@ void MobiusStrip::initTriangles() {
 
 }
 
+std::vector<Triangle*> MobiusStrip::getTriangles() {
+    return {};
+}
+
 Vertex* MobiusStrip::getVertices() {
     return vertices;
 }

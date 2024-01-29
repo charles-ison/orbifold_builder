@@ -5,7 +5,7 @@
 #include "Vertex.h"
 
 struct Triangle {
-    std::set<Vertex*> neighbors;
+    std::set<int> vertexIndices;
 };
 
 #endif

@@ -48,6 +48,10 @@ void CrossCap::initTriangles() {
 
 }
 
+std::vector<Triangle*> CrossCap::getTriangles() {
+    return {};
+}
+
 Vertex* CrossCap::getVertices() {
     return vertices;
 }

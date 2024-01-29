@@ -31,6 +31,10 @@ void Cube::initTriangles() {
 
 }
 
+std::vector<Triangle*> Cube::getTriangles() {
+    return {};
+}
+
 Vertex* Cube::getVertices() {
     return vertices;
 }

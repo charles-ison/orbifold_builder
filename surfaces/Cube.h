@@ -11,6 +11,7 @@ public:
     Cube();
     GLushort* getIndices();
     Vertex* getVertices();
+    std::vector<Triangle*> getTriangles();
     int getNumVertices();
     int getNumIndices();
 

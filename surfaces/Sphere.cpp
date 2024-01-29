@@ -79,6 +79,10 @@ void Sphere::initTriangles() {
 
 }
 
+std::vector<Triangle*> Sphere::getTriangles() {
+    return {};
+}
+
 Vertex* Sphere::getVertices() {
     return vertices;
 }

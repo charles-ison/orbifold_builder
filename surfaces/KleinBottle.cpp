@@ -89,6 +89,10 @@ void KleinBottle::initTriangles() {
 
 }
 
+std::vector<Triangle*> KleinBottle::getTriangles() {
+    return {};
+}
+
 int KleinBottle::floorMod(int a, int n) {
     int q = (int) floor((double)a / n);
     return a - n * q;

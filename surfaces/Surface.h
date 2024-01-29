@@ -3,11 +3,13 @@
 
 #include <QOpenGLFunctions>
 #include "Vertex.h"
+#include "Triangle.h"
 
 class Surface {
 public:
     virtual GLushort* getIndices() = 0;
     virtual Vertex* getVertices() = 0;
+    virtual std::vector<Triangle*> getTriangles() = 0;
     virtual int getNumVertices() = 0;
     virtual int getNumIndices() = 0;
 
