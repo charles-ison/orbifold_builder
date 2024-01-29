@@ -2,13 +2,12 @@
 
 void Surface::initNeighbors() {
     Vertex* vertices = getVertices();
-    GLushort* indices = getIndices();
-    int numIndices = getNumIndices();
+    std::vector<Triangle> triangles = getTriangles();
 
-    for (int i=0; i<numIndices; i+=3) {
-        GLushort index1 = indices[i];
-        GLushort index2 = indices[i+1];
-        GLushort index3 = indices[i+2];
+    for (int i=0; i<triangles.size(); i++) {
+        int index1 = triangles[i].vertexIndices[0];
+        int index2 = triangles[i].vertexIndices[1];
+        int index3 = triangles[i].vertexIndices[2];
 
         vertices[index1].neighbors.insert(&vertices[index2]);
         vertices[index1].neighbors.insert(&vertices[index3]);
