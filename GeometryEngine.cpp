@@ -28,13 +28,6 @@ void GeometryEngine::initMesh(Mesh* mesh) {
     arrayBuf.bind();
     arrayBuf.allocate(vertices, numVertices * sizeof(Vertex));
 
-    //std::vector<GLushort> surfaceIndices = mesh->getIndices();
-    //numIndices = surfaceIndices.size();
-    //GLushort indices[numIndices];
-    //for (int i=0; i<numIndices; i++) {
-    //    indices[i] = surfaceIndices[i];
-    //}
-
     std::vector<Triangle> triangles = mesh->getTriangles();
     int numTriangles = triangles.size();
     numIndices = 3*numTriangles;

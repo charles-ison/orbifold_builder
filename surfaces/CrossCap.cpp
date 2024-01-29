@@ -3,7 +3,6 @@
 
 CrossCap::CrossCap() {
     initVertices();
-    //initIndices();
     initTriangles();
     initNeighbors();
 }
@@ -23,23 +22,6 @@ void CrossCap::initVertices() {
 
             vertices[verticesCounter] = {QVector3D(x,  y,  z)};
             verticesCounter += 1;
-        }
-    }
-}
-
-void CrossCap::initIndices() {
-    int indexCounter = 0;
-    int faceCounter = 0;
-    for (int i=0; i<numHorSteps; i++) {
-        for (int j=0; j<=numVertSteps; j++) {
-            indices[indexCounter] = (faceCounter + 1) % numVertices;
-            indices[indexCounter + 1] = faceCounter % numVertices;
-            indices[indexCounter + 2] = (faceCounter + 1 + numVertSteps) % numVertices;
-            indices[indexCounter + 3] = (faceCounter + numVertSteps) % numVertices;
-            indices[indexCounter + 4] = (faceCounter + 1 + numVertSteps) % numVertices;
-            indices[indexCounter + 5] = faceCounter % numVertices;
-            indexCounter += 6;
-            faceCounter += 1;
         }
     }
 }
@@ -71,14 +53,6 @@ Vertex* CrossCap::getVertices() {
     return vertices;
 }
 
-GLushort* CrossCap::getIndices() {
-    return indices;
-}
-
 int CrossCap::getNumVertices() {
     return numVertices;
-}
-
-int CrossCap::getNumIndices() {
-    return numIndices;
 }
