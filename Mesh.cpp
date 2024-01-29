@@ -15,10 +15,19 @@ void Mesh::copySurface(Surface *surface) {
     for (int i=0; i<numIndices; i++) {
         indices.push_back(surfaceIndices[i]);
     }
+
+    std::vector<Triangle> surfaceTriangles = surface->getTriangles();
+    for (int i=0; i<surfaceTriangles.size(); i++) {
+        triangles.push_back(&surfaceTriangles[i]);
+    }
 }
 
 std::vector<Vertex*> Mesh::getVertices() {
     return vertices;
+}
+
+std::vector<Triangle*> Mesh::getTriangles() {
+    return triangles;
 }
 
 std::vector<GLushort> Mesh::getIndices() {

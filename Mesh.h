@@ -11,12 +11,14 @@ public:
     void copySurface(Surface *surface);
     std::vector<GLushort> getIndices();
     std::vector<Vertex*> getVertices();
+    std::vector<Triangle*> getTriangles();
     void cutVertex(Vertex *vertexToCut);
 
 private:
     int getUpdatedIndex(int deletedIndex, int index);
     std::vector<Vertex*> vertices;
     std::vector<GLushort> indices;
+    std::vector<Triangle*> triangles;
 };
 
 #endif
