@@ -2,7 +2,7 @@
 
 MobiusStrip::MobiusStrip() {
     initVertices();
-    initIndices();
+    //initIndices();
     initTriangles();
     initNeighbors();
 }

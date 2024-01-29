@@ -2,7 +2,7 @@
 
 Sphere::Sphere() {
     initVertices();
-    initIndices();
+    //initIndices();
     initTriangles();
     initNeighbors();
 }

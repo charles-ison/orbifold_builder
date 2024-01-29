@@ -2,7 +2,7 @@
 
 Torus::Torus() {
     initVertices();
-    initIndices();
+    //initIndices();
     initTriangles();
     initNeighbors();
 }

@@ -2,7 +2,7 @@
 
 Cube::Cube() {
     initVertices();
-    initIndices();
+    //initIndices();
     initTriangles();
     initNeighbors();
 }

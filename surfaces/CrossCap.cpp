@@ -3,7 +3,7 @@
 
 CrossCap::CrossCap() {
     initVertices();
-    initIndices();
+    //initIndices();
     initTriangles();
     initNeighbors();
 }

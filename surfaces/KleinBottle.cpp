@@ -2,7 +2,7 @@
 
 KleinBottle::KleinBottle() {
     initVertices();
-    initIndices();
+    //initIndices();
     initTriangles();
     initNeighbors();
 }
