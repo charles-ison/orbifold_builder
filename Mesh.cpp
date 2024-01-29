@@ -1,5 +1,4 @@
 #include "Mesh.h"
-#include <iostream>
 
 void Mesh::copySurface(Surface *surface) {
     vertices.clear();
@@ -26,12 +25,18 @@ std::vector<GLushort> Mesh::getIndices() {
     return indices;
 }
 
+int Mesh::getUpdateIndex(int deletedIndex, int index) {
+    if (index > deletedIndex) {
+        index -= 1;
+    }
+    return index;
+}
+
 void Mesh::cutVertex(VertexData *vertexToCut) {
     int deletedIndex = 0;
     for (auto itr = vertices.begin(); itr != vertices.end(); ++itr) {
         if (vertexToCut == *itr) {
             vertices.erase(itr);
-            //std::cout << "deletedIndex: " << deletedIndex << std::endl;
             break;
         }
         deletedIndex++;
@@ -41,11 +46,6 @@ void Mesh::cutVertex(VertexData *vertexToCut) {
     int numIndicesRemoved = 0;
     while ((i+numIndicesRemoved)<indices.size()) {
         while (deletedIndex == indices[i+numIndicesRemoved] || deletedIndex == indices[i+numIndicesRemoved+1] || deletedIndex == indices[i+numIndicesRemoved+2]) {
-            //std::cout << "Removed triangle:" << std::endl;
-            //std::cout << "indices[i+numIndicesRemoved]: " << indices[i+numIndicesRemoved] << std::endl;
-            //std::cout << "indices[i+numIndicesRemoved+1]: " << indices[i+numIndicesRemoved+1] << std::endl;
-            //std::cout << "indices[i+numIndicesRemoved+2]: " << indices[i+numIndicesRemoved+2] << std::endl;
-
             numIndicesRemoved += 3;
         }
         if ((i+numIndicesRemoved)>=indices.size()) {
@@ -53,22 +53,16 @@ void Mesh::cutVertex(VertexData *vertexToCut) {
         }
 
         int index1 = indices[i+numIndicesRemoved];
-        if (index1 > deletedIndex) {
-            index1 -= 1;
-        }
-        indices[i] = index1;
+        int updatedIndex1 = getUpdateIndex(deletedIndex, index1);
+        indices[i] = updatedIndex1;
 
         int index2 = indices[i+numIndicesRemoved+1];
-        if (index2 > deletedIndex) {
-            index2 -= 1;
-        }
-        indices[i+1] = index2;
+        int updatedIndex2 = getUpdateIndex(deletedIndex, index2);
+        indices[i+1] = updatedIndex2;
 
         int index3 = indices[i+numIndicesRemoved+2];
-        if (index3 > deletedIndex) {
-            index3 -= 1;
-        }
-        indices[i+2] = index3;
+        int updatedIndex3 = getUpdateIndex(deletedIndex, index3);
+        indices[i+2] = updatedIndex3;
 
         i+=3;
     }

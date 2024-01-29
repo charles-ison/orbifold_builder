@@ -58,7 +58,6 @@ void ResultsWidget::cutSurface(QMouseEvent *e) {
     }
 
     //TODO: Hashing on vertex position string isn't ideal, could refactor to be more robust later
-    //std::unordered_map<std::string, int> verticesToNotCut;
     std::unordered_set<std::string> verticesToNotCut;
     for (VertexData* vertex : lineVertices) {
         verticesToNotCut.insert(vertex->toString());
@@ -73,6 +72,7 @@ void ResultsWidget::cutSurface(QMouseEvent *e) {
 
     while (!verticesToCut.empty()) {
         VertexData* vertexToCut = verticesToCut.front();
+        mesh->cutVertex(vertexToCut);
         verticesToCut.pop();
 
         for (VertexData* neighbor : vertexToCut->neighbors) {
@@ -82,7 +82,6 @@ void ResultsWidget::cutSurface(QMouseEvent *e) {
                 verticesToNotCut.insert(neighborString);
             }
         }
-        mesh->cutVertex(vertexToCut);
     }
     geometryEngine->initMesh(mesh);
     update();
