@@ -26,6 +26,7 @@ private:
     static const int numIndices = 6 * (numVertSteps+1) * numHorSteps;
     Vertex vertices[numVertices];
     GLushort indices[numIndices];
+    std::vector<Triangle> triangles;
 };
 
 #endif

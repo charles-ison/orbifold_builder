@@ -86,11 +86,62 @@ void KleinBottle::initIndices() {
 }
 
 void KleinBottle::initTriangles() {
+    int faceCounter = 0;
+    for (int i=0; i<2*numHorSteps; i++) {
+        for (int j=0; j<numVertSteps; j++) {
+            if (i == 2 * numHorSteps - 1 and j == numVertSteps - 1) {
+                int index1 = (faceCounter + 1 - numHorSteps) % numVertices;
+                int index2 = faceCounter % numVertices;
+                int halfRotation = floor(numVertSteps / 2);
+                int index3 = floorMod((faceCounter + halfRotation + numVertSteps) % numVertices - 2 * j, numVertSteps);
+                triangles.push_back({{index1, index2, index3}});
 
+                int index4 = floorMod((faceCounter + halfRotation + numVertSteps) % numVertices - 2 * j, numVertSteps);
+                int index5 = floorMod((faceCounter + halfRotation + 1 + numVertSteps) % numVertices - 2 * j, numVertSteps);
+                int index6 = faceCounter % numVertices;
+                triangles.push_back({{index4, index5, index6}});
+            }
+            else if (i == 2 * numHorSteps - 1) {
+                int index1 = (faceCounter + 1) % numVertices;
+                int index2 = faceCounter % numVertices;
+                int halfRotation = floor(numVertSteps / 2);
+                int index3 = floorMod((faceCounter + halfRotation + numVertSteps) % numVertices - 2 * j, numVertSteps);
+                triangles.push_back({{index1, index2, index3}});
+
+                int index4 = floorMod((faceCounter + halfRotation + numVertSteps) % numVertices - 2 * j, numVertSteps);
+                int index5 = floorMod((faceCounter + halfRotation + 1 + numVertSteps) % numVertices - 2 * j, numVertSteps);
+                int index6 = faceCounter % numVertices;
+                triangles.push_back({{index4, index5, index6}});
+            }
+            else if (j == numVertSteps - 1) {
+                int index1 = faceCounter + 1 - numHorSteps;
+                int index2 = faceCounter;
+                int index3 = faceCounter + 1;
+                triangles.push_back({{index1, index2, index3}});
+
+                int index4 = faceCounter + numHorSteps;
+                int index5 = faceCounter + 1;
+                int index6 = faceCounter;
+                triangles.push_back({{index4, index5, index6}});
+            }
+            else {
+                int index1  = faceCounter + 1;
+                int index2 = faceCounter;
+                int index3 = faceCounter + 1 + numVertSteps;
+                triangles.push_back({{index1, index2, index3}});
+
+                int index4 = faceCounter + numVertSteps;
+                int index5 = faceCounter + 1 + numVertSteps;
+                int index6 = faceCounter;
+                triangles.push_back({{index4, index5, index6}});
+            }
+            faceCounter += 1;
+        }
+    }
 }
 
 std::vector<Triangle> KleinBottle::getTriangles() {
-    return {};
+    return triangles;
 }
 
 int KleinBottle::floorMod(int a, int n) {

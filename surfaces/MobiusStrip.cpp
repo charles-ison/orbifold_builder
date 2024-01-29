@@ -44,11 +44,26 @@ void MobiusStrip::initIndices() {
 }
 
 void MobiusStrip::initTriangles() {
+    int quadCounter = 0;
+    for (int i=0; i<numHorSteps; i++) {
+        for (int j=0; j<=numVertSteps; j++) {
+            int index1 = quadCounter + 1;
+            int index2 = quadCounter;
+            int index3 = quadCounter + 1 + numVertSteps;
+            triangles.push_back({{index1, index2, index3}});
 
+            int index4 = quadCounter + numVertSteps;
+            int index5 = quadCounter + 1 + numVertSteps;
+            int index6 = quadCounter;
+            triangles.push_back({{index4, index5, index6}});
+
+            quadCounter += 1;
+        }
+    }
 }
 
 std::vector<Triangle> MobiusStrip::getTriangles() {
-    return {};
+    return triangles;
 }
 
 Vertex* MobiusStrip::getVertices() {

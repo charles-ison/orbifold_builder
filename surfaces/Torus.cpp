@@ -54,11 +54,38 @@ void Torus::initIndices() {
 }
 
 void Torus::initTriangles() {
+    int faceCounter = 0;
+    for (int i=0; i<numHorSteps; i++) {
+        for (int j=0; j<numVertSteps; j++) {
+            if (j == numVertSteps - 1) {
+                int index1 = (faceCounter + 1 - numHorSteps) % numVertices;
+                int index2 = faceCounter % numVertices;
+                int index3 = (faceCounter + 1) % numVertices;
+                triangles.push_back({{index1, index2, index3}});
 
+                int index4 = (faceCounter + numHorSteps) % numVertices;
+                int index5 = (faceCounter + 1) % numVertices;
+                int index6 = faceCounter % numVertices;
+                triangles.push_back({{index4, index5, index6}});
+            }
+            else {
+                int index1 = (faceCounter + 1) % numVertices;
+                int index2 = faceCounter % numVertices;
+                int index3 = (faceCounter + 1 + numVertSteps) % numVertices;
+                triangles.push_back({{index1, index2, index3}});
+
+                int index4 = (faceCounter + numVertSteps) % numVertices;
+                int index5 = (faceCounter + 1 + numVertSteps) % numVertices;
+                int index6 = faceCounter % numVertices;
+                triangles.push_back({{index4, index5, index6}});
+            }
+            faceCounter += 1;
+        }
+    }
 }
 
 std::vector<Triangle> Torus::getTriangles() {
-    return {};
+    return triangles;
 }
 
 Vertex* Torus::getVertices() {
