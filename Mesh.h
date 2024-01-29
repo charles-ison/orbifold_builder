@@ -14,7 +14,7 @@ public:
     void cutVertex(Vertex *vertexToCut);
 
 private:
-    int getUpdateIndex(int deletedIndex, int index);
+    int getUpdatedIndex(int deletedIndex, int index);
     std::vector<Vertex*> vertices;
     std::vector<GLushort> indices;
 };

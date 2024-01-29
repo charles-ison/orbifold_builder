@@ -3,6 +3,7 @@
 Cube::Cube() {
     initVertices();
     initIndices();
+    initTriangles();
     initNeighbors();
 }
 
@@ -24,6 +25,10 @@ void Cube::initIndices() {
     indices[18] = 4; indices[19] = 7; indices[20] = 6; indices[21] = 6; indices[22] = 5; indices[23] = 4;
     indices[24] = 0; indices[25] = 4; indices[26] = 5; indices[27] = 5; indices[28] = 1; indices[29] = 0;
     indices[30] = 1; indices[31] = 5; indices[32] = 6; indices[33] = 6; indices[34] = 2; indices[35] = 1;
+}
+
+void Cube::initTriangles() {
+
 }
 
 Vertex* Cube::getVertices() {

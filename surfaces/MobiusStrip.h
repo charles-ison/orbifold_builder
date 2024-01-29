@@ -17,6 +17,7 @@ public:
 private:
     void initVertices();
     void initIndices();
+    void initTriangles();
     static const int numVertSteps = 200;
     static const int numHorSteps = 200;
     float radius = 1.0;

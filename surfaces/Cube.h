@@ -17,6 +17,7 @@ public:
 private:
     void initVertices();
     void initIndices();
+    void initTriangles();
     static const int numVertices = 8;
     static const int numIndices = 36;
     Vertex vertices[numVertices];

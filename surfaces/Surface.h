@@ -17,6 +17,7 @@ protected:
 private:
     virtual void initVertices() = 0;
     virtual void initIndices() = 0;
+    virtual void initTriangles() = 0;
 };
 
 #endif

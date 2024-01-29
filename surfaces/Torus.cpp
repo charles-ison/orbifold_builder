@@ -3,6 +3,7 @@
 Torus::Torus() {
     initVertices();
     initIndices();
+    initTriangles();
     initNeighbors();
 }
 
@@ -50,6 +51,10 @@ void Torus::initIndices() {
             faceCounter += 1;
         }
     }
+}
+
+void Torus::initTriangles() {
+
 }
 
 Vertex* Torus::getVertices() {

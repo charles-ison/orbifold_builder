@@ -17,6 +17,7 @@ public:
 private:
     void initVertices();
     void initIndices();
+    void initTriangles();
     int floorMod(int a, int n);
     static const int numVertSteps = 180;
     static const int numHorSteps = 180;

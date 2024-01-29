@@ -3,6 +3,7 @@
 Sphere::Sphere() {
     initVertices();
     initIndices();
+    initTriangles();
     initNeighbors();
 }
 
@@ -72,6 +73,10 @@ void Sphere::initIndices() {
             faceCounter += 1;
         }
     }
+}
+
+void Sphere::initTriangles() {
+
 }
 
 Vertex* Sphere::getVertices() {

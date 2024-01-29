@@ -4,6 +4,7 @@
 CrossCap::CrossCap() {
     initVertices();
     initIndices();
+    initTriangles();
     initNeighbors();
 }
 
@@ -41,6 +42,10 @@ void CrossCap::initIndices() {
             faceCounter += 1;
         }
     }
+}
+
+void CrossCap::initTriangles() {
+
 }
 
 Vertex* CrossCap::getVertices() {

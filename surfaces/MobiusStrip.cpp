@@ -3,6 +3,7 @@
 MobiusStrip::MobiusStrip() {
     initVertices();
     initIndices();
+    initTriangles();
     initNeighbors();
 }
 
@@ -40,6 +41,10 @@ void MobiusStrip::initIndices() {
             quadCounter += 1;
         }
     }
+}
+
+void MobiusStrip::initTriangles() {
+
 }
 
 Vertex* MobiusStrip::getVertices() {

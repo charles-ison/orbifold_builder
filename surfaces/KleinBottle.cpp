@@ -3,6 +3,7 @@
 KleinBottle::KleinBottle() {
     initVertices();
     initIndices();
+    initTriangles();
     initNeighbors();
 }
 
@@ -82,6 +83,10 @@ void KleinBottle::initIndices() {
             faceCounter += 1;
         }
     }
+}
+
+void KleinBottle::initTriangles() {
+
 }
 
 int KleinBottle::floorMod(int a, int n) {

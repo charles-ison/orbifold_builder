@@ -25,7 +25,7 @@ std::vector<GLushort> Mesh::getIndices() {
     return indices;
 }
 
-int Mesh::getUpdateIndex(int deletedIndex, int index) {
+int Mesh::getUpdatedIndex(int deletedIndex, int index) {
     if (index > deletedIndex) {
         index -= 1;
     }
@@ -53,15 +53,15 @@ void Mesh::cutVertex(Vertex *vertexToCut) {
         }
 
         int index1 = indices[i+numIndicesRemoved];
-        int updatedIndex1 = getUpdateIndex(deletedIndex, index1);
+        int updatedIndex1 = getUpdatedIndex(deletedIndex, index1);
         indices[i] = updatedIndex1;
 
         int index2 = indices[i+numIndicesRemoved+1];
-        int updatedIndex2 = getUpdateIndex(deletedIndex, index2);
+        int updatedIndex2 = getUpdatedIndex(deletedIndex, index2);
         indices[i+1] = updatedIndex2;
 
         int index3 = indices[i+numIndicesRemoved+2];
-        int updatedIndex3 = getUpdateIndex(deletedIndex, index3);
+        int updatedIndex3 = getUpdatedIndex(deletedIndex, index3);
         indices[i+2] = updatedIndex3;
 
         i+=3;
