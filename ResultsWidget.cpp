@@ -51,7 +51,7 @@ void ResultsWidget::mousePressEvent(QMouseEvent *e) {
 
 void ResultsWidget::cutSurface() {
     std::vector<Vertex*> vertices = mesh->getVertices();
-    std::vector<Triangle> triangles = mesh->getTriangles();
+    //std::vector<Triangle> triangles = mesh->getTriangles();
 
     for (Vertex* nextVertex : lineVertices) {
         mesh->deleteVertex(nextVertex);
@@ -81,7 +81,7 @@ void ResultsWidget::cutSurface() {
                 break;
             }
         }
-         */
+        */
     }
     lineVertices.clear();
     geometryEngine->initLine(lineVertices);
@@ -95,7 +95,7 @@ void ResultsWidget::deleteSurface(QMouseEvent *e) {
         return;
     }
 
-    std::unordered_set<Vertex*> alreadyScheduledVertices;
+    std::unordered_set<std::string> alreadyScheduledVertices;
     std::queue<Vertex*> verticesToDelete;
     verticesToDelete.push(startingVertex);
 
@@ -106,9 +106,9 @@ void ResultsWidget::deleteSurface(QMouseEvent *e) {
 
         for (Vertex* neighbor : vertexToDelete->neighbors) {
             std::string neighborString = neighbor->toString();
-            if (alreadyScheduledVertices.find(neighbor) == alreadyScheduledVertices.end()) {
+            if (alreadyScheduledVertices.find(neighborString) == alreadyScheduledVertices.end()) {
                 verticesToDelete.push(neighbor);
-                alreadyScheduledVertices.insert(neighbor);
+                alreadyScheduledVertices.insert(neighborString);
             }
         }
     }
