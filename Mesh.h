@@ -12,7 +12,7 @@ public:
     std::vector<Triangle> getTriangles();
     void addVertex(Vertex *vertexToAdd);
     void deleteVertex(Vertex *vertexToDelete);
-    void updateTriangle(int triangleIndex, int index, int newVertexIndex);
+    void updateTriangles(int triangleIndex, int index, int newVertexIndex);
 
 private:
     int getUpdatedIndex(int deletedIndex, int index);

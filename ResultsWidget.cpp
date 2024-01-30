@@ -43,7 +43,9 @@ void ResultsWidget::mousePressEvent(QMouseEvent *e) {
     if (shouldDeleteSurface) {
         deleteSurface(e);
     } else {
-        lineVertices.clear();
+        // TODO: Comment out for testing
+        mouseMoveEvent(e);
+        //lineVertices.clear();
         isDrawingMode = true;
     }
 }
@@ -52,13 +54,13 @@ void ResultsWidget::cutSurface() {
     std::vector<Vertex*> vertices = mesh->getVertices();
     std::vector<Triangle> triangles = mesh->getTriangles();
     Triangle prevTriangle;
+    int prevTriangleIndex;
     Vertex *prevVertex;
 
     for (Vertex* nextVertex : lineVertices) {
         bool isFirstVertex = (nextVertex == lineVertices.front());
         for (int i=0; i<triangles.size(); i++) {
             Triangle nextTriangle = triangles[i];
-
             Vertex *vertex1 = vertices[nextTriangle.vertexIndices[0]];
             Vertex *vertex2 = vertices[nextTriangle.vertexIndices[1]];
             Vertex *vertex3 = vertices[nextTriangle.vertexIndices[2]];
@@ -76,10 +78,15 @@ void ResultsWidget::cutSurface() {
             bool doesNotContainPreviousVertex = (vertex1 != prevVertex && vertex2 != prevVertex && vertex3 != prevVertex);
 
             int numConnectedVertices = 0;
-            for (int previousTriangleIndex : prevTriangle.vertexIndices) {
+            int prevMatchingIndex = -1;
+            for (int j=0; j<prevTriangle.vertexIndices.size(); j++) {
+                int previousTriangleIndex = prevTriangle.vertexIndices[j];
                 Vertex *previousTriangleVertex = vertices[previousTriangleIndex];
                 if (vertex1 == previousTriangleVertex || vertex2 == previousTriangleVertex || vertex3 == previousTriangleVertex) {
                     numConnectedVertices += 1;
+                }
+                if (nextVertex == previousTriangleVertex) {
+                    prevMatchingIndex = j;
                 }
             }
             bool sharesEdgeWithPreviousTriangle = (numConnectedVertices > 1);
@@ -87,40 +94,54 @@ void ResultsWidget::cutSurface() {
             if (containsNextVertex && (sharesEdgeWithPreviousTriangle && doesNotContainPreviousVertex || isFirstVertex)) {
                 Vertex *newVertex = new Vertex({QVector3D(nextVertex->position.x(), nextVertex->position.y(), nextVertex->position.z())});
                 mesh->addVertex(newVertex);
-                mesh->updateTriangle(i, matchingIndex, mesh->getVertices().size()-1);
+                mesh->updateTriangles(i, matchingIndex, mesh->getVertices().size()-1);
+                if (prevMatchingIndex != -1) {
+                    mesh->updateTriangles(prevTriangleIndex, prevMatchingIndex, mesh->getVertices().size() - 1);
+                }
 
+                std::cout << "NewVertex: " << std::endl;
+                std::cout << newVertex->toString() << std::endl;
+                std::cout << "Neighbors: " << std::endl;
+                for (auto neighbor : newVertex->neighbors) {
+                    std::cout << neighbor->toString() << std::endl;
+                }
+
+                prevTriangleIndex = i;
                 prevTriangle = nextTriangle;
                 prevVertex = nextVertex;
                 break;
             }
         }
     }
-
     geometryEngine->initMesh(mesh);
     update();
 }
 
 void ResultsWidget::deleteSurface(QMouseEvent *e) {
-
     Vertex *startingVertex = getVertexFromMouseEvent(e);
     if (startingVertex == nullptr) {
         return;
     }
 
+    std::unordered_set<Vertex*> deletedVertices;
     std::queue<Vertex*> verticesToDelete;
     verticesToDelete.push(startingVertex);
 
     while (!verticesToDelete.empty()) {
         Vertex* vertexToDelete = verticesToDelete.front();
+
+        std::cout << "Deleted vectors: " << std::endl;
+        std::cout << vertexToDelete->toString() << std::endl;
+
         mesh->deleteVertex(vertexToDelete);
         verticesToDelete.pop();
 
         for (Vertex* neighbor : vertexToDelete->neighbors) {
-            std::string neighborString = neighbor->toString();
-            //if (verticesToNotCut.find(neighborString) == verticesToNotCut.end()) {
-            //    verticesToDelete.push(neighbor);
-            //    verticesToNotCut.insert(neighborString);
-            //}
+            //std::string neighborString = neighbor->toString();
+            if (deletedVertices.find(neighbor) == deletedVertices.end()) {
+                verticesToDelete.push(neighbor);
+                deletedVertices.insert(neighbor);
+            }
         }
     }
     geometryEngine->initMesh(mesh);
@@ -136,6 +157,8 @@ void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
     if (vertex == nullptr) {
         lineVertices.clear();
     } else if (lineVertices.size() == 0 || vertex != lineVertices.back()) {
+        std::cout << "drawn vertices: " << std::endl;
+        std::cout << vertex->toString() << std::endl;
         addLineVertices(vertex);
     }
 
@@ -156,7 +179,7 @@ Vertex* ResultsWidget::getVertexFromMouseEvent(QMouseEvent *e) {
         float xyDistance = sqrt(pow(x - surfacePosition.x(), 2) + pow(y - surfacePosition.y(), 2));
 
         //TODO: Change to 0.1 for testing
-        if (xyDistance < 0.01 && surfacePosition.z() < smallestZDistance) {
+        if (xyDistance < 0.1 && surfacePosition.z() < smallestZDistance) {
             smallestZDistance = surfacePosition.z();
             closestVertex = vertices[i];
             surfaceVertexFound = true;
@@ -209,7 +232,7 @@ std::vector<Vertex*> ResultsWidget::getNewVertices(Vertex *newVertex) {
 
 void ResultsWidget::checkLineVerticesForLoop(Vertex *newVertex) {
     //TODO: Change to 3 for testing
-    int numRecentVerticesToExcludeForLoopChecking = 5;
+    int numRecentVerticesToExcludeForLoopChecking = 3;
     if (lineVertices.size() < numRecentVerticesToExcludeForLoopChecking) {
         return;
     }
