@@ -96,7 +96,6 @@ void ResultsWidget::cutSurface() {
         }
     }
 
-    // TODO: Uncomment
     //geometryEngine->initMesh(mesh);
     //update();
 }

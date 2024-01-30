@@ -17,11 +17,11 @@ GeometryEngine::~GeometryEngine() {
 }
 
 void GeometryEngine::initMesh(Mesh* mesh) {
-    std::vector<Vertex*> surfaceVertices = mesh->getVertices();
-    int numVertices = surfaceVertices.size();
+    std::vector<Vertex*> meshVertices = mesh->getVertices();
+    int numVertices = meshVertices.size();
     Vertex vertices[numVertices];
     for (int i=0; i<numVertices; i++) {
-        vertices[i] = *surfaceVertices[i];
+        vertices[i] = *meshVertices[i];
     }
 
     // Transfer vertex data to VBO 0
