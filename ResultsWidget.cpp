@@ -36,56 +36,91 @@ void ResultsWidget::addSurface(surface newSurface) {
     update();
 }
 
-void ResultsWidget::toggleCutting() {
-    cuttingEnabled = !cuttingEnabled;
-}
-
 void ResultsWidget::mousePressEvent(QMouseEvent *e) {
-    if (cuttingEnabled && loopDetected) {
-        cutSurface(e);
-    } else {
-        //TODO: Uncomment and comment out clear() for testing
-        //mouseMoveEvent(e);
-        lineVertices.clear();
-        isDrawingMode = true;
-    }
+    lineVertices.clear();
+    isDrawingMode = true;
 }
 
-void ResultsWidget::cutSurface(QMouseEvent *e) {
-    Vertex *startingVertex = getVertexFromMouseEvent(e);
-    if (startingVertex == nullptr) {
-        return;
-    }
 
-    //TODO: Hashing on vertex position string isn't ideal, could refactor to be more robust later
-    std::unordered_set<std::string> verticesToNotCut;
-    for (Vertex* vertex : lineVertices) {
-        verticesToNotCut.insert(vertex->toString());
-    }
+void ResultsWidget::cutSurface() {
+    std::vector<Vertex*> vertices = mesh->getVertices();
+    std::vector<Triangle> triangles = mesh->getTriangles();
+    Triangle prevTriangle;
+    Vertex *prevVertex;
 
-    if (verticesToNotCut.find(startingVertex->toString()) != verticesToNotCut.end()) {
-        return;
-    }
+    for (Vertex* nextVertex : lineVertices) {
+        bool isFirstVertex = (nextVertex == lineVertices.front());
+        for (int i=0; i<triangles.size(); i++) {
+            Triangle nextTriangle = triangles[i];
 
-    std::queue<Vertex*> verticesToCut;
-    verticesToCut.push(startingVertex);
+            Vertex *vertex1 = vertices[nextTriangle.vertexIndices[0]];
+            Vertex *vertex2 = vertices[nextTriangle.vertexIndices[1]];
+            Vertex *vertex3 = vertices[nextTriangle.vertexIndices[2]];
 
-    while (!verticesToCut.empty()) {
-        Vertex* vertexToCut = verticesToCut.front();
-        mesh->cutVertex(vertexToCut);
-        verticesToCut.pop();
+            int matchingIndex = -1;
+            if (vertex1 == nextVertex){
+                matchingIndex = 0;
+            } else if (vertex2 == nextVertex) {
+                matchingIndex = 1;
+            } else if (vertex3 == nextVertex) {
+                matchingIndex = 2;
+            }
 
-        for (Vertex* neighbor : vertexToCut->neighbors) {
-            std::string neighborString = neighbor->toString();
-            if (verticesToNotCut.find(neighborString) == verticesToNotCut.end()) {
-                verticesToCut.push(neighbor);
-                verticesToNotCut.insert(neighborString);
+            bool containsNextVertex = (matchingIndex != -1);
+            bool doesNotContainPreviousVertex = (vertex1 != prevVertex && vertex2 != prevVertex && vertex3 != prevVertex);
+
+            int numConnectedVertices = 0;
+            for (int previousTriangleIndex : prevTriangle.vertexIndices) {
+                Vertex *previousTriangleVertex = vertices[previousTriangleIndex];
+                if (vertex1 == previousTriangleVertex || vertex2 == previousTriangleVertex || vertex3 == previousTriangleVertex) {
+                    numConnectedVertices += 1;
+                }
+            }
+            bool sharesEdgeWithPreviousTriangle = (numConnectedVertices > 1);
+
+            if (containsNextVertex && (sharesEdgeWithPreviousTriangle && doesNotContainPreviousVertex || isFirstVertex)) {
+                Vertex newVertex = {QVector3D(nextVertex->position.x(), nextVertex->position.y(), nextVertex->position.z())};
+                mesh->addVertex(&newVertex);
+                mesh->updateTriangle(i, matchingIndex, mesh->getVertices().size()-1);
+
+                prevTriangle = nextTriangle;
+                prevVertex = nextVertex;
+                break;
             }
         }
     }
-    geometryEngine->initMesh(mesh);
-    update();
 }
+
+//void ResultsWidget::cutSurface() {
+//    if (!loopDetected) {
+//        return;
+//    }
+
+//    //TODO: Hashing on vertex position string isn't ideal, could refactor to be more robust later
+//    std::unordered_set<std::string> lineVerticesSet;
+//    for (Vertex* vertex : lineVertices) {
+ //       lineVerticesSet.insert(vertex->toString());
+ //   }
+
+//    std::queue<Vertex*> verticesToCut;
+//    verticesToCut.push(startingVertex);
+
+ //   while (!verticesToCut.empty()) {
+  //      Vertex* vertexToCut = verticesToCut.front();
+ //       mesh->deleteVertex(vertexToCut);
+ //       verticesToCut.pop();
+
+//        for (Vertex* neighbor : vertexToCut->neighbors) {
+//            std::string neighborString = neighbor->toString();
+//            if (verticesToNotCut.find(neighborString) == verticesToNotCut.end()) {
+//                verticesToCut.push(neighbor);
+//                verticesToNotCut.insert(neighborString);
+//            }
+//        }
+//    }
+//    geometryEngine->initMesh(mesh);
+//    update();
+//}
 
 void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
     if (not isDrawingMode or not shouldPaintGL) {
@@ -230,7 +265,6 @@ void ResultsWidget::initializeGL() {
     isDrawingMode = true;
     shouldPaintGL = false;
     loopDetected = false;
-    cuttingEnabled = false;
     lineDrawingColor = Qt::white;
 
     // Use QBasicTimer because it's faster than QTimer

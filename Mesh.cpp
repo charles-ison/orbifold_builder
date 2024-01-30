@@ -1,5 +1,4 @@
 #include "Mesh.h"
-#include <iostream>
 
 void Mesh::copySurface(Surface *surface) {
     vertices.clear();
@@ -25,6 +24,16 @@ std::vector<Triangle> Mesh::getTriangles() {
     return triangles;
 }
 
+void Mesh::addVertex(Vertex *vertexToAdd) {
+    vertices.push_back(vertexToAdd);
+}
+
+void Mesh::updateTriangle(int triangleIndex, int index, int newVertexIndex) {
+    triangles[triangleIndex].vertexIndices[index] = newVertexIndex;
+    vertices[newVertexIndex]->neighbors.insert(vertices[triangles[triangleIndex].vertexIndices[(index+1)%3]]);
+    vertices[newVertexIndex]->neighbors.insert(vertices[triangles[triangleIndex].vertexIndices[(index+2)%3]]);
+}
+
 int Mesh::getUpdatedIndex(int deletedIndex, int index) {
     if (index > deletedIndex) {
         index -= 1;
@@ -32,10 +41,10 @@ int Mesh::getUpdatedIndex(int deletedIndex, int index) {
     return index;
 }
 
-void Mesh::cutVertex(Vertex *vertexToCut) {
+void Mesh::deleteVertex(Vertex *vertexToDelete) {
     int deletedIndex = 0;
     for (auto itr = vertices.begin(); itr != vertices.end(); ++itr) {
-        if (vertexToCut == *itr) {
+        if (vertexToDelete == *itr) {
             vertices.erase(itr);
             break;
         }

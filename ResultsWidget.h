@@ -28,7 +28,7 @@ public:
     ~ResultsWidget();
     enum surface {sphere, cube, torus, mobiusStrip, crossCap, kleinBottle};
     void addSurface(surface newSurface);
-    void toggleCutting();
+    void cutSurface();
     void setLineDrawingColor(QColor newColor);
     void resizeGL(int w, int h) override;
 
@@ -45,7 +45,6 @@ private:
     void addLineVertices(Vertex *newVertex);
     std::vector<Vertex*> getNewVertices(Vertex *newVertex);
     void checkLineVerticesForLoop(Vertex *newVertex);
-    void cutSurface(QMouseEvent *e);
     Vertex* getVertexFromMouseEvent(QMouseEvent *e);
 
     Mesh *mesh;
@@ -62,7 +61,6 @@ private:
     bool isDrawingMode;
     bool shouldPaintGL;
     bool loopDetected;
-    bool cuttingEnabled;
 };
 
 #endif

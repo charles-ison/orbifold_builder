@@ -10,7 +10,9 @@ public:
     void copySurface(Surface *surface);
     std::vector<Vertex*> getVertices();
     std::vector<Triangle> getTriangles();
-    void cutVertex(Vertex *vertexToCut);
+    void addVertex(Vertex *vertexToAdd);
+    void deleteVertex(Vertex *vertexToDelete);
+    void updateTriangle(int triangleIndex, int index, int newVertexIndex);
 
 private:
     int getUpdatedIndex(int deletedIndex, int index);
