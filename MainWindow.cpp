@@ -284,7 +284,6 @@ void MainWindow::createToolbars() {
 
     cutSurfaceButton = new QToolButton;
     cutSurfaceButton->setText(tr("Cut"));
-    cutSurfaceButton->setCheckable(true);
     cutSurfaceButton->setMinimumHeight(fundamentalPolygonToolBarHeight);
     connect(cutSurfaceButton, &QAbstractButton::clicked, this, &MainWindow::cutSurface);
 
