@@ -21,14 +21,14 @@ std::vector<Triangle> Mesh::getTriangles() {
     return triangles;
 }
 
+// TODO: Remove if element splitting is not required
 void Mesh::addVertex(Vertex *vertexToAdd) {
     vertices.push_back(vertexToAdd);
-
 }
 
+// TODO: Remove if element splitting is not required
 void Mesh::updateTriangles(int triangleIndex, int index, int newVertexIndex) {
-    //TODO: delete old triangles
-
+    //TODO: Need to handle deleting out of date triangles
     int oldVertexIndex = triangles[triangleIndex].vertexIndices[index];
     int secondVertexIndex = triangles[triangleIndex].vertexIndices[(index+1)%3];
     int thirdVertexIndex = triangles[triangleIndex].vertexIndices[(index+2)%3];
@@ -64,6 +64,18 @@ int Mesh::getUpdatedIndex(int deletedIndex, int index) {
 }
 
 void Mesh::deleteVertex(Vertex *vertexToDelete) {
+
+    for (auto neighbor : vertexToDelete->neighbors) {
+        auto itr = neighbor->neighbors.begin();
+        while (itr != neighbor->neighbors.end()) {
+            if(*itr == vertexToDelete) {
+                itr = neighbor->neighbors.erase(itr);
+            } else {
+                itr++;
+            }
+        }
+    }
+
     int deletedIndex = 0;
     for (auto itr = vertices.begin(); itr != vertices.end(); ++itr) {
         if (vertexToDelete == *itr) {
