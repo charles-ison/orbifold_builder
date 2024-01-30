@@ -10,10 +10,7 @@ void Mesh::copySurface(Surface *surface) {
         vertices.push_back(&surfaceVertices[i]);
     }
 
-    std::vector<Triangle> surfaceTriangles = surface->getTriangles();
-    for (int i=0; i<surfaceTriangles.size(); i++) {
-        triangles.push_back(surfaceTriangles[i]);
-    }
+    triangles = surface->getTriangles();
 }
 
 std::vector<Vertex*> Mesh::getVertices() {

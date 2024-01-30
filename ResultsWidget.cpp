@@ -85,8 +85,8 @@ void ResultsWidget::cutSurface() {
             bool sharesEdgeWithPreviousTriangle = (numConnectedVertices > 1);
 
             if (containsNextVertex && (sharesEdgeWithPreviousTriangle && doesNotContainPreviousVertex || isFirstVertex)) {
-                Vertex newVertex = {QVector3D(nextVertex->position.x(), nextVertex->position.y(), nextVertex->position.z())};
-                mesh->addVertex(&newVertex);
+                Vertex *newVertex = new Vertex({QVector3D(nextVertex->position.x(), nextVertex->position.y(), nextVertex->position.z())});
+                mesh->addVertex(newVertex);
                 mesh->updateTriangle(i, matchingIndex, mesh->getVertices().size()-1);
 
                 prevTriangle = nextTriangle;
@@ -96,8 +96,8 @@ void ResultsWidget::cutSurface() {
         }
     }
 
-    //geometryEngine->initMesh(mesh);
-    //update();
+    geometryEngine->initMesh(mesh);
+    update();
 }
 
 void ResultsWidget::deleteSurface(QMouseEvent *e) {
