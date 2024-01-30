@@ -31,6 +31,7 @@ public:
     void cutSurface();
     void setLineDrawingColor(QColor newColor);
     void resizeGL(int w, int h) override;
+    void toggleShouldDeleteSurface();
 
 protected:
     void mousePressEvent(QMouseEvent *e) override;
@@ -42,6 +43,7 @@ protected:
     void initShaders();
 
 private:
+    void deleteSurface(QMouseEvent *e);
     void addLineVertices(Vertex *newVertex);
     std::vector<Vertex*> getNewVertices(Vertex *newVertex);
     void checkLineVerticesForLoop(Vertex *newVertex);
@@ -60,7 +62,7 @@ private:
     QColor lineDrawingColor;
     bool isDrawingMode;
     bool shouldPaintGL;
-    bool loopDetected;
+    bool shouldDeleteSurface;
 };
 
 #endif

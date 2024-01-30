@@ -16,7 +16,6 @@ ResultsWidget::~ResultsWidget() {
 
 void ResultsWidget::addSurface(surface newSurface) {
     shouldPaintGL = true;
-    loopDetected = false;
     lineVertices.clear();
     if (newSurface == surface::cube) {
         mesh->copySurface(new Cube());
@@ -36,11 +35,18 @@ void ResultsWidget::addSurface(surface newSurface) {
     update();
 }
 
-void ResultsWidget::mousePressEvent(QMouseEvent *e) {
-    lineVertices.clear();
-    isDrawingMode = true;
+void ResultsWidget::toggleShouldDeleteSurface() {
+    shouldDeleteSurface = !shouldDeleteSurface;
 }
 
+void ResultsWidget::mousePressEvent(QMouseEvent *e) {
+    if (shouldDeleteSurface) {
+        deleteSurface(e);
+    } else {
+        lineVertices.clear();
+        isDrawingMode = true;
+    }
+}
 
 void ResultsWidget::cutSurface() {
     std::vector<Vertex*> vertices = mesh->getVertices();
@@ -89,46 +95,43 @@ void ResultsWidget::cutSurface() {
             }
         }
     }
+
+    // TODO: Uncomment
+    //geometryEngine->initMesh(mesh);
+    //update();
 }
 
-//void ResultsWidget::cutSurface() {
-//    if (!loopDetected) {
-//        return;
-//    }
+void ResultsWidget::deleteSurface(QMouseEvent *e) {
 
-//    //TODO: Hashing on vertex position string isn't ideal, could refactor to be more robust later
-//    std::unordered_set<std::string> lineVerticesSet;
-//    for (Vertex* vertex : lineVertices) {
- //       lineVerticesSet.insert(vertex->toString());
- //   }
+    Vertex *startingVertex = getVertexFromMouseEvent(e);
+    if (startingVertex == nullptr) {
+        return;
+    }
 
-//    std::queue<Vertex*> verticesToCut;
-//    verticesToCut.push(startingVertex);
+    std::queue<Vertex*> verticesToDelete;
+    verticesToDelete.push(startingVertex);
 
- //   while (!verticesToCut.empty()) {
-  //      Vertex* vertexToCut = verticesToCut.front();
- //       mesh->deleteVertex(vertexToCut);
- //       verticesToCut.pop();
+    while (!verticesToDelete.empty()) {
+        Vertex* vertexToDelete = verticesToDelete.front();
+        mesh->deleteVertex(vertexToDelete);
+        verticesToDelete.pop();
 
-//        for (Vertex* neighbor : vertexToCut->neighbors) {
-//            std::string neighborString = neighbor->toString();
-//            if (verticesToNotCut.find(neighborString) == verticesToNotCut.end()) {
-//                verticesToCut.push(neighbor);
-//                verticesToNotCut.insert(neighborString);
-//            }
-//        }
-//    }
-//    geometryEngine->initMesh(mesh);
-//    update();
-//}
+        for (Vertex* neighbor : vertexToDelete->neighbors) {
+            std::string neighborString = neighbor->toString();
+            //if (verticesToNotCut.find(neighborString) == verticesToNotCut.end()) {
+            //    verticesToDelete.push(neighbor);
+            //    verticesToNotCut.insert(neighborString);
+            //}
+        }
+    }
+    geometryEngine->initMesh(mesh);
+    update();
+}
 
 void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
     if (not isDrawingMode or not shouldPaintGL) {
         return;
     }
-
-    //TODO: Comment for testing
-    loopDetected = false;
 
     Vertex *vertex = getVertexFromMouseEvent(e);
     if (vertex == nullptr) {
@@ -215,7 +218,6 @@ void ResultsWidget::checkLineVerticesForLoop(Vertex *newVertex) {
     for (int i=0; i<=lineVertices.size()-numRecentVerticesToExcludeForLoopChecking; i++) {
         if (lineVertices[i] == newVertex) {
             isDrawingMode = false;
-            loopDetected = true;
             for (int j=0; j<i; j++) {
                 lineVertices.erase(lineVertices.begin());
             }
@@ -264,7 +266,7 @@ void ResultsWidget::initializeGL() {
 
     isDrawingMode = true;
     shouldPaintGL = false;
-    loopDetected = false;
+    shouldDeleteSurface = false;
     lineDrawingColor = Qt::white;
 
     // Use QBasicTimer because it's faster than QTimer

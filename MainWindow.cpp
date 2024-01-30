@@ -105,6 +105,10 @@ void MainWindow::cutSurface() {
     resultsWidget->cutSurface();
 }
 
+void MainWindow::toggleShouldDeleteSurface() {
+    resultsWidget->toggleShouldDeleteSurface();
+}
+
 void MainWindow::toggleFundamentalPolygon() {
     hideFundamentalPolygon = !hideFundamentalPolygon;
     fundamentalPolygonToolBar->setHidden(hideFundamentalPolygon);
@@ -278,11 +282,17 @@ void MainWindow::createToolbars() {
     drawLineButton->setIcon(createColorToolButtonIcon(":/images/linecolor.png", Qt::white));
     drawLineButton->setMinimumHeight(fundamentalPolygonToolBarHeight);
 
-    cutButton = new QToolButton;
-    cutButton->setText(tr("Cut"));
-    cutButton->setCheckable(true);
-    cutButton->setMinimumHeight(fundamentalPolygonToolBarHeight);
-    connect(cutButton, &QAbstractButton::clicked, this, &MainWindow::cutSurface);
+    cutSurfaceButton = new QToolButton;
+    cutSurfaceButton->setText(tr("Cut"));
+    cutSurfaceButton->setCheckable(true);
+    cutSurfaceButton->setMinimumHeight(fundamentalPolygonToolBarHeight);
+    connect(cutSurfaceButton, &QAbstractButton::clicked, this, &MainWindow::cutSurface);
+
+    deleteSurfaceButton = new QToolButton;
+    deleteSurfaceButton->setText(tr("Delete"));
+    deleteSurfaceButton->setCheckable(true);
+    deleteSurfaceButton->setMinimumHeight(fundamentalPolygonToolBarHeight);
+    connect(deleteSurfaceButton, &QAbstractButton::clicked, this, &MainWindow::toggleShouldDeleteSurface);
 
     zoomButton = new QToolButton;
     zoomButton->setPopupMode(QToolButton::MenuButtonPopup);
@@ -294,7 +304,8 @@ void MainWindow::createToolbars() {
     resultsToolBar = new QToolBar;
     resultsToolBar->addWidget(addSurfaceButton);
     resultsToolBar->addWidget(drawLineButton);
-    resultsToolBar->addWidget(cutButton);
+    resultsToolBar->addWidget(cutSurfaceButton);
+    resultsToolBar->addWidget(deleteSurfaceButton);
     resultsToolBar->addWidget(zoomButton);
     resultsToolBar->setMovable(false);
 }
