@@ -16,6 +16,7 @@ public:
 
 private:
     int getUpdatedIndex(int deletedIndex, int index);
+    void deleteTriangleReferences(Triangle* triangle);
     std::vector<Vertex*> vertices;
     std::vector<Triangle*> triangles;
 };

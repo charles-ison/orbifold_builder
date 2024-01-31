@@ -67,19 +67,21 @@ int Mesh::getUpdatedIndex(int deletedIndex, int index) {
     return index;
 }
 
-void Mesh::deleteVertex(Vertex *vertexToDelete) {
-
-    for (auto neighbor : vertexToDelete->neighbors) {
-        auto itr = neighbor->neighbors.begin();
-        while (itr != neighbor->neighbors.end()) {
-            if(*itr == vertexToDelete) {
-                itr = neighbor->neighbors.erase(itr);
+void Mesh::deleteTriangleReferences(Triangle* triangle) {
+    for (int vertexIndex : triangle->vertexIndices) {
+        Vertex *vertex = vertices[vertexIndex];
+        auto itr = vertex->triangles.begin();
+        while (itr != vertex->triangles.end()) {
+            if (triangle == *itr) {
+                itr = vertex->triangles.erase(itr);
             } else {
                 itr++;
             }
         }
     }
+}
 
+void Mesh::deleteVertex(Vertex *vertexToDelete) {
     int deletedIndex = 0;
     for (auto itr = vertices.begin(); itr != vertices.end(); ++itr) {
         if (vertexToDelete == *itr) {
@@ -95,12 +97,14 @@ void Mesh::deleteVertex(Vertex *vertexToDelete) {
         int index2 = (*itr)->vertexIndices[1];
         int index3 = (*itr)->vertexIndices[2];
 
+        (*itr)->vertexIndices[0] = getUpdatedIndex(deletedIndex, index1);
+        (*itr)->vertexIndices[1] = getUpdatedIndex(deletedIndex, index2);
+        (*itr)->vertexIndices[2] = getUpdatedIndex(deletedIndex, index3);
+
         if (deletedIndex == index1 || deletedIndex == index2 || deletedIndex == index3) {
+            deleteTriangleReferences(*itr);
             itr = triangles.erase(itr);
         } else {
-            (*itr)->vertexIndices[0] = getUpdatedIndex(deletedIndex, index1);
-            (*itr)->vertexIndices[1] = getUpdatedIndex(deletedIndex, index2);
-            (*itr)->vertexIndices[2] = getUpdatedIndex(deletedIndex, index3);
             itr++;
         }
     }

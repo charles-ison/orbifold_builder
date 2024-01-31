@@ -5,7 +5,6 @@
 #include <limits>
 #include <queue>
 #include <unordered_set>
-#include <iostream>
 
 ResultsWidget::~ResultsWidget() {
     // Make sure the context is current when deleting the buffers.
@@ -97,21 +96,27 @@ void ResultsWidget::deleteSurface(QMouseEvent *e) {
     }
 
     std::unordered_set<std::string> alreadyScheduledVertices;
+    alreadyScheduledVertices.insert(startingVertex->toString());
+
     std::queue<Vertex*> verticesToDelete;
     verticesToDelete.push(startingVertex);
 
     while (!verticesToDelete.empty()) {
+        std::vector<Vertex*> meshVertices = mesh->getVertices();
         Vertex* vertexToDelete = verticesToDelete.front();
-        mesh->deleteVertex(vertexToDelete);
         verticesToDelete.pop();
 
-        for (Vertex* neighbor : vertexToDelete->neighbors) {
-            std::string neighborString = neighbor->toString();
-            if (alreadyScheduledVertices.find(neighborString) == alreadyScheduledVertices.end()) {
-                verticesToDelete.push(neighbor);
-                alreadyScheduledVertices.insert(neighborString);
+        for (Triangle* triangle : vertexToDelete->triangles) {
+            for (int vertexIndex : triangle->vertexIndices) {
+                Vertex* neighbor = meshVertices[vertexIndex];
+                std::string neighborString = neighbor->toString();
+                if (alreadyScheduledVertices.find(neighborString) == alreadyScheduledVertices.end()) {
+                    verticesToDelete.push(neighbor);
+                    alreadyScheduledVertices.insert(neighborString);
+                }
             }
         }
+        mesh->deleteVertex(vertexToDelete);
     }
     geometryEngine->initMesh(mesh);
     update();
@@ -178,20 +183,24 @@ std::vector<Vertex*> ResultsWidget::getNewVertices(Vertex *newVertex) {
     std::queue<std::vector<Vertex*>> potentialPaths;
     potentialPaths.push(newVertices);
     QVector3D lastVertexPosition = lineVertices.back()->position;
+    std::vector<Vertex*> meshVertices = mesh->getVertices();
 
     while(!potentialPaths.empty()) {
         std::vector<Vertex*> nextPath = potentialPaths.front();
         Vertex *nextVertex = nextPath.back();
         potentialPaths.pop();
 
-        for (Vertex* neighbor : nextVertex->neighbors) {
-            if (neighbor->position == lastVertexPosition) {
-                return nextPath;
-            } else if(checkedVertices.find(neighbor) == checkedVertices.end()) {
-                std::vector<Vertex*> newPotentialPath = nextPath;
-                newPotentialPath.push_back(neighbor);
-                potentialPaths.push(newPotentialPath);
-                checkedVertices.insert(neighbor);
+        for (Triangle* triangle : nextVertex->triangles) {
+            for (int vertexIndex : triangle->vertexIndices) {
+                Vertex *neighbor = meshVertices[vertexIndex];
+                if (neighbor->position == lastVertexPosition) {
+                    return nextPath;
+                } else if (checkedVertices.find(neighbor) == checkedVertices.end()) {
+                    std::vector<Vertex*> newPotentialPath = nextPath;
+                    newPotentialPath.push_back(neighbor);
+                    potentialPaths.push(newPotentialPath);
+                    checkedVertices.insert(neighbor);
+                }
             }
         }
     }
