@@ -28,14 +28,14 @@ void GeometryEngine::initMesh(Mesh* mesh) {
     arrayBuf.bind();
     arrayBuf.allocate(vertices, numVertices * sizeof(Vertex));
 
-    std::vector<Triangle> triangles = mesh->getTriangles();
+    std::vector<Triangle*> triangles = mesh->getTriangles();
     int numTriangles = triangles.size();
     numIndices = 3*numTriangles;
     GLushort indices[numIndices];
     for (int i=0; i<numTriangles; i++) {
-        indices[3*i] = triangles[i].vertexIndices[0];
-        indices[3*i+1] = triangles[i].vertexIndices[1];
-        indices[3*i+2] = triangles[i].vertexIndices[2];
+        indices[3*i] = triangles[i]->vertexIndices[0];
+        indices[3*i+1] = triangles[i]->vertexIndices[1];
+        indices[3*i+2] = triangles[i]->vertexIndices[2];
     }
 
     // Transfer index data to VBO 1

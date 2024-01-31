@@ -9,8 +9,9 @@ class Torus : public Surface {
 public:
     Torus();
     Vertex* getVertices();
-    std::vector<Triangle> getTriangles();
+    Triangle* getTriangles();
     int getNumVertices();
+    int getNumTriangles();
 
 private:
     void initVertices();
@@ -20,8 +21,9 @@ private:
     float bigRadius = 1;
     float smallRadius = 0.5;
     static const int numVertices = numVertSteps * numHorSteps;
+    static const int numTriangles= 2 * numVertSteps * numHorSteps;
     Vertex vertices[numVertices];
-    std::vector<Triangle> triangles;
+    Triangle triangles[numTriangles];
 };
 
 #endif

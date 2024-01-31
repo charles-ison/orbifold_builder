@@ -18,21 +18,21 @@ void Cube::initVertices() {
 }
 
 void Cube::initTriangles() {
-    triangles.push_back({{0, 1, 2}});
-    triangles.push_back({{2, 3, 0}});
-    triangles.push_back({{3, 2, 6}});
-    triangles.push_back({{6, 7, 3}});
-    triangles.push_back({{3, 7, 4}});
-    triangles.push_back({{4, 0, 3}});
-    triangles.push_back({{4, 7, 6}});
-    triangles.push_back({{6, 5, 4}});
-    triangles.push_back({{0, 4, 5}});
-    triangles.push_back({{5, 1, 0}});
-    triangles.push_back({{1, 5, 6}});
-    triangles.push_back({{6, 2, 1}});
+    triangles[0] = {{0, 1, 2}};
+    triangles[1] = {{2, 3, 0}};
+    triangles[2] = {{3, 2, 6}};
+    triangles[3] = {{6, 7, 3}};
+    triangles[4] = {{3, 7, 4}};
+    triangles[5] = {{4, 0, 3}};
+    triangles[6] = {{4, 7, 6}};
+    triangles[7] = {{6, 5, 4}};
+    triangles[8] = {{0, 4, 5}};
+    triangles[9] = {{5, 1, 0}};
+    triangles[10] = {{1, 5, 6}};
+    triangles[11] = {{6, 2, 1}};
 }
 
-std::vector<Triangle> Cube::getTriangles() {
+Triangle* Cube::getTriangles() {
     return triangles;
 }
 
@@ -43,3 +43,8 @@ Vertex* Cube::getVertices() {
 int Cube::getNumVertices() {
     return numVertices;
 }
+
+int Cube::getNumTriangles() {
+    return numTriangles;
+}
+

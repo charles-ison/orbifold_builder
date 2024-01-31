@@ -1,10 +1,11 @@
 #include "Surface.h"
 
 void Surface::initNeighbors() {
+    int numTriangles = getNumTriangles();
     Vertex* vertices = getVertices();
-    std::vector<Triangle> triangles = getTriangles();
+    Triangle* triangles = getTriangles();
 
-    for (int i=0; i<triangles.size(); i++) {
+    for (int i=0; i<numTriangles; i++) {
         int index1 = triangles[i].vertexIndices[0];
         int index2 = triangles[i].vertexIndices[1];
         int index3 = triangles[i].vertexIndices[2];

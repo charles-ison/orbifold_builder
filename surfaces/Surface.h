@@ -8,8 +8,9 @@
 class Surface {
 public:
     virtual Vertex* getVertices() = 0;
-    virtual std::vector<Triangle> getTriangles() = 0;
+    virtual Triangle* getTriangles() = 0;
     virtual int getNumVertices() = 0;
+    virtual int getNumTriangles() = 0;
 
 protected:
     void initNeighbors();

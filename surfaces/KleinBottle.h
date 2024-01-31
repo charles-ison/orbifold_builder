@@ -9,8 +9,9 @@ class KleinBottle : public Surface {
 public:
     KleinBottle();
     Vertex* getVertices();
-    std::vector<Triangle> getTriangles();
+    Triangle* getTriangles();
     int getNumVertices();
+    int getNumTriangles();
 
 private:
     void initVertices();
@@ -22,8 +23,9 @@ private:
     float b = 1.0;
     float c = 0.5;
     static const int numVertices = 2 * numVertSteps * numHorSteps;
+    static const int numTriangles = 2 * 2 * numVertSteps * numHorSteps;
     Vertex vertices[numVertices];
-    std::vector<Triangle> triangles;
+    Triangle triangles[numTriangles];
 };
 
 #endif

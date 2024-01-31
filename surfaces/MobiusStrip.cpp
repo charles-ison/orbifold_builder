@@ -10,7 +10,7 @@ void MobiusStrip::initVertices() {
     float horStepSize = 2 * M_PI / numHorSteps;
     float vertStepSize = 1.0 / numVertSteps;
 
-    int verticesCounter = 0;
+    int vertexCounter = 0;
     for (int i=0; i<=numHorSteps; i++) {
         float horizontalAngle = -M_PI + horStepSize * i;
         for (int j=0; j<=numVertSteps; j++) {
@@ -19,32 +19,34 @@ void MobiusStrip::initVertices() {
             float y = sinf(horizontalAngle) * (radius + verticalStep * cosf(horizontalAngle/2));
             float z = verticalStep * sinf(horizontalAngle/2);
 
-            vertices[verticesCounter] = {QVector3D(x,  y,  z)};
-            verticesCounter += 1;
+            vertices[vertexCounter] = {QVector3D(x,  y,  z)};
+            vertexCounter += 1;
         }
     }
 }
 
 void MobiusStrip::initTriangles() {
     int quadCounter = 0;
+    int triangleCounter = 0;
     for (int i=0; i<numHorSteps; i++) {
         for (int j=0; j<=numVertSteps; j++) {
             int index1 = quadCounter + 1;
             int index2 = quadCounter;
             int index3 = quadCounter + 1 + numVertSteps;
-            triangles.push_back({{index1, index2, index3}});
+            triangles[triangleCounter] = {{index1, index2, index3}};
 
             int index4 = quadCounter + numVertSteps;
             int index5 = quadCounter + 1 + numVertSteps;
             int index6 = quadCounter;
-            triangles.push_back({{index4, index5, index6}});
+            triangles[triangleCounter+1] = {{index4, index5, index6}};
 
             quadCounter += 1;
+            triangleCounter += 2;
         }
     }
 }
 
-std::vector<Triangle> MobiusStrip::getTriangles() {
+Triangle* MobiusStrip::getTriangles() {
     return triangles;
 }
 
@@ -54,4 +56,8 @@ Vertex* MobiusStrip::getVertices() {
 
 int MobiusStrip::getNumVertices() {
     return numVertices;
+}
+
+int MobiusStrip::getNumTriangles() {
+    return numTriangles;
 }

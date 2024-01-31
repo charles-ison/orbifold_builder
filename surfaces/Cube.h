@@ -9,15 +9,17 @@ class Cube : public Surface {
 public:
     Cube();
     Vertex* getVertices();
-    std::vector<Triangle> getTriangles();
+    Triangle* getTriangles();
     int getNumVertices();
+    int getNumTriangles();
 
 private:
     void initVertices();
     void initTriangles();
     static const int numVertices = 8;
+    static const int numTriangles = 12;
     Vertex vertices[numVertices];
-    std::vector<Triangle> triangles;
+    Triangle triangles[numTriangles];
 };
 
 #endif

@@ -9,8 +9,9 @@ class CrossCap : public Surface {
 public:
     CrossCap();
     Vertex* getVertices();
-    std::vector<Triangle> getTriangles();
+    Triangle* getTriangles();
     int getNumVertices();
+    int getNumTriangles();
 
 private:
     void initVertices();
@@ -19,8 +20,9 @@ private:
     static const int numHorSteps = 200;
     float radius = 1.3;
     static const int numVertices = (numVertSteps+1) * numHorSteps;
+    static const int numTriangles = 2 * (numVertSteps+1) * numHorSteps;
     Vertex vertices[numVertices];
-    std::vector<Triangle> triangles;
+    Triangle triangles[numTriangles];
 };
 
 #endif

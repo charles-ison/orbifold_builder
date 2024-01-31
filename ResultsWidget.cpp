@@ -5,6 +5,7 @@
 #include <limits>
 #include <queue>
 #include <unordered_set>
+#include <iostream>
 
 ResultsWidget::~ResultsWidget() {
     // Make sure the context is current when deleting the buffers.
