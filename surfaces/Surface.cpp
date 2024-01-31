@@ -18,5 +18,9 @@ void Surface::initNeighbors() {
 
         vertices[index3].neighbors.insert(&vertices[index1]);
         vertices[index3].neighbors.insert(&vertices[index2]);
+
+        vertices[index1].triangles.insert(&triangles[i]);
+        vertices[index2].triangles.insert(&triangles[i]);
+        vertices[index3].triangles.insert(&triangles[i]);
     }
 }
