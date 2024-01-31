@@ -37,27 +37,27 @@ void Mesh::updateTriangles(int triangleIndex, int index, int newVertexIndex) {
     int secondVertexIndex = triangles[triangleIndex]->vertexIndices[(index+1)%3];
     int thirdVertexIndex = triangles[triangleIndex]->vertexIndices[(index+2)%3];
 
-    for (auto neighbor : vertices[oldVertexIndex]->neighbors) {
-        auto itr = neighbor->neighbors.begin();
-        while (itr != neighbor->neighbors.end()) {
-            if(*itr == vertices[oldVertexIndex]) {
-                itr = neighbor->neighbors.erase(itr);
-            } else {
-                itr++;
-            }
-        }
-    }
+    //for (auto neighbor : vertices[oldVertexIndex]->neighbors) {
+    //    auto itr = neighbor->neighbors.begin();
+    //    while (itr != neighbor->neighbors.end()) {
+    //        if(*itr == vertices[oldVertexIndex]) {
+    //            itr = neighbor->neighbors.erase(itr);
+    //        } else {
+    //            itr++;
+    //        }
+    //    }
+    //}
 
-    triangles[triangleIndex]->vertexIndices[index] = newVertexIndex;
+    //triangles[triangleIndex]->vertexIndices[index] = newVertexIndex;
 
-    vertices[newVertexIndex]->neighbors.insert(vertices[secondVertexIndex]);
-    vertices[newVertexIndex]->neighbors.insert(vertices[thirdVertexIndex]);
+    //vertices[newVertexIndex]->neighbors.insert(vertices[secondVertexIndex]);
+    //vertices[newVertexIndex]->neighbors.insert(vertices[thirdVertexIndex]);
 
-    vertices[secondVertexIndex]->neighbors.insert(vertices[newVertexIndex]);
-    vertices[secondVertexIndex]->neighbors.insert(vertices[thirdVertexIndex]);
+    //vertices[secondVertexIndex]->neighbors.insert(vertices[newVertexIndex]);
+    //vertices[secondVertexIndex]->neighbors.insert(vertices[thirdVertexIndex]);
 
-    vertices[thirdVertexIndex]->neighbors.insert(vertices[newVertexIndex]);
-    vertices[thirdVertexIndex]->neighbors.insert(vertices[secondVertexIndex]);
+    //vertices[thirdVertexIndex]->neighbors.insert(vertices[newVertexIndex]);
+    //vertices[thirdVertexIndex]->neighbors.insert(vertices[secondVertexIndex]);
 }
 
 int Mesh::getUpdatedIndex(int deletedIndex, int index) {
