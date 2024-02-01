@@ -1,5 +1,6 @@
 #include <QtGui/qcolor.h>
 #include "GeometryEngine.h"
+#include <iostream>
 
 GeometryEngine::GeometryEngine() : indexBuf(QOpenGLBuffer::IndexBuffer) {
     initializeOpenGLFunctions();
@@ -22,6 +23,7 @@ void GeometryEngine::initMesh(Mesh* mesh) {
     Vertex vertices[numVertices];
     for (int i=0; i<numVertices; i++) {
         vertices[i] = *meshVertices[i];
+        std::cout << vertices[i].toString() << std::endl;
     }
 
     // Transfer vertex data to VBO 0
@@ -36,6 +38,8 @@ void GeometryEngine::initMesh(Mesh* mesh) {
         indices[3*i] = triangles[i]->vertexIndices[0];
         indices[3*i+1] = triangles[i]->vertexIndices[1];
         indices[3*i+2] = triangles[i]->vertexIndices[2];
+
+        std::cout << triangles[i]->toString() << std::endl;
     }
 
     // Transfer index data to VBO 1

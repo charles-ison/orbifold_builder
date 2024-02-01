@@ -81,6 +81,8 @@ void ResultsWidget::cutSurface() {
 
     Triangle* startingTriangle;
     std::vector<Vertex*> vertices = mesh->getVertices();
+    std::vector<Vertex*> verticesToCut;
+    std::vector<std::vector<Triangle*>> trianglePathsToCut;
     for (Triangle *triangle : lineVertices[0]->triangles) {
         if(triangleContainsVertex(lineVertices[0], triangle, vertices)
               && triangleContainsVertex(lineVertices[1], triangle, vertices)) {
@@ -89,9 +91,11 @@ void ResultsWidget::cutSurface() {
         }
     }
 
+    verticesToCut.push_back(lineVertices[1]);
+    trianglePathsToCut.push_back({startingTriangle});
     bool startingRotationDirectionAligns = rotationDirectionAligns(startingTriangle, lineVertices[0], lineVertices[1], vertices);
-    for (int i=1; i<lineVertices.size()-2; i++) {
-        int endIndex = i+1;
+
+    for (int i=1; i<lineVertices.size()-1; i++) {
         Vertex* startVertex = lineVertices[i];
         Vertex* endVertex = lineVertices[i+1];
 
@@ -110,30 +114,16 @@ void ResultsWidget::cutSurface() {
             bool nextTriangleContainsVertex = triangleContainsVertex(endVertex, nextTriangle, vertices);
             bool nextRotationDirectionAligns = (startingRotationDirectionAligns == rotationDirectionAligns(nextTriangle, startVertex, endVertex, vertices));
             if (nextTriangleContainsVertex && nextRotationDirectionAligns) {
+                verticesToCut.push_back(endVertex);
+                //nextPath.erase(nextPath.begin());
+                trianglePathsToCut.push_back(nextPath);
                 startingTriangle = nextTriangle;
 
-                Vertex* newVertex = new Vertex;
-                newVertex->position = endVertex->position;
-                mesh->addVertex(newVertex);
+                //std::cout << "endVertex: " << endVertex->toString() << std::endl;
+                //for (Triangle* nextTriangle : nextPath) {
+                //    std::cout << "nextTriangle: " << nextTriangle->toString() << std::endl;
+                //}
 
-                vertices = mesh->getVertices();
-                for (Triangle* nextPathTriangle : nextPath) {
-                    newVertex->triangles.insert(nextPathTriangle);
-                    for (int j=0; j<3; j++) {
-                        if (nextPathTriangle->vertexIndices[j] == endIndex) {
-                            nextPathTriangle->vertexIndices[j] = vertices.size()-1;
-                        }
-                    }
-
-                    auto itr = endVertex->triangles.begin();
-                    while (itr != endVertex->triangles.end()) {
-                        if (nextPathTriangle == *itr) {
-                            itr = endVertex->triangles.erase(itr);
-                        } else {
-                            itr++;
-                        }
-                    }
-                }
                 break;
             }
 
@@ -148,6 +138,49 @@ void ResultsWidget::cutSurface() {
             }
         }
     }
+
+    // Required if the line draw is a loop
+    if (lineVertices[0] == verticesToCut.back()) {
+        trianglePathsToCut.back().push_back(trianglePathsToCut.front().front());
+    }
+
+    std::unordered_map<int, int> oldIndexToNewIndexMap;
+    for (int i=0; i<verticesToCut.size(); i++) {
+        Vertex* vertexToCut = verticesToCut[i];
+
+        std::cout << "vertexToCut: " << vertexToCut->toString() << std::endl;
+
+        std::vector<Triangle*> trianglePath = trianglePathsToCut[i];
+
+        Vertex* newVertex = new Vertex;
+        newVertex->position = vertexToCut->position;
+        mesh->addVertex(newVertex);
+        vertices = mesh->getVertices();
+        for (Triangle* nextTriangle : trianglePath) {
+
+            std::cout << "nextPathTriangle: " << nextTriangle->toString() << std::endl;
+
+            for (int j=0; j<3; j++) {
+                int oldVertexIndex = nextTriangle->vertexIndices[j];
+                if (vertexToCut == vertices[oldVertexIndex]) {
+                    nextTriangle->vertexIndices[j] = vertices.size()-1;
+                    oldIndexToNewIndexMap.insert({oldVertexIndex, vertices.size()-1});
+                } else if (oldIndexToNewIndexMap.find(oldVertexIndex) != oldIndexToNewIndexMap.end()) {
+                    nextTriangle->vertexIndices[j] = oldIndexToNewIndexMap.at(oldVertexIndex);
+                }
+            }
+            newVertex->triangles.insert(nextTriangle);
+            auto itr = vertexToCut->triangles.begin();
+            while (itr != vertexToCut->triangles.end()) {
+                if (nextTriangle == *itr) {
+                    itr = vertexToCut->triangles.erase(itr);
+                } else {
+                    itr++;
+                }
+            }
+        }
+    }
+
     lineVertices.clear();
     geometryEngine->initLine(lineVertices);
     geometryEngine->initMesh(mesh);
