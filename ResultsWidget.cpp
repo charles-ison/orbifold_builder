@@ -44,8 +44,8 @@ void ResultsWidget::mousePressEvent(QMouseEvent *e) {
         deleteSurface(e);
     } else {
         // TODO: Switch comments for testing
-        mouseMoveEvent(e);
-        //lineVertices.clear();
+        //mouseMoveEvent(e);
+        lineVertices.clear();
         isDrawingMode = true;
     }
 }
@@ -115,15 +115,8 @@ void ResultsWidget::cutSurface() {
             bool nextRotationDirectionAligns = (startingRotationDirectionAligns == rotationDirectionAligns(nextTriangle, startVertex, endVertex, vertices));
             if (nextTriangleContainsVertex && nextRotationDirectionAligns) {
                 verticesToCut.push_back(endVertex);
-                //nextPath.erase(nextPath.begin());
                 trianglePathsToCut.push_back(nextPath);
                 startingTriangle = nextTriangle;
-
-                //std::cout << "endVertex: " << endVertex->toString() << std::endl;
-                //for (Triangle* nextTriangle : nextPath) {
-                //    std::cout << "nextTriangle: " << nextTriangle->toString() << std::endl;
-                //}
-
                 break;
             }
 
@@ -149,9 +142,6 @@ void ResultsWidget::cutSurface() {
     std::unordered_map<Vertex*, int> oldVertexToNewIndexMap;
     for (int i=0; i<verticesToCut.size(); i++) {
         Vertex* vertexToCut = verticesToCut[i];
-
-        std::cout << "vertexToCut: " << vertexToCut->toString() << std::endl;
-
         std::vector<Triangle*> trianglePath = trianglePathsToCut[i];
         entireTrianglePath.insert(entireTrianglePath.end(), trianglePath.begin(), trianglePath.end());
 
@@ -161,7 +151,6 @@ void ResultsWidget::cutSurface() {
         vertices = mesh->getVertices();
         oldVertexToNewIndexMap.insert({vertexToCut, vertices.size()-1});
         for (Triangle* nextTriangle : trianglePath) {
-            std::cout << "nextPathTriangle: " << nextTriangle->toString() << std::endl;
             for (int j=0; j<3; j++) {
                 int oldVertexIndex = nextTriangle->vertexIndices[j];
                 if (vertexToCut == vertices[oldVertexIndex]) {
@@ -198,9 +187,6 @@ void ResultsWidget::cutSurface() {
             }
         }
     }
-
-    lineVertices.clear();
-    geometryEngine->initLine(lineVertices);
     geometryEngine->initMesh(mesh);
     update();
 }
@@ -220,19 +206,28 @@ void ResultsWidget::deleteSurface(QMouseEvent *e) {
     while (!verticesToDelete.empty()) {
         std::vector<Vertex*> meshVertices = mesh->getVertices();
         Vertex* vertexToDelete = verticesToDelete.front();
-        mesh->deleteVertex(vertexToDelete);
+
+        //std::cout << "VertexToDelete: " << vertexToDelete->toString() << std::endl;
+
+       // for (Triangle* triangle : vertexToDelete->triangles) {
+        //    std::cout << triangle->toString() << std::endl;
+        //}
         verticesToDelete.pop();
 
         for (Triangle* triangle : vertexToDelete->triangles) {
+            //std::cout << "Neighbor triangles: " << triangle->toString() << std::endl;
             for (int vertexIndex : triangle->vertexIndices) {
+                //std::cout << "NeighborId: " << vertexIndex << std::endl;
                 Vertex* neighbor = meshVertices[vertexIndex];
                 std::string neighborString = neighbor->toString();
                 if (scheduledVertices.find(neighborString) == scheduledVertices.end()) {
+                    //std::cout << "NeighborToDelete: " << neighbor->toString() << std::endl;
                     verticesToDelete.push(neighbor);
                     scheduledVertices.insert(neighborString);
                 }
             }
         }
+        mesh->deleteVertex(vertexToDelete);
     }
     geometryEngine->initMesh(mesh);
     update();
@@ -246,7 +241,7 @@ void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
     Vertex *vertex = getVertexFromMouseEvent(e);
     if (vertex == nullptr) {
         // TODO: comment out for testing
-        //lineVertices.clear();
+        lineVertices.clear();
     } else if (lineVertices.size() == 0 || vertex != lineVertices.back()) {
         addLineVertices(vertex);
     }
@@ -268,7 +263,7 @@ Vertex* ResultsWidget::getVertexFromMouseEvent(QMouseEvent *e) {
         float xyDistance = sqrt(pow(x - surfacePosition.x(), 2) + pow(y - surfacePosition.y(), 2));
 
         //TODO: Change to 0.1 for testing
-        if (xyDistance < 0.1 && surfacePosition.z() < smallestZDistance) {
+        if (xyDistance < 0.01 && surfacePosition.z() < smallestZDistance) {
             smallestZDistance = surfacePosition.z();
             closestVertex = vertices[i];
             surfaceVertexFound = true;
@@ -325,7 +320,7 @@ std::vector<Vertex*> ResultsWidget::getNewVertices(Vertex *newVertex) {
 
 void ResultsWidget::checkLineVerticesForLoop(Vertex *newVertex) {
     //TODO: Change to 3 for testing
-    int numRecentVerticesToExcludeForLoopChecking = 3;
+    int numRecentVerticesToExcludeForLoopChecking = 5;
     if (lineVertices.size() < numRecentVerticesToExcludeForLoopChecking) {
         return;
     }
