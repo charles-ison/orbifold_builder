@@ -149,6 +149,7 @@ void ResultsWidget::deleteSurface(QMouseEvent *e) {
     while (!verticesToDelete.empty()) {
         std::vector<Vertex*> meshVertices = mesh->getVertices();
         Vertex* vertexToDelete = verticesToDelete.front();
+        mesh->deleteVertex(vertexToDelete);
         verticesToDelete.pop();
 
         for (Triangle* triangle : vertexToDelete->triangles) {
@@ -161,9 +162,6 @@ void ResultsWidget::deleteSurface(QMouseEvent *e) {
                 }
             }
         }
-
-        // TODO: Could make this more efficient by moving it up
-        mesh->deleteVertex(vertexToDelete);
     }
     geometryEngine->initMesh(mesh);
     update();
