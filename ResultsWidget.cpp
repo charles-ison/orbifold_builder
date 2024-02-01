@@ -166,9 +166,6 @@ void ResultsWidget::cutSurface() {
                 int oldVertexIndex = nextTriangle->vertexIndices[j];
                 if (vertexToCut == vertices[oldVertexIndex]) {
                     oldIndexToNewIndexMap.insert({oldVertexIndex, vertices.size()-1});
-
-                    //TODO: Fix this it is broken
-                    newVertex->triangles.insert(nextTriangle);
                 }
             }
         }
@@ -178,7 +175,9 @@ void ResultsWidget::cutSurface() {
         for (int j=0; j<3; j++) {
             int oldVertexIndex = triangle->vertexIndices[j];
             if (oldIndexToNewIndexMap.find(oldVertexIndex) != oldIndexToNewIndexMap.end()) {
-                triangle->vertexIndices[j] = oldIndexToNewIndexMap.at(oldVertexIndex);
+                int newVertexIndex = oldIndexToNewIndexMap.at(oldVertexIndex);
+                triangle->vertexIndices[j] = newVertexIndex;
+                vertices[newVertexIndex]->triangles.insert(triangle);
             }
         }
     }
