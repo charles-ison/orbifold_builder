@@ -7,7 +7,6 @@
 
 struct Vertex {
     QVector3D position;
-    std::set<Vertex*> neighbors;
     std::set<Triangle*> triangles;
 
     std::string toString(){
