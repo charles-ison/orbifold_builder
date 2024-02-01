@@ -144,39 +144,58 @@ void ResultsWidget::cutSurface() {
         trianglePathsToCut.back().push_back(trianglePathsToCut.front().front());
     }
 
+    std::vector<Triangle*> entireTrianglePath;
     std::unordered_map<int, int> oldIndexToNewIndexMap;
+    std::unordered_map<Vertex*, int> oldVertexToNewIndexMap;
     for (int i=0; i<verticesToCut.size(); i++) {
         Vertex* vertexToCut = verticesToCut[i];
 
         std::cout << "vertexToCut: " << vertexToCut->toString() << std::endl;
 
         std::vector<Triangle*> trianglePath = trianglePathsToCut[i];
+        entireTrianglePath.insert(entireTrianglePath.end(), trianglePath.begin(), trianglePath.end());
 
         Vertex* newVertex = new Vertex;
         newVertex->position = vertexToCut->position;
         mesh->addVertex(newVertex);
         vertices = mesh->getVertices();
+        oldVertexToNewIndexMap.insert({vertexToCut, vertices.size()-1});
         for (Triangle* nextTriangle : trianglePath) {
-
             std::cout << "nextPathTriangle: " << nextTriangle->toString() << std::endl;
-
             for (int j=0; j<3; j++) {
                 int oldVertexIndex = nextTriangle->vertexIndices[j];
                 if (vertexToCut == vertices[oldVertexIndex]) {
-                    nextTriangle->vertexIndices[j] = vertices.size()-1;
                     oldIndexToNewIndexMap.insert({oldVertexIndex, vertices.size()-1});
-                } else if (oldIndexToNewIndexMap.find(oldVertexIndex) != oldIndexToNewIndexMap.end()) {
-                    nextTriangle->vertexIndices[j] = oldIndexToNewIndexMap.at(oldVertexIndex);
+
+                    //TODO: Fix this it is broken
+                    newVertex->triangles.insert(nextTriangle);
                 }
             }
-            newVertex->triangles.insert(nextTriangle);
-            auto itr = vertexToCut->triangles.begin();
-            while (itr != vertexToCut->triangles.end()) {
-                if (nextTriangle == *itr) {
-                    itr = vertexToCut->triangles.erase(itr);
-                } else {
-                    itr++;
-                }
+        }
+    }
+
+    for (Triangle* triangle : entireTrianglePath) {
+        for (int j=0; j<3; j++) {
+            int oldVertexIndex = triangle->vertexIndices[j];
+            if (oldIndexToNewIndexMap.find(oldVertexIndex) != oldIndexToNewIndexMap.end()) {
+                triangle->vertexIndices[j] = oldIndexToNewIndexMap.at(oldVertexIndex);
+            }
+        }
+    }
+
+    //TODO: There is probably a more elegant way to do this
+    for (Vertex* vertex : verticesToCut) {
+        int newIndex = oldVertexToNewIndexMap.at(vertex);
+        auto itr = vertex->triangles.begin();
+        while (itr != vertex->triangles.end()) {
+            int index1 = (*itr)->vertexIndices[0];
+            int index2 = (*itr)->vertexIndices[1];
+            int index3 = (*itr)->vertexIndices[2];
+
+            if (index1 == newIndex || index2 == newIndex || index3 == newIndex) {
+                itr = vertex->triangles.erase(itr);
+            } else {
+                itr++;
             }
         }
     }

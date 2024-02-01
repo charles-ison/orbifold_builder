@@ -21,10 +21,18 @@ void GeometryEngine::initMesh(Mesh* mesh) {
     std::vector<Vertex*> meshVertices = mesh->getVertices();
     int numVertices = meshVertices.size();
     Vertex vertices[numVertices];
+
+    std::cout << "Vertices" << std::endl;
     for (int i=0; i<numVertices; i++) {
         vertices[i] = *meshVertices[i];
         std::cout << vertices[i].toString() << std::endl;
+
+        for (Triangle* triangle : vertices[i].triangles) {
+            std::cout << triangle->toString() << std::endl;
+        }
     }
+
+    std::cout << "Triangles" << std::endl;
 
     // Transfer vertex data to VBO 0
     arrayBuf.bind();
