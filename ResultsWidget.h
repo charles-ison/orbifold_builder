@@ -48,6 +48,8 @@ private:
     std::vector<Vertex*> getNewVertices(Vertex *newVertex);
     void checkLineVerticesForLoop(Vertex *newVertex);
     Vertex* getVertexFromMouseEvent(QMouseEvent *e);
+    bool triangleContainsVertex(Vertex *vertex, Triangle *triangle, std::vector<Vertex*> vertices);
+    bool rotationDirectionAligns(Triangle* triangle, Vertex* vertex1, Vertex* vertex2, std::vector<Vertex*> vertices);
 
     Mesh *mesh;
     QBasicTimer timer;

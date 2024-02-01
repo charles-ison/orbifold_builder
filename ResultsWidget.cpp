@@ -5,6 +5,7 @@
 #include <limits>
 #include <queue>
 #include <unordered_set>
+#include <iostream>
 
 ResultsWidget::~ResultsWidget() {
     // Make sure the context is current when deleting the buffers.
@@ -49,39 +50,83 @@ void ResultsWidget::mousePressEvent(QMouseEvent *e) {
     }
 }
 
+bool ResultsWidget::triangleContainsVertex(Vertex *vertex, Triangle *triangle, std::vector<Vertex*> vertices) {
+    Vertex *vertex1 = vertices[triangle->vertexIndices[0]];
+    Vertex *vertex2 = vertices[triangle->vertexIndices[1]];
+    Vertex *vertex3 = vertices[triangle->vertexIndices[2]];
+
+    if (vertex1==vertex || vertex2==vertex || vertex3==vertex) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool ResultsWidget::rotationDirectionAligns(Triangle* triangle, Vertex* vertex1, Vertex* vertex2, std::vector<Vertex*> vertices) {
+    for (int i=0; i<3; i++) {
+        Vertex* triangleVertex1 = vertices[triangle->vertexIndices[i]];
+        Vertex* triangleVertex2 = vertices[triangle->vertexIndices[(i+1)%3]];
+
+        if (vertex1 == triangleVertex1 && vertex2 == triangleVertex2) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void ResultsWidget::cutSurface() {
+    if (lineVertices.size() < 2) {
+        return;
+    }
+
+    Triangle* startingTriangle;
     std::vector<Vertex*> vertices = mesh->getVertices();
-    //std::vector<Triangle> triangles = mesh->getTriangles();
+    for (Triangle *triangle : lineVertices[0]->triangles) {
+        if(triangleContainsVertex(lineVertices[0], triangle, vertices)
+              && triangleContainsVertex(lineVertices[1], triangle, vertices)) {
+            startingTriangle = triangle;
+            break;
+        }
+    }
 
-    for (Vertex* nextVertex : lineVertices) {
-        mesh->deleteVertex(nextVertex);
+    bool startingRotationDirectionAligns = rotationDirectionAligns(startingTriangle, lineVertices[0], lineVertices[1], vertices);
+    for (int i=1; i<lineVertices.size()-2; i++) {
+        Vertex* startVertex = lineVertices[i];
+        Vertex* endVertex = lineVertices[i+1];
 
-        // TODO: Remove if element wise splitting is not needed
-        /*
-        for (int i=0; i<triangles.size(); i++) {
-            Triangle nextTriangle = triangles[i];
-            Vertex *vertex1 = vertices[nextTriangle.vertexIndices[0]];
-            Vertex *vertex2 = vertices[nextTriangle.vertexIndices[1]];
-            Vertex *vertex3 = vertices[nextTriangle.vertexIndices[2]];
+        std::unordered_set<std::string> checkedTriangles;
+        checkedTriangles.insert(startingTriangle->toString());
 
-            int matchingIndex = -1;
-            if (vertex1 == nextVertex){
-                matchingIndex = 0;
-            } else if (vertex2 == nextVertex) {
-                matchingIndex = 1;
-            } else if (vertex3 == nextVertex) {
-                matchingIndex = 2;
-            }
-            bool containsNextVertex = (matchingIndex != -1);
+        std::queue<std::vector<Triangle*>> potentialPaths;
+        potentialPaths.push({startingTriangle});
 
-            if (containsNextVertex) {
-                Vertex *newVertex = new Vertex({QVector3D(nextVertex->position.x(), nextVertex->position.y(), nextVertex->position.z())});
-                mesh->addVertex(newVertex);
-                mesh->updateTriangles(i, matchingIndex, mesh->getVertices().size()-1);
+        while(!potentialPaths.empty()) {
+            std::vector<Triangle*> nextPath = potentialPaths.front();
+            potentialPaths.pop();
+            Triangle* nextTriangle = nextPath.back();
+
+            // TODO: Could make this more efficient by putting it in for-loop below
+            bool nextTriangleContainsVertex = triangleContainsVertex(endVertex, nextTriangle, vertices);
+            bool nextRotationDirectionAligns = (startingRotationDirectionAligns == rotationDirectionAligns(nextTriangle, startVertex, endVertex, vertices));
+            if (nextTriangleContainsVertex && nextRotationDirectionAligns) {
+                startingTriangle = nextTriangle;
+                for (Triangle* triangle : nextPath) {
+                    //std::cout << triangle->toString() << std::endl;
+                }
+                // TODO: Update triangles
                 break;
             }
+
+            for (Triangle *triangle : startVertex->triangles) {
+                std::string triangleString = triangle->toString();
+                if (nextTriangle->sharesEdge(triangle) && checkedTriangles.find(triangleString) == checkedTriangles.end()) {
+                    std::vector<Triangle*> newPotentialPath = nextPath;
+                    newPotentialPath.push_back(triangle);
+                    potentialPaths.push(newPotentialPath);
+                    checkedTriangles.insert(triangleString);
+                }
+            }
         }
-        */
     }
     lineVertices.clear();
     geometryEngine->initLine(lineVertices);
@@ -95,8 +140,8 @@ void ResultsWidget::deleteSurface(QMouseEvent *e) {
         return;
     }
 
-    std::unordered_set<std::string> alreadyScheduledVertices;
-    alreadyScheduledVertices.insert(startingVertex->toString());
+    std::unordered_set<std::string> scheduledVertices;
+    scheduledVertices.insert(startingVertex->toString());
 
     std::queue<Vertex*> verticesToDelete;
     verticesToDelete.push(startingVertex);
@@ -110,12 +155,14 @@ void ResultsWidget::deleteSurface(QMouseEvent *e) {
             for (int vertexIndex : triangle->vertexIndices) {
                 Vertex* neighbor = meshVertices[vertexIndex];
                 std::string neighborString = neighbor->toString();
-                if (alreadyScheduledVertices.find(neighborString) == alreadyScheduledVertices.end()) {
+                if (scheduledVertices.find(neighborString) == scheduledVertices.end()) {
                     verticesToDelete.push(neighbor);
-                    alreadyScheduledVertices.insert(neighborString);
+                    scheduledVertices.insert(neighborString);
                 }
             }
         }
+
+        // TODO: Could make this more efficient by moving it up
         mesh->deleteVertex(vertexToDelete);
     }
     geometryEngine->initMesh(mesh);
