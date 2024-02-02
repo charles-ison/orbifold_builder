@@ -29,13 +29,6 @@ void Mesh::addVertex(Vertex *vertexToAdd) {
     vertices.push_back(vertexToAdd);
 }
 
-int Mesh::getUpdatedIndex(int deletedIndex, int index) {
-    if (index > deletedIndex) {
-        index -= 1;
-    }
-    return index;
-}
-
 void Mesh::deleteTriangleReferences(Triangle* triangle) {
     for (int vertexIndex : triangle->vertexIndices) {
         Vertex *vertex = vertices[vertexIndex];
