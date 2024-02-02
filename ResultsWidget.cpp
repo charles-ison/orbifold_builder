@@ -80,6 +80,7 @@ void ResultsWidget::cutSurface() {
     }
 
     Triangle* startingTriangle;
+    Triangle* stepStartingTriangle;
     std::vector<Vertex*> vertices = mesh->getVertices();
     std::vector<Vertex*> verticesToCut;
     std::vector<std::vector<Triangle*>> trianglePathsToCut;
@@ -91,39 +92,47 @@ void ResultsWidget::cutSurface() {
         }
     }
 
+    stepStartingTriangle = startingTriangle;
     verticesToCut.push_back(lineVertices[1]);
-    trianglePathsToCut.push_back({startingTriangle});
+    trianglePathsToCut.push_back({stepStartingTriangle});
 
     std::cout << "startingTriangle: " << startingTriangle->toString() << std::endl;
     bool startingRotationDirectionAligns = rotationDirectionAligns(startingTriangle, lineVertices[0], lineVertices[1], vertices);
     std::cout << "startingRotationDirectionAligns: " << startingRotationDirectionAligns << std::endl;
+
+    // Special loop condition
+    // TODO: only execute if it's a loop
+    lineVertices.push_back(lineVertices[1]);
 
     for (int i=1; i<lineVertices.size()-1; i++) {
         Vertex* prevStartVertex = lineVertices[i-1];
         Vertex* startVertex = lineVertices[i];
         Vertex* endVertex = lineVertices[i+1];
 
-        std::cout << "startVertex: " << startVertex->toString() << std::endl;
-        std::cout << "endVertex: " << endVertex->toString() << std::endl;
-
         std::unordered_set<std::string> checkedTriangles;
-        checkedTriangles.insert(startingTriangle->toString());
+        checkedTriangles.insert(stepStartingTriangle->toString());
 
         std::queue<std::vector<Triangle*>> potentialPaths;
-        potentialPaths.push({startingTriangle});
+        potentialPaths.push({stepStartingTriangle});
 
         while(!potentialPaths.empty()) {
             std::vector<Triangle*> nextPath = potentialPaths.front();
             potentialPaths.pop();
             Triangle* nextTriangle = nextPath.back();
 
+            std::cout << "nextTriangle: " << nextTriangle->toString() << std::endl;
+
             // TODO: Could make this more efficient by putting it in for-loop below
             bool nextTriangleContainsVertex = triangleContainsVertex(endVertex, nextTriangle, vertices);
             bool nextRotationDirectionAligns = (startingRotationDirectionAligns == rotationDirectionAligns(nextTriangle, startVertex, endVertex, vertices));
+
+            std::cout << "nextTriangleContainsVertex: " << nextTriangleContainsVertex << std::endl;
+            std::cout << "nextRotationDirectionAligns: " << nextRotationDirectionAligns << std::endl;
+
             if (nextTriangleContainsVertex && nextRotationDirectionAligns) {
                 verticesToCut.push_back(endVertex);
                 trianglePathsToCut.push_back(nextPath);
-                startingTriangle = nextTriangle;
+                stepStartingTriangle = nextTriangle;
 
                 std::cout << "nextPath: " << std::endl;
                 for (Triangle* nextPathTriangle: nextPath) {

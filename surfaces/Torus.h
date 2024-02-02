@@ -16,8 +16,8 @@ public:
 private:
     void initVertices();
     void initTriangles();
-    static const int numVertSteps = 200;
-    static const int numHorSteps = 200;
+    static const int numVertSteps = 6;
+    static const int numHorSteps = 6;
     float bigRadius = 1;
     float smallRadius = 0.5;
     static const int numVertices = numVertSteps * numHorSteps;
