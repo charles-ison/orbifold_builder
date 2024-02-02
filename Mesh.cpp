@@ -1,5 +1,4 @@
 #include "Mesh.h"
-#include <iostream>
 
 void Mesh::copySurface(Surface *surface) {
     vertices.clear();

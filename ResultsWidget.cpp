@@ -5,7 +5,6 @@
 #include <limits>
 #include <queue>
 #include <unordered_set>
-#include <iostream>
 
 ResultsWidget::~ResultsWidget() {
     // Make sure the context is current when deleting the buffers.
@@ -118,7 +117,6 @@ void ResultsWidget::cutSurface() {
             potentialPaths.pop();
             Triangle* nextTriangle = nextPath.back();
 
-            // TODO: Could make this more efficient by putting it in for-loop below
             bool nextTriangleContainsVertex = triangleContainsVertex(endVertex, nextTriangle, vertices);
             bool nextRotationDirectionAligns = (startingRotationDirectionAligns == rotationDirectionAligns(nextTriangle, startVertex, endVertex, vertices));
             if (nextTriangleContainsVertex && nextRotationDirectionAligns) {
@@ -214,18 +212,13 @@ void ResultsWidget::deleteSurface(QMouseEvent *e) {
     while (!verticesToDelete.empty()) {
         std::vector<Vertex*> meshVertices = mesh->getVertices();
         Vertex* vertexToDelete = verticesToDelete.front();
-
-        //std::cout << "VertexToDelete: " << vertexToDelete->toString() << std::endl;
         verticesToDelete.pop();
 
         for (Triangle* triangle : vertexToDelete->triangles) {
-            //std::cout << "Neighbor triangles: " << triangle->toString() << std::endl;
             for (int vertexIndex : triangle->vertexIndices) {
-                //std::cout << "NeighborId: " << vertexIndex << std::endl;
                 Vertex* neighbor = meshVertices[vertexIndex];
                 std::string neighborString = neighbor->toString();
                 if (scheduledVertices.find(neighborString) == scheduledVertices.end()) {
-                    //std::cout << "NeighborToDelete: " << neighbor->toString() << std::endl;
                     verticesToDelete.push(neighbor);
                     scheduledVertices.insert(neighborString);
                 }
