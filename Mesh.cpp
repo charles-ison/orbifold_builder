@@ -1,4 +1,5 @@
 #include "Mesh.h"
+#include <iostream>
 
 void Mesh::copySurface(Surface *surface) {
     vertices.clear();
@@ -44,13 +45,8 @@ void Mesh::deleteTriangleReferences(Triangle* triangle) {
 }
 
 void Mesh::deleteVertex(Vertex *vertexToDelete) {
-    int deletedIndex = 0;
-    for (auto itr = vertices.begin(); itr != vertices.end(); ++itr) {
-        if (vertexToDelete == *itr) {
-            break;
-        }
-        deletedIndex++;
-    }
+    auto testIndexItr = std::find(vertices.begin(), vertices.end(), vertexToDelete);
+    int deletedIndex = testIndexItr - vertices.begin();
 
     auto itr = triangles.begin();
     while (itr != triangles.end()) {
