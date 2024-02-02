@@ -29,33 +29,31 @@ void Mesh::addVertex(Vertex *vertexToAdd) {
     vertices.push_back(vertexToAdd);
 }
 
-//TODO: clean this up
-void Mesh::deleteTriangleReferences(Triangle* triangle) {
-    for (int vertexIndex : triangle->vertexIndices) {
+void Mesh::deleteTriangleReferences(Triangle* triangleToDelete) {
+    for (int vertexIndex : triangleToDelete->vertexIndices) {
         Vertex *vertex = vertices[vertexIndex];
-        auto itr = vertex->triangles.begin();
-        while (itr != vertex->triangles.end()) {
-            if (triangle == *itr) {
-                itr = vertex->triangles.erase(itr);
-            } else {
-                itr++;
+        std::set<Triangle *> newTriangles;
+        for (Triangle *vertexTriangle: vertex->triangles) {
+            if (vertexTriangle != triangleToDelete) {
+                newTriangles.insert(vertexTriangle);
             }
         }
+        vertex->triangles = newTriangles;
     }
 }
 
 void Mesh::deleteVertices(std::unordered_set<Vertex*> verticesToDelete) {
-    auto itr = triangles.begin();
-    while (itr != triangles.end()) {
-        Vertex* vertex1 = vertices[(*itr)->vertexIndices[0]];
-        Vertex* vertex2 = vertices[(*itr)->vertexIndices[1]];
-        Vertex* vertex3 = vertices[(*itr)->vertexIndices[2]];
+    std::vector<Triangle*> newTriangles;
+    for (Triangle* triangle : triangles) {
+        Vertex* vertex1 = vertices[triangle->vertexIndices[0]];
+        Vertex* vertex2 = vertices[triangle->vertexIndices[1]];
+        Vertex* vertex3 = vertices[triangle->vertexIndices[2]];
 
         if (verticesToDelete.find(vertex1) != verticesToDelete.end() || verticesToDelete.find(vertex2) != verticesToDelete.end() || verticesToDelete.find(vertex3) != verticesToDelete.end()) {
-            deleteTriangleReferences(*itr);
-            itr = triangles.erase(itr);
+            deleteTriangleReferences(triangle);
         } else {
-            itr++;
+            newTriangles.push_back(triangle);
         }
     }
+    triangles = newTriangles;
 }
