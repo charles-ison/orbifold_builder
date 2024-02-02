@@ -44,8 +44,8 @@ void ResultsWidget::mousePressEvent(QMouseEvent *e) {
         deleteSurface(e);
     } else {
         // TODO: Switch comments for testing
-        mouseMoveEvent(e);
-        //lineVertices.clear();
+        //mouseMoveEvent(e);
+        lineVertices.clear();
         isDrawingMode = true;
     }
 }
@@ -95,14 +95,12 @@ void ResultsWidget::cutSurface() {
     stepStartingTriangle = startingTriangle;
     verticesToCut.push_back(lineVertices[1]);
     trianglePathsToCut.push_back({stepStartingTriangle});
-
-    std::cout << "startingTriangle: " << startingTriangle->toString() << std::endl;
     bool startingRotationDirectionAligns = rotationDirectionAligns(startingTriangle, lineVertices[0], lineVertices[1], vertices);
-    std::cout << "startingRotationDirectionAligns: " << startingRotationDirectionAligns << std::endl;
 
-    // Special loop condition
-    // TODO: only execute if it's a loop
-    lineVertices.push_back(lineVertices[1]);
+    // Required for loops
+    if (lineVertices.front() == lineVertices.back()) {
+        lineVertices.push_back(lineVertices[1]);
+    }
 
     for (int i=1; i<lineVertices.size()-1; i++) {
         Vertex* prevStartVertex = lineVertices[i-1];
@@ -120,25 +118,13 @@ void ResultsWidget::cutSurface() {
             potentialPaths.pop();
             Triangle* nextTriangle = nextPath.back();
 
-            std::cout << "nextTriangle: " << nextTriangle->toString() << std::endl;
-
             // TODO: Could make this more efficient by putting it in for-loop below
             bool nextTriangleContainsVertex = triangleContainsVertex(endVertex, nextTriangle, vertices);
             bool nextRotationDirectionAligns = (startingRotationDirectionAligns == rotationDirectionAligns(nextTriangle, startVertex, endVertex, vertices));
-
-            std::cout << "nextTriangleContainsVertex: " << nextTriangleContainsVertex << std::endl;
-            std::cout << "nextRotationDirectionAligns: " << nextRotationDirectionAligns << std::endl;
-
             if (nextTriangleContainsVertex && nextRotationDirectionAligns) {
                 verticesToCut.push_back(endVertex);
                 trianglePathsToCut.push_back(nextPath);
                 stepStartingTriangle = nextTriangle;
-
-                std::cout << "nextPath: " << std::endl;
-                for (Triangle* nextPathTriangle: nextPath) {
-                    std::cout << nextPathTriangle->toString() << std::endl;
-                }
-
                 break;
             }
 
@@ -157,11 +143,6 @@ void ResultsWidget::cutSurface() {
                 }
             }
         }
-    }
-
-    // Required if the line draw is a loop
-    if (lineVertices[0] == verticesToCut.back()) {
-        trianglePathsToCut.back().push_back(trianglePathsToCut.front().front());
     }
 
     std::vector<Triangle*> entireTrianglePath;
@@ -234,17 +215,17 @@ void ResultsWidget::deleteSurface(QMouseEvent *e) {
         std::vector<Vertex*> meshVertices = mesh->getVertices();
         Vertex* vertexToDelete = verticesToDelete.front();
 
-        std::cout << "VertexToDelete: " << vertexToDelete->toString() << std::endl;
+        //std::cout << "VertexToDelete: " << vertexToDelete->toString() << std::endl;
         verticesToDelete.pop();
 
         for (Triangle* triangle : vertexToDelete->triangles) {
-            std::cout << "Neighbor triangles: " << triangle->toString() << std::endl;
+            //std::cout << "Neighbor triangles: " << triangle->toString() << std::endl;
             for (int vertexIndex : triangle->vertexIndices) {
-                std::cout << "NeighborId: " << vertexIndex << std::endl;
+                //std::cout << "NeighborId: " << vertexIndex << std::endl;
                 Vertex* neighbor = meshVertices[vertexIndex];
                 std::string neighborString = neighbor->toString();
                 if (scheduledVertices.find(neighborString) == scheduledVertices.end()) {
-                    std::cout << "NeighborToDelete: " << neighbor->toString() << std::endl;
+                    //std::cout << "NeighborToDelete: " << neighbor->toString() << std::endl;
                     verticesToDelete.push(neighbor);
                     scheduledVertices.insert(neighborString);
                 }
@@ -264,7 +245,7 @@ void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
     Vertex *vertex = getVertexFromMouseEvent(e);
     if (vertex == nullptr) {
         // TODO: comment out for testing
-        //lineVertices.clear();
+        lineVertices.clear();
     } else if (lineVertices.size() == 0 || vertex != lineVertices.back()) {
         addLineVertices(vertex);
     }
@@ -286,7 +267,7 @@ Vertex* ResultsWidget::getVertexFromMouseEvent(QMouseEvent *e) {
         float xyDistance = sqrt(pow(x - surfacePosition.x(), 2) + pow(y - surfacePosition.y(), 2));
 
         //TODO: Change to 0.1 for testing
-        if (xyDistance < 0.1 && surfacePosition.z() < smallestZDistance) {
+        if (xyDistance < 0.01 && surfacePosition.z() < smallestZDistance) {
             smallestZDistance = surfacePosition.z();
             closestVertex = vertices[i];
             surfaceVertexFound = true;
@@ -343,7 +324,7 @@ std::vector<Vertex*> ResultsWidget::getNewVertices(Vertex *newVertex) {
 
 void ResultsWidget::checkLineVerticesForLoop(Vertex *newVertex) {
     //TODO: Change to 3 for testing
-    int numRecentVerticesToExcludeForLoopChecking = 3;
+    int numRecentVerticesToExcludeForLoopChecking = 5;
     if (lineVertices.size() < numRecentVerticesToExcludeForLoopChecking) {
         return;
     }
