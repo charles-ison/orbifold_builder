@@ -54,7 +54,6 @@ void Mesh::deleteVertex(Vertex *vertexToDelete) {
     int deletedIndex = 0;
     for (auto itr = vertices.begin(); itr != vertices.end(); ++itr) {
         if (vertexToDelete == *itr) {
-            vertices.erase(itr);
             break;
         }
         deletedIndex++;
@@ -65,10 +64,6 @@ void Mesh::deleteVertex(Vertex *vertexToDelete) {
         int index1 = (*itr)->vertexIndices[0];
         int index2 = (*itr)->vertexIndices[1];
         int index3 = (*itr)->vertexIndices[2];
-
-        (*itr)->vertexIndices[0] = getUpdatedIndex(deletedIndex, index1);
-        (*itr)->vertexIndices[1] = getUpdatedIndex(deletedIndex, index2);
-        (*itr)->vertexIndices[2] = getUpdatedIndex(deletedIndex, index3);
 
         if (deletedIndex == index1 || deletedIndex == index2 || deletedIndex == index3) {
             deleteTriangleReferences(*itr);
