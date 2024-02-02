@@ -52,7 +52,7 @@ void Sphere::initTriangles() {
                 } else {
                     index3 = faceCounter + 1;
                 }
-                triangles[triangleCounter] = {{index1, index2, index3}};
+                triangles[triangleCounter] = {{index3, index2, index1}};
                 triangleCounter += 1;
             }
             else if (j == numHorSteps-1) {
