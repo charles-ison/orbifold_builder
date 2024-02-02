@@ -29,6 +29,7 @@ void Mesh::addVertex(Vertex *vertexToAdd) {
     vertices.push_back(vertexToAdd);
 }
 
+//TODO: clean this up
 void Mesh::deleteTriangleReferences(Triangle* triangle) {
     for (int vertexIndex : triangle->vertexIndices) {
         Vertex *vertex = vertices[vertexIndex];
@@ -43,17 +44,14 @@ void Mesh::deleteTriangleReferences(Triangle* triangle) {
     }
 }
 
-void Mesh::deleteVertex(Vertex *vertexToDelete) {
-    auto deletedIndexItr = std::find(vertices.begin(), vertices.end(), vertexToDelete);
-    int deletedIndex = deletedIndexItr - vertices.begin();
-
+void Mesh::deleteVertices(std::unordered_set<Vertex*> verticesToDelete) {
     auto itr = triangles.begin();
     while (itr != triangles.end()) {
-        int index1 = (*itr)->vertexIndices[0];
-        int index2 = (*itr)->vertexIndices[1];
-        int index3 = (*itr)->vertexIndices[2];
+        Vertex* vertex1 = vertices[(*itr)->vertexIndices[0]];
+        Vertex* vertex2 = vertices[(*itr)->vertexIndices[1]];
+        Vertex* vertex3 = vertices[(*itr)->vertexIndices[2]];
 
-        if (deletedIndex == index1 || deletedIndex == index2 || deletedIndex == index3) {
+        if (verticesToDelete.find(vertex1) != verticesToDelete.end() || verticesToDelete.find(vertex2) != verticesToDelete.end() || verticesToDelete.find(vertex3) != verticesToDelete.end()) {
             deleteTriangleReferences(*itr);
             itr = triangles.erase(itr);
         } else {

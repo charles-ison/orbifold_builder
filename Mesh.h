@@ -1,6 +1,7 @@
 #ifndef MESH_H
 #define MESH_H
 
+#include <unordered_set>
 #include "surfaces/Vertex.h"
 #include "surfaces/Surface.h"
 
@@ -11,8 +12,7 @@ public:
     std::vector<Vertex*> getVertices();
     std::vector<Triangle*> getTriangles();
     void addVertex(Vertex *vertexToAdd);
-    void deleteVertex(Vertex *vertexToDelete);
-    void updateTriangles(int triangleIndex, int index, int newVertexIndex);
+    void deleteVertices(std::unordered_set<Vertex*> verticesToDelete);
 
 private:
     void deleteTriangleReferences(Triangle* triangle);

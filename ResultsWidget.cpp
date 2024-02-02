@@ -203,8 +203,8 @@ void ResultsWidget::deleteSurface(QMouseEvent *e) {
         return;
     }
 
-    std::unordered_set<std::string> scheduledVertices;
-    scheduledVertices.insert(startingVertex->toString());
+    std::unordered_set<Vertex*> verticesToDeleteSet;
+    verticesToDeleteSet.insert(startingVertex);
 
     std::queue<Vertex*> verticesToDelete;
     verticesToDelete.push(startingVertex);
@@ -217,15 +217,14 @@ void ResultsWidget::deleteSurface(QMouseEvent *e) {
         for (Triangle* triangle : vertexToDelete->triangles) {
             for (int vertexIndex : triangle->vertexIndices) {
                 Vertex* neighbor = meshVertices[vertexIndex];
-                std::string neighborString = neighbor->toString();
-                if (scheduledVertices.find(neighborString) == scheduledVertices.end()) {
+                if (verticesToDeleteSet.find(neighbor) == verticesToDeleteSet.end()) {
                     verticesToDelete.push(neighbor);
-                    scheduledVertices.insert(neighborString);
+                    verticesToDeleteSet.insert(neighbor);
                 }
             }
         }
-        mesh->deleteVertex(vertexToDelete);
     }
+    mesh->deleteVertices(verticesToDeleteSet);
     geometryEngine->initMesh(mesh);
     update();
 }
