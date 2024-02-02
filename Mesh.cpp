@@ -45,8 +45,8 @@ void Mesh::deleteTriangleReferences(Triangle* triangle) {
 }
 
 void Mesh::deleteVertex(Vertex *vertexToDelete) {
-    auto testIndexItr = std::find(vertices.begin(), vertices.end(), vertexToDelete);
-    int deletedIndex = testIndexItr - vertices.begin();
+    auto deletedIndexItr = std::find(vertices.begin(), vertices.end(), vertexToDelete);
+    int deletedIndex = deletedIndexItr - vertices.begin();
 
     auto itr = triangles.begin();
     while (itr != triangles.end()) {
