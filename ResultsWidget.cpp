@@ -145,6 +145,7 @@ void ResultsWidget::cutSurface() {
 
     std::vector<Triangle*> entireTrianglePath;
     std::unordered_map<int, int> oldIndexToNewIndexMap;
+    std::unordered_map<Vertex*, int> oldVertexToNewIndexMap;
     for (int i=0; i<verticesToCut.size(); i++) {
         Vertex* vertexToCut = verticesToCut[i];
         std::vector<Triangle*> trianglePath = trianglePathsToCut[i];
@@ -154,20 +155,7 @@ void ResultsWidget::cutSurface() {
         newVertex->position = vertexToCut->position;
         mesh->addVertex(newVertex);
         vertices = mesh->getVertices();
-
-        int newIndex = vertices.size()-1;
-        std::set<Triangle *> newTriangles;
-        for (Triangle* triangle : vertexToCut->triangles) {
-            int index1 = triangle->vertexIndices[0];
-            int index2 = triangle->vertexIndices[1];
-            int index3 = triangle->vertexIndices[2];
-
-            if (index1 != newIndex && index2 != newIndex && index3 != newIndex) {
-                newTriangles.insert(triangle);
-            }
-        }
-        vertexToCut->triangles = newTriangles;
-
+        oldVertexToNewIndexMap.insert({vertexToCut, vertices.size()-1});
         for (Triangle* nextTriangle : trianglePath) {
             for (int j=0; j<3; j++) {
                 int oldVertexIndex = nextTriangle->vertexIndices[j];
@@ -189,6 +177,21 @@ void ResultsWidget::cutSurface() {
         }
     }
 
+    //TODO: There is probably a more elegant way to do this
+    for (Vertex* vertex : verticesToCut) {
+        int newIndex = oldVertexToNewIndexMap.at(vertex);
+        std::set<Triangle *> newTriangles;
+        for (Triangle* triangle : vertex->triangles) {
+            int index1 = triangle->vertexIndices[0];
+            int index2 = triangle->vertexIndices[1];
+            int index3 = triangle->vertexIndices[2];
+
+            if (index1 != newIndex && index2 != newIndex && index3 != newIndex) {
+                newTriangles.insert(triangle);
+            }
+        }
+        vertex->triangles = newTriangles;
+    }
     geometryEngine->initMesh(mesh);
     update();
 }
