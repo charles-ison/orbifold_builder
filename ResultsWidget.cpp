@@ -101,6 +101,7 @@ void ResultsWidget::cutSurface() {
         lineVertices.push_back(lineVertices[1]);
     }
 
+    // Find all triangles that need to be cut
     for (int i=1; i<lineVertices.size()-1; i++) {
         Vertex* prevStartVertex = lineVertices[i-1];
         Vertex* startVertex = lineVertices[i];
@@ -143,20 +144,16 @@ void ResultsWidget::cutSurface() {
         }
     }
 
-    std::vector<Triangle*> entireTrianglePath;
     std::unordered_map<int, int> oldIndexToNewIndexMap;
     std::unordered_map<Vertex*, int> oldVertexToNewIndexMap;
     for (int i=0; i<verticesToCut.size(); i++) {
         Vertex* vertexToCut = verticesToCut[i];
-        std::vector<Triangle*> trianglePath = trianglePathsToCut[i];
-        entireTrianglePath.insert(entireTrianglePath.end(), trianglePath.begin(), trianglePath.end());
-
         Vertex* newVertex = new Vertex;
         newVertex->position = vertexToCut->position;
         mesh->addVertex(newVertex);
         vertices = mesh->getVertices();
         oldVertexToNewIndexMap.insert({vertexToCut, vertices.size()-1});
-        for (Triangle* nextTriangle : trianglePath) {
+        for (Triangle* nextTriangle : trianglePathsToCut[i]) {
             for (int j=0; j<3; j++) {
                 int oldVertexIndex = nextTriangle->vertexIndices[j];
                 if (vertexToCut == vertices[oldVertexIndex]) {
@@ -166,18 +163,21 @@ void ResultsWidget::cutSurface() {
         }
     }
 
-    for (Triangle* triangle : entireTrianglePath) {
-        for (int j=0; j<3; j++) {
-            int oldVertexIndex = triangle->vertexIndices[j];
-            if (oldIndexToNewIndexMap.find(oldVertexIndex) != oldIndexToNewIndexMap.end()) {
-                int newVertexIndex = oldIndexToNewIndexMap.at(oldVertexIndex);
-                triangle->vertexIndices[j] = newVertexIndex;
-                vertices[newVertexIndex]->triangles.insert(triangle);
+    // Updating vertices on triangles and adding new triangles
+    for (std::vector<Triangle*> nextTrianglePath : trianglePathsToCut) {
+        for (Triangle *triangle: nextTrianglePath) {
+            for (int j = 0; j < 3; j++) {
+                int oldVertexIndex = triangle->vertexIndices[j];
+                if (oldIndexToNewIndexMap.find(oldVertexIndex) != oldIndexToNewIndexMap.end()) {
+                    int newVertexIndex = oldIndexToNewIndexMap.at(oldVertexIndex);
+                    triangle->vertexIndices[j] = newVertexIndex;
+                    vertices[newVertexIndex]->triangles.insert(triangle);
+                }
             }
         }
     }
 
-    //TODO: There is probably a more elegant way to do this
+    // Removing old triangles that are no longer accurate
     for (Vertex* vertex : verticesToCut) {
         int newIndex = oldVertexToNewIndexMap.at(vertex);
         std::set<Triangle *> newTriangles;
@@ -192,6 +192,7 @@ void ResultsWidget::cutSurface() {
         }
         vertex->triangles = newTriangles;
     }
+
     geometryEngine->initMesh(mesh);
     update();
 }
@@ -274,8 +275,13 @@ Vertex* ResultsWidget::getVertexFromMouseEvent(QMouseEvent *e) {
 void ResultsWidget::addLineVertices(Vertex *newVertex) {
     std::vector<Vertex *> newVertices = getNewVertices(newVertex);
     for (int i = newVertices.size() - 1; i > -1; i--) {
-        checkLineVerticesForLoop(newVertices[i]);
-        lineVertices.push_back(newVertices[i]);
+        if (lineVertices.size() > 2 && newVertices[i] == lineVertices[lineVertices.size()-2]) {
+            lineVertices.pop_back();
+        }
+        else {
+            checkLineVerticesForLoop(newVertices[i]);
+            lineVertices.push_back(newVertices[i]);
+        }
     }
 }
 
@@ -314,13 +320,7 @@ std::vector<Vertex*> ResultsWidget::getNewVertices(Vertex *newVertex) {
 }
 
 void ResultsWidget::checkLineVerticesForLoop(Vertex *newVertex) {
-    //TODO: Change to 3 for testing
-    int numRecentVerticesToExcludeForLoopChecking = 5;
-    if (lineVertices.size() < numRecentVerticesToExcludeForLoopChecking) {
-        return;
-    }
-
-    for (int i=0; i<=lineVertices.size()-numRecentVerticesToExcludeForLoopChecking; i++) {
+    for (int i=0; i<lineVertices.size(); i++) {
         if (lineVertices[i] == newVertex) {
             isDrawingMode = false;
             for (int j=0; j<i; j++) {
@@ -329,7 +329,6 @@ void ResultsWidget::checkLineVerticesForLoop(Vertex *newVertex) {
         }
     }
 }
-
 
 void ResultsWidget::wheelEvent(QWheelEvent *e) {
     // Rotation axis is perpendicular to the angle delta difference vector
