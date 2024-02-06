@@ -7,9 +7,6 @@ endif()
 
 set(INSTALL_EXAMPLEDIR "${INSTALL_EXAMPLESDIR}/opengl/orbifold_builder")
 
-# Uncomment to run on Windows
-# set(CMAKE_PREFIX_PATH, "C:/QT/6.6.1/msvc2019_64/")
-
 find_package(Qt6 REQUIRED COMPONENTS Core Gui OpenGL OpenGLWidgets Widgets)
 
 qt_standard_project_setup()
