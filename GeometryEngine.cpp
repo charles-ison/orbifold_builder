@@ -1,6 +1,5 @@
 #include <QtGui/qcolor.h>
 #include "GeometryEngine.h"
-#include <iostream>
 
 GeometryEngine::GeometryEngine() : indexBuf(QOpenGLBuffer::IndexBuffer) {
     initializeOpenGLFunctions();
@@ -18,50 +17,45 @@ GeometryEngine::~GeometryEngine() {
 }
 
 void GeometryEngine::initMesh(Mesh* mesh) {
+    std::vector<Vertex> vertices;
     std::vector<Vertex*> meshVertices = mesh->getVertices();
     int numVertices = meshVertices.size();
-    Vertex vertices[numVertices];
 
-    //std::cout << "Vertices" << std::endl;
-    for (int i=0; i<numVertices; i++) {
-        vertices[i] = *meshVertices[i];
-        //std::cout << vertices[i].toString() << std::endl;
-
-        //for (Triangle* triangle : vertices[i].triangles) {
-        //    std::cout << triangle->toString() << std::endl;
-        //}
+    for (Vertex* vertexPointer : meshVertices) {
+        vertices.push_back(*vertexPointer);
     }
 
     // Transfer vertex data to VBO 0
     arrayBuf.bind();
-    arrayBuf.allocate(vertices, numVertices * sizeof(Vertex));
+    arrayBuf.allocate(&vertices[0], numVertices * sizeof(Vertex));
 
+    std::vector<GLushort> indices;
     std::vector<Triangle*> triangles = mesh->getTriangles();
     int numTriangles = triangles.size();
     numIndices = 3*numTriangles;
-    GLushort indices[numIndices];
+
     for (int i=0; i<numTriangles; i++) {
-        indices[3*i] = triangles[i]->vertexIndices[0];
-        indices[3*i+1] = triangles[i]->vertexIndices[1];
-        indices[3*i+2] = triangles[i]->vertexIndices[2];
+        indices.push_back(triangles[i]->vertexIndices[0]);
+        indices.push_back(triangles[i]->vertexIndices[1]);
+        indices.push_back(triangles[i]->vertexIndices[2]);
     }
 
     // Transfer index data to VBO 1
     indexBuf.bind();
-    indexBuf.allocate(indices, numIndices * sizeof(GLushort));
+    indexBuf.allocate(&indices[0], numIndices * sizeof(GLushort));
 }
 
 void GeometryEngine::initLine(std::vector<Vertex*> lineVerticesVector) {
+    std::vector<Vertex> vertices;
     numLineVertices = lineVerticesVector.size();
-    Vertex lineVertices[numLineVertices];
 
-    for (int i=0; i<numLineVertices; i++) {
-        lineVertices[i] = *lineVerticesVector[i];
+    for (Vertex* lineVertex : lineVerticesVector) {
+        vertices.push_back(*lineVertex);
     }
 
     // Transfer vertex data to VBO 0
     lineArrayBuf.bind();
-    lineArrayBuf.allocate(lineVertices, numLineVertices * sizeof(Vertex));
+    lineArrayBuf.allocate(&vertices[0], numLineVertices * sizeof(Vertex));
 }
 
 void GeometryEngine::drawMesh(QOpenGLShaderProgram *program) {
