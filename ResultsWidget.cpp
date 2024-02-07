@@ -17,17 +17,17 @@ void ResultsWidget::addSurface(surface newSurface) {
     shouldPaintGL = true;
     lineVertices.clear();
     if (newSurface == surface::cube) {
-        mesh->copySurface(new Cube());
+        mesh->copySurface(new Cube(0, 0, 0));
     } else if (newSurface == surface::sphere) {
-        mesh->copySurface(new Sphere());
+        mesh->copySurface(new Sphere(0, 0, 0));
     } else if (newSurface == surface::torus) {
-        mesh->copySurface(new Torus());
+        mesh->copySurface(new Torus(0, 0, 0));
     } else if (newSurface == surface::mobiusStrip) {
-        mesh->copySurface(new MobiusStrip());
+        mesh->copySurface(new MobiusStrip(0, 0, 0));
     } else if (newSurface == surface::crossCap) {
-        mesh->copySurface(new CrossCap);
+        mesh->copySurface(new CrossCap(0, 0, 0));
     } else if (newSurface == surface::kleinBottle) {
-        mesh->copySurface(new KleinBottle());
+        mesh->copySurface(new KleinBottle(0, 0, 0));
     }
 
     if (shouldAnimate) {

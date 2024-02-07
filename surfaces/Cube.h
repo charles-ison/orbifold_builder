@@ -7,14 +7,14 @@
 class Cube : public Surface {
 
 public:
-    Cube();
+    Cube(float centerX, float centerY, float centerZ);
     Vertex* getVertices();
     Triangle* getTriangles();
     int getNumVertices();
     int getNumTriangles();
 
 private:
-    void initVertices();
+    void initVertices(float centerX, float centerY, float centerZ);
     void initTriangles();
     static const int numVertices = 8;
     static const int numTriangles = 12;

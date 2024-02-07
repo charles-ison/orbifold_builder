@@ -1,12 +1,12 @@
 #include "KleinBottle.h"
 
-KleinBottle::KleinBottle() {
-    initVertices();
+KleinBottle::KleinBottle(float centerX, float centerY, float centerZ) {
+    initVertices(centerX, centerY, centerZ);
     initTriangles();
     initNeighbors();
 }
 
-void KleinBottle::initVertices() {
+void KleinBottle::initVertices(float centerX, float centerY, float centerZ) {
     float horStepSize = M_PI / numHorSteps;
     float vertStepSize = 2 * M_PI / numVertSteps;
 

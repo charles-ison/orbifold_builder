@@ -7,20 +7,20 @@
 class CrossCap : public Surface {
 
 public:
-    CrossCap();
+    CrossCap(float centerX, float centerY, float centerZ);
     Vertex* getVertices();
     Triangle* getTriangles();
     int getNumVertices();
     int getNumTriangles();
 
 private:
-    void initVertices();
+    void initVertices(float centerX, float centerY, float centerZ);
     void initTriangles();
     static const int numVertSteps = 200;
     static const int numHorSteps = 200;
-    float x_size = 1.5;
-    float y_size = 1.0;
-    float z_size = 1.0;
+    float sizeX = 1.5;
+    float sizeY = 1.0;
+    float sizeZ = 1.0;
     static const int numVertices = (numVertSteps+1) * numHorSteps;
     static const int numTriangles = 2 * numVertices;
     Vertex vertices[numVertices];

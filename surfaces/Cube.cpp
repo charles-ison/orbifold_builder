@@ -1,12 +1,12 @@
 #include "Cube.h"
 
-Cube::Cube() {
-    initVertices();
+Cube::Cube(float centerX, float centerY, float centerZ) {
+    initVertices(centerX, centerY, centerZ);
     initTriangles();
     initNeighbors();
 }
 
-void Cube::initVertices() {
+void Cube::initVertices(float centerX, float centerY, float centerZ) {
     vertices[0] = {QVector3D(1.0f,  -1.0f,  1.0f)};
     vertices[1] = {QVector3D( 1.0f,  1.0f,  1.0f)};
     vertices[2] = {QVector3D(-1.0f,  1.0f,  1.0f)};

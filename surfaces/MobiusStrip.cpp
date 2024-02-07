@@ -1,12 +1,12 @@
 #include "MobiusStrip.h"
 
-MobiusStrip::MobiusStrip() {
-    initVertices();
+MobiusStrip::MobiusStrip(float centerX, float centerY, float centerZ) {
+    initVertices(centerX, centerY, centerZ);
     initTriangles();
     initNeighbors();
 }
 
-void MobiusStrip::initVertices() {
+void MobiusStrip::initVertices(float centerX, float centerY, float centerZ) {
     float horStepSize = 2 * M_PI / numHorSteps;
     float vertStepSize = 1.0 / numVertSteps;
 

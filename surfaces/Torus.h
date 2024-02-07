@@ -7,14 +7,14 @@
 class Torus : public Surface {
 
 public:
-    Torus();
+    Torus(float centerX, float centerY, float centerZ);
     Vertex* getVertices();
     Triangle* getTriangles();
     int getNumVertices();
     int getNumTriangles();
 
 private:
-    void initVertices();
+    void initVertices(float centerX, float centerY, float centerZ);
     void initTriangles();
     static const int numVertSteps = 200;
     static const int numHorSteps = 200;

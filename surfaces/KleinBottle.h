@@ -7,14 +7,14 @@
 class KleinBottle : public Surface {
 
 public:
-    KleinBottle();
+    KleinBottle(float centerX, float centerY, float centerZ);
     Vertex* getVertices();
     Triangle* getTriangles();
     int getNumVertices();
     int getNumTriangles();
 
 private:
-    void initVertices();
+    void initVertices(float centerX, float centerY, float centerZ);
     void initTriangles();
     int floorMod(int a, int n);
     static const int numVertSteps = 180;

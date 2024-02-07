@@ -1,12 +1,12 @@
 #include "Sphere.h"
 
-Sphere::Sphere() {
-    initVertices();
+Sphere::Sphere(float centerX, float centerY, float centerZ) {
+    initVertices(centerX, centerY, centerZ);
     initTriangles();
     initNeighbors();
 }
 
-void Sphere::initVertices() {
+void Sphere::initVertices(float centerX, float centerY, float centerZ) {
     float vertStepSize = M_PI / numVertSteps;
     float horStepSize = 2 * M_PI / numHorSteps;
 
