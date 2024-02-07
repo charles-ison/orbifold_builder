@@ -14,6 +14,7 @@ public:
     void drawLine(QOpenGLShaderProgram *program, QColor color);
     void initLine(std::vector<Vertex*> lineVerticesVector);
     void initMesh(Mesh* mesh);
+    void initAnimation(Mesh* mesh);
 
 private:
     int numIndices;
@@ -22,6 +23,8 @@ private:
 
     int numLineVertices;
     QOpenGLBuffer lineArrayBuf;
+
+    int numVerticesToAnimate = 0;
 };
 
 #endif

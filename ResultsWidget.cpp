@@ -29,7 +29,13 @@ void ResultsWidget::addSurface(surface newSurface) {
     } else if (newSurface == surface::kleinBottle) {
         mesh->copySurface(new KleinBottle());
     }
-    geometryEngine->initMesh(mesh);
+
+    if (shouldAnimate) {
+        geometryEngine->initAnimation(mesh);
+    } else {
+        geometryEngine->initMesh(mesh);
+    }
+
     geometryEngine->initLine(lineVertices);
     update();
 }
@@ -345,6 +351,9 @@ void ResultsWidget::wheelEvent(QWheelEvent *e) {
 }
 
 void ResultsWidget::timerEvent(QTimerEvent *) {
+
+    bool shouldUpdate = false;
+
     // Decrease angular speed (friction)
     angularSpeed *= 0.9;
 
@@ -356,6 +365,15 @@ void ResultsWidget::timerEvent(QTimerEvent *) {
         rotation = QQuaternion::fromAxisAndAngle(rotationAxis, angularSpeed) * rotation;
 
         // Request an update
+        shouldUpdate = true;
+    }
+
+    if (shouldPaintGL and shouldAnimate) {
+        geometryEngine->initAnimation(mesh);
+        shouldUpdate = true;
+    }
+
+    if (shouldUpdate) {
         update();
     }
 }
@@ -440,4 +458,8 @@ void ResultsWidget::paintGL() {
 
 void ResultsWidget::setLineDrawingColor(QColor newColor) {
     lineDrawingColor = newColor;
+}
+
+void ResultsWidget::glue() {
+    shouldAnimate = !shouldAnimate;
 }

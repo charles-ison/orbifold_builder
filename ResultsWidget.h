@@ -32,6 +32,7 @@ public:
     void setLineDrawingColor(QColor newColor);
     void resizeGL(int w, int h) override;
     void toggleShouldDeleteSurface();
+    void glue();
 
 protected:
     void mousePressEvent(QMouseEvent *e) override;
@@ -64,6 +65,7 @@ private:
     QColor lineDrawingColor;
     bool isDrawingMode;
     bool shouldPaintGL;
+    bool shouldAnimate;
     bool shouldDeleteSurface;
 };
 

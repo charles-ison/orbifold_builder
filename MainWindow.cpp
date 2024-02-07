@@ -109,6 +109,10 @@ void MainWindow::toggleShouldDeleteSurface() {
     resultsWidget->toggleShouldDeleteSurface();
 }
 
+void MainWindow::glue() {
+    resultsWidget->glue();
+}
+
 void MainWindow::toggleFundamentalPolygon() {
     hideFundamentalPolygon = !hideFundamentalPolygon;
     fundamentalPolygonToolBar->setHidden(hideFundamentalPolygon);
@@ -293,6 +297,12 @@ void MainWindow::createToolbars() {
     deleteSurfaceButton->setMinimumHeight(fundamentalPolygonToolBarHeight);
     connect(deleteSurfaceButton, &QAbstractButton::clicked, this, &MainWindow::toggleShouldDeleteSurface);
 
+    glueButton = new QToolButton;
+    glueButton->setText(tr("Glue"));
+    glueButton->setCheckable(true);
+    glueButton->setMinimumHeight(fundamentalPolygonToolBarHeight);
+    connect(glueButton, &QAbstractButton::clicked, this, &MainWindow::glue);
+
     zoomButton = new QToolButton;
     zoomButton->setPopupMode(QToolButton::MenuButtonPopup);
     zoomButton->setMenu(createZoomMenu(&MainWindow::zoomScaleChanged));
@@ -305,6 +315,7 @@ void MainWindow::createToolbars() {
     resultsToolBar->addWidget(drawLineButton);
     resultsToolBar->addWidget(cutSurfaceButton);
     resultsToolBar->addWidget(deleteSurfaceButton);
+    resultsToolBar->addWidget(glueButton);
     resultsToolBar->addWidget(zoomButton);
     resultsToolBar->setMovable(false);
 }
