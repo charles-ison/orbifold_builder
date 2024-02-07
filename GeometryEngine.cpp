@@ -19,7 +19,6 @@ GeometryEngine::~GeometryEngine() {
 void GeometryEngine::initAnimation(Mesh* mesh) {
     std::vector<Vertex> vertices;
     std::vector<Vertex*> meshVertices = mesh->getVertices();
-    int indexToEndAnimation = indexToStartAnimation + animationSpeed;
     for (int i=indexToStartAnimation; i<indexToEndAnimation; i++) {
         Vertex* vertexPointer = meshVertices[i];
         animationVertices.push_back(*vertexPointer);
@@ -51,9 +50,11 @@ void GeometryEngine::initAnimation(Mesh* mesh) {
 
     if (indexToEndAnimation + animationSpeed > meshVertices.size()) {
         indexToStartAnimation = 0;
+        indexToEndAnimation = originalIndexToEndAnimation;
         animationVertices.clear();
     } else {
-        indexToStartAnimation += animationSpeed;
+        indexToStartAnimation = indexToEndAnimation;
+        indexToEndAnimation += animationSpeed;
     }
 }
 
