@@ -24,7 +24,9 @@ private:
     int numLineVertices;
     QOpenGLBuffer lineArrayBuf;
 
-    int numVerticesToAnimate = 0;
+    static const int animationSpeed = 50;
+    int vertexToStartAnimation = 0;
+    std::vector<Vertex> animationVertices;
 };
 
 #endif

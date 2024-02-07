@@ -17,18 +17,17 @@ GeometryEngine::~GeometryEngine() {
 }
 
 void GeometryEngine::initAnimation(Mesh* mesh) {
-    std::vector<Vertex> vertices;
     std::vector<Vertex*> meshVertices = mesh->getVertices();
-    int numVertices = meshVertices.size();
+    int vertexToEndAnimation = vertexToStartAnimation + animationSpeed;
 
-    for (int i=0; i<numVerticesToAnimate; i++) {
+    for (int i=vertexToStartAnimation; i<vertexToEndAnimation; i++) {
         Vertex* vertexPointer = meshVertices[i];
-        vertices.push_back(*vertexPointer);
+        animationVertices.push_back(*vertexPointer);
     }
 
     // Transfer vertex data to VBO 0
     arrayBuf.bind();
-    arrayBuf.allocate(&vertices[0], numVerticesToAnimate * sizeof(Vertex));
+    arrayBuf.allocate(&animationVertices[0], vertexToEndAnimation * sizeof(Vertex));
 
     std::vector<GLushort> indices;
     std::vector<Triangle*> triangles = mesh->getTriangles();
@@ -39,7 +38,7 @@ void GeometryEngine::initAnimation(Mesh* mesh) {
         int index2 = triangles[i]->vertexIndices[1];
         int index3 = triangles[i]->vertexIndices[2];
 
-        if (index1 < numVerticesToAnimate && index2 < numVerticesToAnimate && index3 < numVerticesToAnimate) {
+        if (index1 < vertexToEndAnimation && index2 < vertexToEndAnimation && index3 < vertexToEndAnimation) {
             indices.push_back(index1);
             indices.push_back(index2);
             indices.push_back(index3);
@@ -51,7 +50,12 @@ void GeometryEngine::initAnimation(Mesh* mesh) {
     indexBuf.bind();
     indexBuf.allocate(&indices[0], numIndices * sizeof(GLushort));
 
-    numVerticesToAnimate = (numVerticesToAnimate + 200) % numVertices;
+    if (vertexToEndAnimation + animationSpeed > meshVertices.size()) {
+        vertexToStartAnimation = 0;
+        animationVertices.clear();
+    } else {
+        vertexToStartAnimation += animationSpeed;
+    }
 }
 
 void GeometryEngine::initMesh(Mesh* mesh) {
