@@ -470,19 +470,40 @@ void ResultsWidget::setLineDrawingColor(QColor newColor) {
 void ResultsWidget::glue() {
     //shouldAnimate = !shouldAnimate;
 
-    float sumX = 0;
-    float sumY = 0;
-    float sumZ = 0;
+    float sumX = 0.0;
+    float sumY = 0.0;
+    float sumZ = 0.0;
+    float maxX = std::numeric_limits<float>::min();;
+    float maxY = std::numeric_limits<float>::min();;
+    float maxZ = std::numeric_limits<float>::min();;
+    float minX = std::numeric_limits<float>::max();;
+    float minY = std::numeric_limits<float>::max();;
+    float minZ = std::numeric_limits<float>::max();;
+
     for (Vertex* vertex : lineVertices) {
-        sumX += vertex->position.x();
-        sumY += vertex->position.y();
-        sumZ += vertex->position.z();
+        float x = vertex->position.x();
+        float y = vertex->position.y();
+        float z = vertex->position.z();
+
+        maxX = std::max(x, maxX);
+        maxY = std::max(y, maxY);
+        maxZ = std::max(z, maxZ);
+        minX = std::min(x, minX);
+        minY = std::min(y, minY);
+        minZ = std::min(z, minZ);
+        sumX += x;
+        sumY += y;
+        sumZ += z;
     }
+
     float avgX = sumX / lineVertices.size();
     float avgY = sumY / lineVertices.size();
     float avgZ = sumZ / lineVertices.size();
+    float xRange = maxX - minX;
+    float yRange = maxY - minY;
+    float zRange = maxZ - minZ;
     QVector3D centerPosition = QVector3D(avgX, avgY, avgZ);
-    QVector3D scale = {1.5, 1.0, 1.0};
+    QVector3D scale = {xRange, yRange, zRange};
     mesh->addSurface(new CrossCap(centerPosition, scale));
     geometryEngine->initMesh(mesh);
     update();
