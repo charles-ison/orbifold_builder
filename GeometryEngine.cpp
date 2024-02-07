@@ -17,28 +17,27 @@ GeometryEngine::~GeometryEngine() {
 }
 
 void GeometryEngine::initAnimation(Mesh* mesh) {
+    std::vector<Vertex> vertices;
     std::vector<Vertex*> meshVertices = mesh->getVertices();
-    int vertexToEndAnimation = vertexToStartAnimation + animationSpeed;
-
-    for (int i=vertexToStartAnimation; i<vertexToEndAnimation; i++) {
+    int indexToEndAnimation = indexToStartAnimation + animationSpeed;
+    for (int i=indexToStartAnimation; i<indexToEndAnimation; i++) {
         Vertex* vertexPointer = meshVertices[i];
         animationVertices.push_back(*vertexPointer);
     }
 
     // Transfer vertex data to VBO 0
     arrayBuf.bind();
-    arrayBuf.allocate(&animationVertices[0], vertexToEndAnimation * sizeof(Vertex));
+    arrayBuf.allocate(&animationVertices[0], indexToEndAnimation * sizeof(Vertex));
 
     std::vector<GLushort> indices;
     std::vector<Triangle*> triangles = mesh->getTriangles();
     numIndices = 0;
-
     for (int i=0; i<triangles.size(); i++) {
         int index1 = triangles[i]->vertexIndices[0];
         int index2 = triangles[i]->vertexIndices[1];
         int index3 = triangles[i]->vertexIndices[2];
 
-        if (index1 < vertexToEndAnimation && index2 < vertexToEndAnimation && index3 < vertexToEndAnimation) {
+        if (index1 < indexToEndAnimation && index2 < indexToEndAnimation && index3 < indexToEndAnimation) {
             indices.push_back(index1);
             indices.push_back(index2);
             indices.push_back(index3);
@@ -50,11 +49,11 @@ void GeometryEngine::initAnimation(Mesh* mesh) {
     indexBuf.bind();
     indexBuf.allocate(&indices[0], numIndices * sizeof(GLushort));
 
-    if (vertexToEndAnimation + animationSpeed > meshVertices.size()) {
-        vertexToStartAnimation = 0;
+    if (indexToEndAnimation + animationSpeed > meshVertices.size()) {
+        indexToStartAnimation = 0;
         animationVertices.clear();
     } else {
-        vertexToStartAnimation += animationSpeed;
+        indexToStartAnimation += animationSpeed;
     }
 }
 

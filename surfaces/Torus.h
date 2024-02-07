@@ -21,7 +21,7 @@ private:
     float bigRadius = 1;
     float smallRadius = 0.5;
     static const int numVertices = numVertSteps * numHorSteps;
-    static const int numTriangles= 2 * numVertSteps * numHorSteps;
+    static const int numTriangles= 2 * numVertices;
     Vertex vertices[numVertices];
     Triangle triangles[numTriangles];
 };

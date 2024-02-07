@@ -23,7 +23,7 @@ private:
     float b = 1.0;
     float c = 0.5;
     static const int numVertices = 2 * numVertSteps * numHorSteps;
-    static const int numTriangles = 2 * 2 * numVertSteps * numHorSteps;
+    static const int numTriangles = 2 * numVertices;
     Vertex vertices[numVertices];
     Triangle triangles[numTriangles];
 };

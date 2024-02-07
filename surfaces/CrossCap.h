@@ -20,7 +20,7 @@ private:
     static const int numHorSteps = 200;
     float radius = 1.3;
     static const int numVertices = (numVertSteps+1) * numHorSteps;
-    static const int numTriangles = 2 * (numVertSteps+1) * numHorSteps;
+    static const int numTriangles = 2 * numVertices;
     Vertex vertices[numVertices];
     Triangle triangles[numTriangles];
 };
