@@ -1,13 +1,16 @@
 #include "CrossCap.h"
 #include <cmath>
 
-CrossCap::CrossCap(float centerX, float centerY, float centerZ) {
-    initVertices(centerX, centerY, centerZ);
+CrossCap::CrossCap(QVector3D centerPosition, QVector3D scale) {
+    initVertices(centerPosition, scale);
     initTriangles();
     initNeighbors();
 }
 
-void CrossCap::initVertices(float centerX, float centerY, float centerZ) {
+void CrossCap::initVertices(QVector3D centerPosition, QVector3D scale) {
+    float sizeX = scale.x();
+    float sizeY = scale.y();
+    float sizeZ = scale.z();
     float horStepSize = 2 * M_PI / numHorSteps;
     float vertStepSize = M_PI / (2 * numVertSteps);
 
@@ -17,9 +20,9 @@ void CrossCap::initVertices(float centerX, float centerY, float centerZ) {
         for (int j=0; j<numHorSteps; j++) {
             float horizontalAngle = horStepSize * j;
 
-            float x = centerX + sizeX * cosf(horizontalAngle) * sinf(2 * verticalAngle);
-            float y = centerY + sizeY * sinf(horizontalAngle) * sinf(2 * verticalAngle);
-            float z = centerZ + sizeZ * (pow(cosf(verticalAngle), 2) - pow(cosf(horizontalAngle), 2) * pow(sinf(verticalAngle), 2));
+            float x = centerPosition.x() + sizeX * cosf(horizontalAngle) * sinf(2 * verticalAngle);
+            float y = centerPosition.y() + sizeY * sinf(horizontalAngle) * sinf(2 * verticalAngle);
+            float z = centerPosition.z() + sizeZ * (pow(cosf(verticalAngle), 2) - pow(cosf(horizontalAngle), 2) * pow(sinf(verticalAngle), 2));
 
             vertices[vertexCounter] = {QVector3D(x,  y,  z)};
             vertexCounter += 1;

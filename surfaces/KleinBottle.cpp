@@ -1,12 +1,15 @@
 #include "KleinBottle.h"
 
-KleinBottle::KleinBottle(float centerX, float centerY, float centerZ) {
-    initVertices(centerX, centerY, centerZ);
+KleinBottle::KleinBottle(QVector3D centerPosition, QVector3D scale) {
+    initVertices(centerPosition, scale);
     initTriangles();
     initNeighbors();
 }
 
-void KleinBottle::initVertices(float centerX, float centerY, float centerZ) {
+void KleinBottle::initVertices(QVector3D centerPosition, QVector3D scale) {
+    float sizeX = scale.x();
+    float sizeY = scale.y();
+    float sizeRadius = scale.z();
     float horStepSize = M_PI / numHorSteps;
     float vertStepSize = 2 * M_PI / numVertSteps;
 
@@ -15,9 +18,9 @@ void KleinBottle::initVertices(float centerX, float centerY, float centerZ) {
         float horizontalAngle = horStepSize * i;
         for (int j=0; j<numVertSteps; j++) {
             float verticalAngle = vertStepSize * j;
-            float r = c * (1 - (cosf(horizontalAngle) / 2));
-            float x = (a * (1 + sinf(horizontalAngle)) + r * cosf(verticalAngle)) * cosf(horizontalAngle);
-            float y = (b + r * cosf(verticalAngle)) * sinf(horizontalAngle);
+            float r = sizeRadius * (1 - (cosf(horizontalAngle) / 2));
+            float x = (sizeX * (1 + sinf(horizontalAngle)) + r * cosf(verticalAngle)) * cosf(horizontalAngle);
+            float y = (sizeY + r * cosf(verticalAngle)) * sinf(horizontalAngle);
             float z = r * sinf(verticalAngle);
             vertices[vertexCounter] = {QVector3D(x,  y,  z)};
             vertexCounter += 1;
@@ -28,9 +31,9 @@ void KleinBottle::initVertices(float centerX, float centerY, float centerZ) {
         float horizontalAngle = M_PI + horStepSize * i;
         for (int j=0; j<numVertSteps; j++) {
             float verticalAngle = vertStepSize * j;
-            float r = c * (1 - (cosf(horizontalAngle) / 2));
-            float x = a * (1 + sinf(horizontalAngle)) * cosf(horizontalAngle) - r * cosf(verticalAngle);
-            float y = b * sinf(horizontalAngle);
+            float r = sizeRadius * (1 - (cosf(horizontalAngle) / 2));
+            float x = sizeX * (1 + sinf(horizontalAngle)) * cosf(horizontalAngle) - r * cosf(verticalAngle);
+            float y = sizeY * sinf(horizontalAngle);
             float z = r * sinf(verticalAngle);
             vertices[vertexCounter] = {QVector3D(x,  y,  z)};
             vertexCounter += 1;

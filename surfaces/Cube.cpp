@@ -1,20 +1,21 @@
 #include "Cube.h"
 
-Cube::Cube(float centerX, float centerY, float centerZ) {
-    initVertices(centerX, centerY, centerZ);
+Cube::Cube(QVector3D centerPosition, QVector3D scale) {
+    initVertices(centerPosition, scale);
     initTriangles();
     initNeighbors();
 }
 
-void Cube::initVertices(float centerX, float centerY, float centerZ) {
-    vertices[0] = {QVector3D(1.0f,  -1.0f,  1.0f)};
-    vertices[1] = {QVector3D( 1.0f,  1.0f,  1.0f)};
-    vertices[2] = {QVector3D(-1.0f,  1.0f,  1.0f)};
-    vertices[3] = {QVector3D(-1.0f,  -1.0f,  1.0f)};
-    vertices[4] = {QVector3D(1.0f,  -1.0f,  -1.0f)};
-    vertices[5] = {QVector3D(1.0f,  1.0f,  -1.0f)};
-    vertices[6] = {QVector3D(-1.0f,  1.0f,  -1.0f)};
-    vertices[7] = {QVector3D(-1.0f,  -1.0f,  -1.0f)};
+void Cube::initVertices(QVector3D centerPosition, QVector3D scale) {
+    float stepSize = scale.x();
+    vertices[0] = {QVector3D(stepSize,  -stepSize,  stepSize)};
+    vertices[1] = {QVector3D( stepSize,  stepSize,  stepSize)};
+    vertices[2] = {QVector3D(-stepSize,  stepSize,  stepSize)};
+    vertices[3] = {QVector3D(-stepSize,  -stepSize,  stepSize)};
+    vertices[4] = {QVector3D(stepSize,  -stepSize,  -stepSize)};
+    vertices[5] = {QVector3D(stepSize,  stepSize,  -stepSize)};
+    vertices[6] = {QVector3D(-stepSize,  stepSize,  -stepSize)};
+    vertices[7] = {QVector3D(-stepSize,  -stepSize,  -stepSize)};
 }
 
 void Cube::initTriangles() {

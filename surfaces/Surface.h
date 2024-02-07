@@ -16,7 +16,7 @@ protected:
     void initNeighbors();
 
 private:
-    virtual void initVertices(float centerX, float centerY, float centerZ) = 0;
+    virtual void initVertices(QVector3D centerPosition, QVector3D scale) = 0;
     virtual void initTriangles() = 0;
 };
 

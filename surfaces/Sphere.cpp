@@ -1,24 +1,27 @@
 #include "Sphere.h"
 
-Sphere::Sphere(float centerX, float centerY, float centerZ) {
-    initVertices(centerX, centerY, centerZ);
+Sphere::Sphere(QVector3D centerPosition, QVector3D scale) {
+    initVertices(centerPosition, scale);
     initTriangles();
     initNeighbors();
 }
 
-void Sphere::initVertices(float centerX, float centerY, float centerZ) {
+void Sphere::initVertices(QVector3D centerPosition, QVector3D scale) {
+    float sizeX = scale.x();
+    float sizeY = scale.y();
+    float sizeZ = scale.z();
     float vertStepSize = M_PI / numVertSteps;
     float horStepSize = 2 * M_PI / numHorSteps;
 
     int vertexCounter = 0;
     for (int i=0; i<=numVertSteps; i++) {
         float verticalAngle = (M_PI / 2) - vertStepSize * i;
-        float z = z_size * sinf(verticalAngle);
+        float z = sizeZ * sinf(verticalAngle);
         int tempNumHorSteps = (i == 0 || i == numVertSteps) ? 1 : numHorSteps;
         for (int j=0; j<tempNumHorSteps; j++) {
             float horizontalAngle = horStepSize * j;
-            float x = x_size * cosf(verticalAngle) * cosf(horizontalAngle);
-            float y = y_size * cosf(verticalAngle) * sinf(horizontalAngle);
+            float x = sizeX * cosf(verticalAngle) * cosf(horizontalAngle);
+            float y = sizeY * cosf(verticalAngle) * sinf(horizontalAngle);
             vertices[vertexCounter] = {QVector3D(x,  y,  z)};
             vertexCounter += 1;
         }

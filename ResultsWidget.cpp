@@ -16,18 +16,25 @@ ResultsWidget::~ResultsWidget() {
 void ResultsWidget::addSurface(surface newSurface) {
     shouldPaintGL = true;
     lineVertices.clear();
+    QVector3D centerPosition = {0, 0, 0};
     if (newSurface == surface::cube) {
-        mesh->resetSurface(new Cube(0, 0, 0));
+        QVector3D scale = {1.0, 0.0, 0.0};
+        mesh->resetSurface(new Cube(centerPosition, scale));
     } else if (newSurface == surface::sphere) {
-        mesh->resetSurface(new Sphere(0, 0, 0));
+        QVector3D scale = {1.3, 1.3, 1.3};
+        mesh->resetSurface(new Sphere(centerPosition, scale));
     } else if (newSurface == surface::torus) {
-        mesh->resetSurface(new Torus(0, 0, 0));
+        QVector3D scale = {1.0, 0.5, 0.0};
+        mesh->resetSurface(new Torus(centerPosition, scale));
     } else if (newSurface == surface::mobiusStrip) {
-        mesh->resetSurface(new MobiusStrip(0, 0, 0));
+        QVector3D scale = {1.0, 0.0, 0.0};
+        mesh->resetSurface(new MobiusStrip(centerPosition, scale));
     } else if (newSurface == surface::crossCap) {
-        mesh->resetSurface(new CrossCap(0, 0, 0));
+        QVector3D scale = {1.5, 1.0, 1.0};
+        mesh->resetSurface(new CrossCap(centerPosition, scale));
     } else if (newSurface == surface::kleinBottle) {
-        mesh->resetSurface(new KleinBottle(0, 0, 0));
+        QVector3D scale = {0.5, 1.0, 0.5};
+        mesh->resetSurface(new KleinBottle(centerPosition, scale));
     }
 
     if (shouldAnimate) {
@@ -474,8 +481,9 @@ void ResultsWidget::glue() {
     float avgX = sumX / lineVertices.size();
     float avgY = sumY / lineVertices.size();
     float avgZ = sumZ / lineVertices.size();
-
-    mesh->addSurface(new CrossCap(avgX, avgY, avgZ));
+    QVector3D centerPosition = QVector3D(avgX, avgY, avgZ);
+    QVector3D scale = {1.5, 1.0, 1.0};
+    mesh->addSurface(new CrossCap(centerPosition, scale));
     geometryEngine->initMesh(mesh);
     update();
 }

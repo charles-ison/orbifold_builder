@@ -7,21 +7,18 @@
 class KleinBottle : public Surface {
 
 public:
-    KleinBottle(float centerX, float centerY, float centerZ);
+    KleinBottle(QVector3D centerPosition, QVector3D scale);
     Vertex* getVertices();
     Triangle* getTriangles();
     int getNumVertices();
     int getNumTriangles();
 
 private:
-    void initVertices(float centerX, float centerY, float centerZ);
+    void initVertices(QVector3D centerPosition, QVector3D scale);
     void initTriangles();
     int floorMod(int a, int n);
     static const int numVertSteps = 180;
     static const int numHorSteps = 180;
-    float a = 0.5;
-    float b = 1.0;
-    float c = 0.5;
     static const int numVertices = 2 * numVertSteps * numHorSteps;
     static const int numTriangles = 2 * numVertices;
     Vertex vertices[numVertices];

@@ -1,12 +1,13 @@
 #include "MobiusStrip.h"
 
-MobiusStrip::MobiusStrip(float centerX, float centerY, float centerZ) {
-    initVertices(centerX, centerY, centerZ);
+MobiusStrip::MobiusStrip(QVector3D centerPosition, QVector3D scale) {
+    initVertices(centerPosition, scale);
     initTriangles();
     initNeighbors();
 }
 
-void MobiusStrip::initVertices(float centerX, float centerY, float centerZ) {
+void MobiusStrip::initVertices(QVector3D centerPosition, QVector3D scale) {
+    float radius = scale.x();
     float horStepSize = 2 * M_PI / numHorSteps;
     float vertStepSize = 1.0 / numVertSteps;
 

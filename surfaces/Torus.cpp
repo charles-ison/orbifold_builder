@@ -1,14 +1,17 @@
 #include "Torus.h"
 
-Torus::Torus(float centerX, float centerY, float centerZ) {
-    initVertices(centerX, centerY, centerZ);
+Torus::Torus(QVector3D centerPosition, QVector3D scale) {
+    initVertices(centerPosition, scale);
     initTriangles();
     initNeighbors();
 }
 
-void Torus::initVertices(float centerX, float centerY, float centerZ) {
+void Torus::initVertices(QVector3D centerPosition, QVector3D scale) {
     float horStepSize = 2 * M_PI / numHorSteps;
     float vertStepSize = 2 * M_PI / numVertSteps;
+
+    float bigRadius = scale.x();
+    float smallRadius = scale.y();
 
     int vertexCounter = 0;
     for (int i=0; i<numHorSteps; i++) {
