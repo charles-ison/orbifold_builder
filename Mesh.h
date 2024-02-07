@@ -8,7 +8,8 @@
 class Mesh {
 
 public:
-    void copySurface(Surface *surface);
+    void resetSurface(Surface *surface);
+    void addSurface(Surface *surface);
     std::vector<Vertex*> getVertices();
     std::vector<Triangle*> getTriangles();
     void addVertex(Vertex *vertexToAdd);

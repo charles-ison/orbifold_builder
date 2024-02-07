@@ -17,17 +17,17 @@ void ResultsWidget::addSurface(surface newSurface) {
     shouldPaintGL = true;
     lineVertices.clear();
     if (newSurface == surface::cube) {
-        mesh->copySurface(new Cube(0, 0, 0));
+        mesh->resetSurface(new Cube(0, 0, 0));
     } else if (newSurface == surface::sphere) {
-        mesh->copySurface(new Sphere(0, 0, 0));
+        mesh->resetSurface(new Sphere(0, 0, 0));
     } else if (newSurface == surface::torus) {
-        mesh->copySurface(new Torus(0, 0, 0));
+        mesh->resetSurface(new Torus(0, 0, 0));
     } else if (newSurface == surface::mobiusStrip) {
-        mesh->copySurface(new MobiusStrip(0, 0, 0));
+        mesh->resetSurface(new MobiusStrip(0, 0, 0));
     } else if (newSurface == surface::crossCap) {
-        mesh->copySurface(new CrossCap(0, 0, 0));
+        mesh->resetSurface(new CrossCap(0, 0, 0));
     } else if (newSurface == surface::kleinBottle) {
-        mesh->copySurface(new KleinBottle(0, 0, 0));
+        mesh->resetSurface(new KleinBottle(0, 0, 0));
     }
 
     if (shouldAnimate) {
@@ -461,7 +461,7 @@ void ResultsWidget::setLineDrawingColor(QColor newColor) {
 }
 
 void ResultsWidget::glue() {
-    shouldAnimate = !shouldAnimate;
+    //shouldAnimate = !shouldAnimate;
 
     float sumX = 0;
     float sumY = 0;
@@ -474,4 +474,8 @@ void ResultsWidget::glue() {
     float avgX = sumX / lineVertices.size();
     float avgY = sumY / lineVertices.size();
     float avgZ = sumZ / lineVertices.size();
+
+    mesh->addSurface(new CrossCap(avgX, avgY, avgZ));
+    geometryEngine->initMesh(mesh);
+    update();
 }

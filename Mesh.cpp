@@ -1,18 +1,25 @@
 #include "Mesh.h"
 
-void Mesh::copySurface(Surface *surface) {
+void Mesh::resetSurface(Surface *surface) {
     vertices.clear();
     triangles.clear();
+    addSurface(surface);
+}
 
-    int numVertices = surface->getNumVertices();
+void Mesh::addSurface(Surface *surface) {
+    int oldVerticesSize = vertices.size();
+    int numSurfaceVertices = surface->getNumVertices();
     Vertex* surfaceVertices = surface->getVertices();
-    for (int i=0; i<numVertices; i++) {
+    for (int i=0; i<numSurfaceVertices; i++) {
         vertices.push_back(&surfaceVertices[i]);
     }
 
-    int numTriangles = surface->getNumTriangles();
+    int numSurfaceTriangles = surface->getNumTriangles();
     Triangle* surfaceTriangles = surface->getTriangles();
-    for (int i=0; i<numTriangles; i++) {
+    for (int i=0; i<numSurfaceTriangles; i++) {
+        surfaceTriangles[i].vertexIndices[0] += oldVerticesSize;
+        surfaceTriangles[i].vertexIndices[1] += oldVerticesSize;
+        surfaceTriangles[i].vertexIndices[2] += oldVerticesSize;
         triangles.push_back(&surfaceTriangles[i]);
     }
 }
