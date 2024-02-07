@@ -18,7 +18,9 @@ private:
     void initTriangles();
     static const int numVertSteps = 200;
     static const int numHorSteps = 200;
-    float radius = 1.3;
+    float x_size = 1.3;
+    float y_size = 1.3;
+    float z_size = 1.3;
     static const int numVertices = (numVertSteps-1) * numHorSteps + 2;
     static const int numTriangles = 2 * (numVertSteps-1) * numHorSteps;
     Vertex vertices[numVertices];

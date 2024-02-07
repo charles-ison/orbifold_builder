@@ -13,12 +13,12 @@ void Sphere::initVertices() {
     int vertexCounter = 0;
     for (int i=0; i<=numVertSteps; i++) {
         float verticalAngle = (M_PI / 2) - vertStepSize * i;
-        float z = radius * sinf(verticalAngle);
+        float z = z_size * sinf(verticalAngle);
         int tempNumHorSteps = (i == 0 || i == numVertSteps) ? 1 : numHorSteps;
         for (int j=0; j<tempNumHorSteps; j++) {
             float horizontalAngle = horStepSize * j;
-            float x = radius * cosf(verticalAngle) * cosf(horizontalAngle);
-            float y = radius * cosf(verticalAngle) * sinf(horizontalAngle);
+            float x = x_size * cosf(verticalAngle) * cosf(horizontalAngle);
+            float y = y_size * cosf(verticalAngle) * sinf(horizontalAngle);
             vertices[vertexCounter] = {QVector3D(x,  y,  z)};
             vertexCounter += 1;
         }
