@@ -462,4 +462,16 @@ void ResultsWidget::setLineDrawingColor(QColor newColor) {
 
 void ResultsWidget::glue() {
     shouldAnimate = !shouldAnimate;
+
+    float sumX = 0;
+    float sumY = 0;
+    float sumZ = 0;
+    for (Vertex* vertex : lineVertices) {
+        sumX += vertex->position.x();
+        sumY += vertex->position.y();
+        sumZ += vertex->position.z();
+    }
+    float avgX = sumX / lineVertices.size();
+    float avgY = sumY / lineVertices.size();
+    float avgZ = sumZ / lineVertices.size();
 }

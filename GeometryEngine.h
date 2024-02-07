@@ -25,7 +25,7 @@ private:
     QOpenGLBuffer lineArrayBuf;
 
     static const int animationSpeed = 100;
-    int originalIndexToEndAnimation = 20000;
+    int originalIndexToEndAnimation = 0;
     int indexToStartAnimation = 0;
     int indexToEndAnimation = originalIndexToEndAnimation;
     std::vector<Vertex> animationVertices;
