@@ -17,9 +17,9 @@ void CrossCap::initVertices() {
         for (int j=0; j<numHorSteps; j++) {
             float horizontalAngle = horStepSize * j;
 
-            float x = radius * cosf(horizontalAngle) * sinf(2 * verticalAngle);
-            float y = radius * sinf(horizontalAngle) * sinf(2 * verticalAngle);
-            float z = radius * (pow(cosf(verticalAngle), 2) - pow(cosf(horizontalAngle), 2) * pow(sinf(verticalAngle), 2));
+            float x = x_size * cosf(horizontalAngle) * sinf(2 * verticalAngle);
+            float y = y_size * sinf(horizontalAngle) * sinf(2 * verticalAngle);
+            float z = z_size * (pow(cosf(verticalAngle), 2) - pow(cosf(horizontalAngle), 2) * pow(sinf(verticalAngle), 2));
 
             vertices[vertexCounter] = {QVector3D(x,  y,  z)};
             vertexCounter += 1;
