@@ -468,6 +468,10 @@ void ResultsWidget::setLineDrawingColor(QColor newColor) {
 }
 
 void ResultsWidget::glue() {
+
+}
+
+void ResultsWidget::glueAnimation() {
     //shouldAnimate = !shouldAnimate;
 
     float sumX = 0.0;
@@ -504,7 +508,7 @@ void ResultsWidget::glue() {
     float zRange = maxZ - minZ;
     QVector3D centerPosition = QVector3D(avgX, avgY, avgZ);
     QVector3D scale = {xRange, yRange, zRange};
-    mesh->addSurface(new CrossCap(centerPosition, scale));
-    geometryEngine->initMesh(mesh);
-    update();
+    //mesh->addSurface(new CrossCap(centerPosition, scale));
+    //geometryEngine->initMesh(mesh);
+    //update();
 }
