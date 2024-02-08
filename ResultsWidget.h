@@ -29,7 +29,7 @@ public:
     enum surface {sphere, cube, torus, mobiusStrip, crossCap, kleinBottle};
     void addSurface(surface newSurface);
     void cutSurface();
-    void setLineDrawingColor(QColor newColor);
+    void setDrawingColor(QColor newColor);
     void resizeGL(int w, int h) override;
     void toggleShouldDeleteSurface();
     void glue();
@@ -46,9 +46,9 @@ protected:
 
 private:
     void deleteSurface(QMouseEvent *e);
-    void addLineVertices(Vertex *newVertex);
+    void addDrawnVertices(Vertex *newVertex);
     std::vector<Vertex*> getNewVertices(Vertex *newVertex);
-    void checkLineVerticesForLoop(Vertex *newVertex);
+    void checkDrawnVerticesForLoop(Vertex *newVertex);
     Vertex* getVertexFromMouseEvent(QMouseEvent *e);
     bool triangleContainsVertex(Vertex *vertex, Triangle *triangle, std::vector<Vertex*> vertices);
     bool rotationDirectionAligns(Triangle* triangle, Vertex* vertex1, Vertex* vertex2, std::vector<Vertex*> vertices);
@@ -62,8 +62,8 @@ private:
     QVector3D rotationAxis;
     qreal angularSpeed = 0;
     QQuaternion rotation;
-    std::vector<Vertex*> lineVertices;
-    QColor lineDrawingColor;
+    std::vector<Vertex*> drawnVertices;
+    QColor drawingColor;
     bool isDrawingMode;
     bool shouldPaintGL;
     bool shouldAnimate;

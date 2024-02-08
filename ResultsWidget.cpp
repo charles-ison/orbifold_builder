@@ -15,7 +15,7 @@ ResultsWidget::~ResultsWidget() {
 
 void ResultsWidget::addSurface(surface newSurface) {
     shouldPaintGL = true;
-    lineVertices.clear();
+    drawnVertices.clear();
     QVector3D centerPosition = {0, 0, 0};
     if (newSurface == surface::cube) {
         QVector3D scale = {1.0, 0.0, 0.0};
@@ -42,8 +42,6 @@ void ResultsWidget::addSurface(surface newSurface) {
     } else {
         geometryEngine->initMesh(mesh);
     }
-
-    geometryEngine->initLine(lineVertices);
     update();
 }
 
@@ -57,7 +55,7 @@ void ResultsWidget::mousePressEvent(QMouseEvent *e) {
     } else {
         // TODO: Switch comments for testing
         //mouseMoveEvent(e);
-        lineVertices.clear();
+        drawnVertices.clear();
         isDrawingMode = true;
     }
 }
@@ -87,7 +85,7 @@ bool ResultsWidget::rotationDirectionAligns(Triangle* triangle, Vertex* vertex1,
 }
 
 void ResultsWidget::cutSurface() {
-    if (lineVertices.size() < 2) {
+    if (drawnVertices.size() < 2) {
         return;
     }
 
@@ -96,29 +94,29 @@ void ResultsWidget::cutSurface() {
     std::vector<Vertex*> vertices = mesh->getVertices();
     std::vector<Vertex*> verticesToCut;
     std::vector<std::vector<Triangle*>> trianglePathsToCut;
-    for (Triangle *triangle : lineVertices[0]->triangles) {
-        if(triangleContainsVertex(lineVertices[0], triangle, vertices)
-              && triangleContainsVertex(lineVertices[1], triangle, vertices)) {
+    for (Triangle *triangle : drawnVertices[0]->triangles) {
+        if(triangleContainsVertex(drawnVertices[0], triangle, vertices)
+              && triangleContainsVertex(drawnVertices[1], triangle, vertices)) {
             startingTriangle = triangle;
             break;
         }
     }
 
     stepStartingTriangle = startingTriangle;
-    verticesToCut.push_back(lineVertices[1]);
+    verticesToCut.push_back(drawnVertices[1]);
     trianglePathsToCut.push_back({stepStartingTriangle});
-    bool startingRotationDirectionAligns = rotationDirectionAligns(startingTriangle, lineVertices[0], lineVertices[1], vertices);
+    bool startingRotationDirectionAligns = rotationDirectionAligns(startingTriangle, drawnVertices[0], drawnVertices[1], vertices);
 
     // Required for loops
-    if (lineVertices.front() == lineVertices.back()) {
-        lineVertices.push_back(lineVertices[1]);
+    if (drawnVertices.front() == drawnVertices.back()) {
+        drawnVertices.push_back(drawnVertices[1]);
     }
 
     // Find all triangles that need to be cut
-    for (int i=1; i<lineVertices.size()-1; i++) {
-        Vertex* prevStartVertex = lineVertices[i-1];
-        Vertex* startVertex = lineVertices[i];
-        Vertex* endVertex = lineVertices[i+1];
+    for (int i=1; i<drawnVertices.size()-1; i++) {
+        Vertex* prevStartVertex = drawnVertices[i-1];
+        Vertex* startVertex = drawnVertices[i];
+        Vertex* endVertex = drawnVertices[i+1];
 
         std::unordered_set<std::string> checkedTriangles;
         checkedTriangles.insert(stepStartingTriangle->toString());
@@ -250,12 +248,12 @@ void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
     Vertex *vertex = getVertexFromMouseEvent(e);
     if (vertex == nullptr) {
         // TODO: comment out for testing
-        lineVertices.clear();
-    } else if (lineVertices.size() == 0 || vertex != lineVertices.back()) {
-        addLineVertices(vertex);
+        drawnVertices.clear();
+    } else if (drawnVertices.size() == 0 || vertex != drawnVertices.back()) {
+        addDrawnVertices(vertex);
     }
 
-    geometryEngine->initLine(lineVertices);
+    geometryEngine->initLine(drawnVertices);
     update();
 }
 
@@ -285,29 +283,29 @@ Vertex* ResultsWidget::getVertexFromMouseEvent(QMouseEvent *e) {
     }
 }
 
-void ResultsWidget::addLineVertices(Vertex *newVertex) {
+void ResultsWidget::addDrawnVertices(Vertex *newVertex) {
     std::vector<Vertex *> newVertices = getNewVertices(newVertex);
     for (int i = newVertices.size() - 1; i > -1; i--) {
-        if (lineVertices.size() > 2 && newVertices[i] == lineVertices[lineVertices.size()-2]) {
-            lineVertices.pop_back();
+        if (drawnVertices.size() > 2 && newVertices[i] == drawnVertices[drawnVertices.size()-2]) {
+            drawnVertices.pop_back();
         }
         else {
-            checkLineVerticesForLoop(newVertices[i]);
-            lineVertices.push_back(newVertices[i]);
+            checkDrawnVerticesForLoop(newVertices[i]);
+            drawnVertices.push_back(newVertices[i]);
         }
     }
 }
 
 std::vector<Vertex*> ResultsWidget::getNewVertices(Vertex *newVertex) {
     std::vector<Vertex*> newVertices = {newVertex};
-    if (lineVertices.size() == 0) {
+    if (drawnVertices.size() == 0) {
         return newVertices;
     }
 
     std::unordered_set<Vertex*> checkedVertices;
     std::queue<std::vector<Vertex*>> potentialPaths;
     potentialPaths.push(newVertices);
-    QVector3D lastVertexPosition = lineVertices.back()->position;
+    QVector3D lastVertexPosition = drawnVertices.back()->position;
     std::vector<Vertex*> meshVertices = mesh->getVertices();
 
     while(!potentialPaths.empty()) {
@@ -332,12 +330,12 @@ std::vector<Vertex*> ResultsWidget::getNewVertices(Vertex *newVertex) {
     return {newVertex};
 }
 
-void ResultsWidget::checkLineVerticesForLoop(Vertex *newVertex) {
-    for (int i=0; i<lineVertices.size(); i++) {
-        if (lineVertices[i] == newVertex) {
+void ResultsWidget::checkDrawnVerticesForLoop(Vertex *newVertex) {
+    for (int i=0; i<drawnVertices.size(); i++) {
+        if (drawnVertices[i] == newVertex) {
             isDrawingMode = false;
             for (int j=0; j<i; j++) {
-                lineVertices.erase(lineVertices.begin());
+                drawnVertices.erase(drawnVertices.begin());
             }
         }
     }
@@ -396,7 +394,7 @@ void ResultsWidget::initializeGL() {
     isDrawingMode = true;
     shouldPaintGL = false;
     shouldDeleteSurface = false;
-    lineDrawingColor = Qt::white;
+    drawingColor = Qt::white;
 
     // Use QBasicTimer because it's faster than QTimer
     timer.start(12, this);
@@ -459,12 +457,12 @@ void ResultsWidget::paintGL() {
 
         // Draw geometry
         geometryEngine->drawMesh(&program);
-        geometryEngine->drawLine(&program, lineDrawingColor);
+        geometryEngine->drawLine(&program, drawingColor);
     }
 }
 
-void ResultsWidget::setLineDrawingColor(QColor newColor) {
-    lineDrawingColor = newColor;
+void ResultsWidget::setDrawingColor(QColor newColor) {
+    drawingColor = newColor;
 }
 
 void ResultsWidget::glue() {
@@ -484,7 +482,7 @@ void ResultsWidget::glueAnimation() {
     float minY = std::numeric_limits<float>::max();;
     float minZ = std::numeric_limits<float>::max();;
 
-    for (Vertex* vertex : lineVertices) {
+    for (Vertex* vertex : drawnVertices) {
         float x = vertex->position.x();
         float y = vertex->position.y();
         float z = vertex->position.z();
@@ -500,9 +498,9 @@ void ResultsWidget::glueAnimation() {
         sumZ += z;
     }
 
-    float avgX = sumX / lineVertices.size();
-    float avgY = sumY / lineVertices.size();
-    float avgZ = sumZ / lineVertices.size();
+    float avgX = sumX / drawnVertices.size();
+    float avgY = sumY / drawnVertices.size();
+    float avgZ = sumZ / drawnVertices.size();
     float xRange = maxX - minX;
     float yRange = maxY - minY;
     float zRange = maxZ - minZ;

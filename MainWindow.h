@@ -34,7 +34,7 @@ private slots:
     void glue();
     void toggleShouldDeleteSurface();
     void toggleFundamentalPolygon();
-    void drawingLineColorChanged();
+    void drawingColorChanged();
     void pointerGroupClicked();
     void itemInserted(DiagramItem *item);
     void textInserted(QGraphicsTextItem *item);
@@ -76,7 +76,7 @@ private:
     QAction *aboutAction;
     QAction *addSurfaceAction;
     QAction *zoomAction;
-    QAction *drawLineAction;
+    QAction *drawAction;
     QAction *fundamentalPolygonAction;
 
     QMenu *fileMenu;
@@ -95,7 +95,7 @@ private:
     QToolButton *textButton;
     QToolButton *zoomButton;
     QToolButton *addSurfaceButton;
-    QToolButton *drawLineButton;
+    QToolButton *drawButton;
     QToolButton *cutSurfaceButton;
     QToolButton *deleteSurfaceButton;
     QToolButton *glueButton;

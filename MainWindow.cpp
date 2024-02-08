@@ -119,12 +119,12 @@ void MainWindow::toggleFundamentalPolygon() {
     fundamentalPolygonToolBox->setHidden(hideFundamentalPolygon);
 }
 
-void MainWindow::drawingLineColorChanged() {
-    drawLineAction = qobject_cast<QAction *>(sender());
-    drawLineButton->menu()->setDefaultAction(drawLineAction);
-    QColor newColor = qvariant_cast<QColor>(drawLineAction->data());
-    drawLineButton->setIcon(createColorToolButtonIcon(":/images/linecolor.png",newColor));
-    resultsWidget->setLineDrawingColor(newColor);
+void MainWindow::drawingColorChanged() {
+    drawAction = qobject_cast<QAction *>(sender());
+    drawButton->menu()->setDefaultAction(drawAction);
+    QColor newColor = qvariant_cast<QColor>(drawAction->data());
+    drawButton->setIcon(createColorToolButtonIcon(":/images/linecolor.png",newColor));
+    resultsWidget->setDrawingColor(newColor);
 }
 
 void MainWindow::pointerGroupClicked() {
@@ -279,12 +279,12 @@ void MainWindow::createToolbars() {
     addSurfaceButton->setText("Add");
     addSurfaceButton->setMinimumHeight(fundamentalPolygonToolBarHeight);
 
-    drawLineButton = new QToolButton;
-    drawLineButton->setPopupMode(QToolButton::MenuButtonPopup);
-    drawLineButton->setMenu(createColorMenu(&MainWindow::drawingLineColorChanged, Qt::white));
-    drawLineAction = drawLineButton->menu()->defaultAction();
-    drawLineButton->setIcon(createColorToolButtonIcon(":/images/linecolor.png", Qt::white));
-    drawLineButton->setMinimumHeight(fundamentalPolygonToolBarHeight);
+    drawButton = new QToolButton;
+    drawButton->setPopupMode(QToolButton::MenuButtonPopup);
+    drawButton->setMenu(createColorMenu(&MainWindow::drawingColorChanged, Qt::white));
+    drawAction = drawButton->menu()->defaultAction();
+    drawButton->setIcon(createColorToolButtonIcon(":/images/linecolor.png", Qt::white));
+    drawButton->setMinimumHeight(fundamentalPolygonToolBarHeight);
 
     cutSurfaceButton = new QToolButton;
     cutSurfaceButton->setText(tr("Cut"));
@@ -312,7 +312,7 @@ void MainWindow::createToolbars() {
 
     resultsToolBar = new QToolBar;
     resultsToolBar->addWidget(addSurfaceButton);
-    resultsToolBar->addWidget(drawLineButton);
+    resultsToolBar->addWidget(drawButton);
     resultsToolBar->addWidget(cutSurfaceButton);
     resultsToolBar->addWidget(deleteSurfaceButton);
     resultsToolBar->addWidget(glueButton);
