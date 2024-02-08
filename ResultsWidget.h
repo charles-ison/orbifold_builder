@@ -63,6 +63,8 @@ private:
     qreal angularSpeed = 0;
     QQuaternion rotation;
     std::vector<Vertex*> drawnVertices;
+    std::vector<Vertex*> boundaryVertices1;
+    std::vector<Vertex*> boundaryVertices2;
     QColor drawingColor;
     bool isDrawingMode;
     bool shouldPaintGL;

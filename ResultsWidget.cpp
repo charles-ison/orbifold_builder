@@ -204,6 +204,8 @@ void ResultsWidget::cutSurface() {
         vertex->triangles = newTriangles;
     }
 
+    boundaryVertices1 = verticesToCut;
+
     geometryEngine->initMesh(mesh);
     update();
 }
