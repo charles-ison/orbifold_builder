@@ -22,7 +22,7 @@ void KleinBottle::initVertices(QVector3D centerPosition, QVector3D scale) {
             float x = (sizeX * (1 + sinf(horizontalAngle)) + r * cosf(verticalAngle)) * cosf(horizontalAngle);
             float y = (sizeY + r * cosf(verticalAngle)) * sinf(horizontalAngle);
             float z = r * sinf(verticalAngle);
-            vertices[vertexCounter] = {QVector3D(x,  y,  z)};
+            vertices[vertexCounter] = {.index = vertexCounter, .position = QVector3D(x,  y,  z)};
             vertexCounter += 1;
         }
     }
@@ -35,7 +35,7 @@ void KleinBottle::initVertices(QVector3D centerPosition, QVector3D scale) {
             float x = sizeX * (1 + sinf(horizontalAngle)) * cosf(horizontalAngle) - r * cosf(verticalAngle);
             float y = sizeY * sinf(horizontalAngle);
             float z = r * sinf(verticalAngle);
-            vertices[vertexCounter] = {QVector3D(x,  y,  z)};
+            vertices[vertexCounter] = {.index = vertexCounter, .position = QVector3D(x,  y,  z)};
             vertexCounter += 1;
         }
     }

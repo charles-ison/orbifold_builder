@@ -89,6 +89,8 @@ void ResultsWidget::cutSurface() {
         return;
     }
 
+    boundaryVertices1.clear();
+    boundaryVertices2.clear();
     Triangle* startingTriangle;
     Triangle* stepStartingTriangle;
     std::vector<Vertex*> vertices = mesh->getVertices();
@@ -160,8 +162,10 @@ void ResultsWidget::cutSurface() {
     for (int i=0; i<verticesToCut.size(); i++) {
         Vertex* vertexToCut = verticesToCut[i];
         Vertex* newVertex = new Vertex;
+        newVertex->index = vertices.size();
         newVertex->position = vertexToCut->position;
         mesh->addVertex(newVertex);
+        boundaryVertices2.push_back(newVertex);
         vertices = mesh->getVertices();
         oldVertexToNewIndexMap.insert({vertexToCut, vertices.size()-1});
         for (Triangle* nextTriangle : trianglePathsToCut[i]) {
@@ -205,7 +209,6 @@ void ResultsWidget::cutSurface() {
     }
 
     boundaryVertices1 = verticesToCut;
-
     geometryEngine->initMesh(mesh);
     update();
 }
@@ -468,7 +471,20 @@ void ResultsWidget::setDrawingColor(QColor newColor) {
 }
 
 void ResultsWidget::glue() {
-
+    for (int i=0; i<boundaryVertices1.size(); i++) {
+        Vertex* boundaryVertex1 = boundaryVertices1[i];
+        Vertex* boundaryVertex2 = boundaryVertices2[boundaryVertices2.size()-i-1];
+        for (Triangle* boundaryTriangle1 : boundaryVertex1->triangles) {
+            std::vector<int> boundaryVertexIndices1 = boundaryTriangle1->vertexIndices;
+            for (int j=0; j<3; j++) {
+                if (boundaryVertexIndices1[j] == boundaryVertex1->index) {
+                    boundaryTriangle1->vertexIndices[j] = boundaryVertex2->index;
+                }
+            }
+        }
+    }
+    geometryEngine->initMesh(mesh);
+    update();
 }
 
 void ResultsWidget::glueAnimation() {

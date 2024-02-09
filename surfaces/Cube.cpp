@@ -8,14 +8,14 @@ Cube::Cube(QVector3D centerPosition, QVector3D scale) {
 
 void Cube::initVertices(QVector3D centerPosition, QVector3D scale) {
     float stepSize = scale.x();
-    vertices[0] = {QVector3D(stepSize,  -stepSize,  stepSize)};
-    vertices[1] = {QVector3D( stepSize,  stepSize,  stepSize)};
-    vertices[2] = {QVector3D(-stepSize,  stepSize,  stepSize)};
-    vertices[3] = {QVector3D(-stepSize,  -stepSize,  stepSize)};
-    vertices[4] = {QVector3D(stepSize,  -stepSize,  -stepSize)};
-    vertices[5] = {QVector3D(stepSize,  stepSize,  -stepSize)};
-    vertices[6] = {QVector3D(-stepSize,  stepSize,  -stepSize)};
-    vertices[7] = {QVector3D(-stepSize,  -stepSize,  -stepSize)};
+    vertices[0] = {.index = 0, .position = QVector3D(stepSize,  -stepSize,  stepSize)};
+    vertices[1] = {.index = 1, .position = QVector3D( stepSize,  stepSize,  stepSize)};
+    vertices[2] = {.index = 2, .position = QVector3D(-stepSize,  stepSize,  stepSize)};
+    vertices[3] = {.index = 3, .position = QVector3D(-stepSize,  -stepSize,  stepSize)};
+    vertices[4] = {.index = 4, .position = QVector3D(stepSize,  -stepSize,  -stepSize)};
+    vertices[5] = {.index = 5, .position = QVector3D(stepSize,  stepSize,  -stepSize)};
+    vertices[6] = {.index = 6, .position = QVector3D(-stepSize,  stepSize,  -stepSize)};
+    vertices[7] = {.index = 7, .position = QVector3D(-stepSize,  -stepSize,  -stepSize)};
 }
 
 void Cube::initTriangles() {

@@ -24,7 +24,7 @@ void CrossCap::initVertices(QVector3D centerPosition, QVector3D scale) {
             float y = centerPosition.y() + sizeY * sinf(horizontalAngle) * sinf(2 * verticalAngle);
             float z = centerPosition.z() + sizeZ * (pow(cosf(verticalAngle), 2) - pow(cosf(horizontalAngle), 2) * pow(sinf(verticalAngle), 2));
 
-            vertices[vertexCounter] = {QVector3D(x,  y,  z)};
+            vertices[vertexCounter] = {.index = vertexCounter, .position = QVector3D(x,  y,  z)};
             vertexCounter += 1;
         }
     }

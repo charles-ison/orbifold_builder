@@ -21,7 +21,7 @@ void Torus::initVertices(QVector3D centerPosition, QVector3D scale) {
             float x = (bigRadius + smallRadius * cosf(verticalAngle)) * cosf(horizontalAngle);
             float y = (bigRadius + smallRadius * cosf(verticalAngle)) * sinf(horizontalAngle);
             float z = smallRadius * sinf(verticalAngle);
-            vertices[vertexCounter] = {QVector3D(x,  y,  z)};
+            vertices[vertexCounter] = {.index = vertexCounter, .position = QVector3D(x,  y,  z)};
             vertexCounter += 1;
         }
     }

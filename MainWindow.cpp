@@ -299,7 +299,6 @@ void MainWindow::createToolbars() {
 
     glueButton = new QToolButton;
     glueButton->setText(tr("Glue"));
-    glueButton->setCheckable(true);
     glueButton->setMinimumHeight(fundamentalPolygonToolBarHeight);
     connect(glueButton, &QAbstractButton::clicked, this, &MainWindow::glue);
 

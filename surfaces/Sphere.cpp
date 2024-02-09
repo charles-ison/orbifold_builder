@@ -22,7 +22,7 @@ void Sphere::initVertices(QVector3D centerPosition, QVector3D scale) {
             float horizontalAngle = horStepSize * j;
             float x = sizeX * cosf(verticalAngle) * cosf(horizontalAngle);
             float y = sizeY * cosf(verticalAngle) * sinf(horizontalAngle);
-            vertices[vertexCounter] = {QVector3D(x,  y,  z)};
+            vertices[vertexCounter] = {.index = vertexCounter, .position = QVector3D(x,  y,  z)};
             vertexCounter += 1;
         }
     }
