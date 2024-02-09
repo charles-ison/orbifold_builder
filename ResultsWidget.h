@@ -53,7 +53,13 @@ private:
     bool triangleContainsVertex(Vertex *vertex, Triangle *triangle, std::vector<Vertex*> vertices);
     bool rotationDirectionAligns(Triangle* triangle, Vertex* vertex1, Vertex* vertex2, std::vector<Vertex*> vertices);
 
-    Mesh *mesh;
+    Mesh* mesh;
+    Cube* cubeSurface;
+    Sphere* sphereSurface;
+    Torus* torusSurface;
+    MobiusStrip* mobiusStripSurface;
+    CrossCap* crossCapSurface;
+    KleinBottle* kleinBottleSurface;
     QBasicTimer timer;
     QOpenGLShaderProgram program;
     GeometryEngine *geometryEngine = nullptr;

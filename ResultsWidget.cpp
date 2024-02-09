@@ -10,6 +10,13 @@ ResultsWidget::~ResultsWidget() {
     // Make sure the context is current when deleting the buffers.
     makeCurrent();
     delete geometryEngine;
+    delete mesh;
+    delete cubeSurface;
+    delete sphereSurface;
+    delete torusSurface;
+    delete mobiusStripSurface;
+    delete crossCapSurface;
+    delete kleinBottleSurface;
     doneCurrent();
 }
 
@@ -19,22 +26,28 @@ void ResultsWidget::addSurface(surface newSurface) {
     QVector3D centerPosition = {0, 0, 0};
     if (newSurface == surface::cube) {
         QVector3D scale = {1.0, 0.0, 0.0};
-        mesh->resetSurface(new Cube(centerPosition, scale));
+        cubeSurface = new Cube(centerPosition, scale);
+        mesh->resetSurface(cubeSurface);
     } else if (newSurface == surface::sphere) {
         QVector3D scale = {1.3, 1.3, 1.3};
-        mesh->resetSurface(new Sphere(centerPosition, scale));
+        sphereSurface = new Sphere(centerPosition, scale);
+        mesh->resetSurface( sphereSurface);
     } else if (newSurface == surface::torus) {
         QVector3D scale = {1.0, 0.5, 0.0};
-        mesh->resetSurface(new Torus(centerPosition, scale));
+        torusSurface = new Torus(centerPosition, scale);
+        mesh->resetSurface(torusSurface);
     } else if (newSurface == surface::mobiusStrip) {
         QVector3D scale = {1.0, 0.0, 0.0};
-        mesh->resetSurface(new MobiusStrip(centerPosition, scale));
+        mobiusStripSurface = new MobiusStrip(centerPosition, scale);
+        mesh->resetSurface(mobiusStripSurface);
     } else if (newSurface == surface::crossCap) {
         QVector3D scale = {1.5, 1.0, 1.0};
-        mesh->resetSurface(new CrossCap(centerPosition, scale));
+        crossCapSurface = new CrossCap(centerPosition, scale);
+        mesh->resetSurface(crossCapSurface);
     } else if (newSurface == surface::kleinBottle) {
         QVector3D scale = {0.5, 1.0, 0.5};
-        mesh->resetSurface(new KleinBottle(centerPosition, scale));
+        kleinBottleSurface = new KleinBottle(centerPosition, scale);
+        mesh->resetSurface(kleinBottleSurface);
     }
 
     if (shouldAnimate) {
