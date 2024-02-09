@@ -158,27 +158,19 @@ void ResultsWidget::cutSurface() {
     }
 
     std::unordered_map<int, int> oldIndexToNewIndexMap;
-    std::unordered_map<Vertex*, int> oldVertexToNewIndexMap;
     for (int i=0; i<verticesToCut.size(); i++) {
         Vertex* vertexToCut = verticesToCut[i];
         Vertex* newVertex = new Vertex;
         newVertex->index = vertices.size();
         newVertex->position = vertexToCut->position;
         mesh->addVertex(newVertex);
+        boundaryVertices1.push_back(vertexToCut);
         boundaryVertices2.push_back(newVertex);
         vertices = mesh->getVertices();
-        oldVertexToNewIndexMap.insert({vertexToCut, vertices.size()-1});
-        for (Triangle* nextTriangle : trianglePathsToCut[i]) {
-            for (int j=0; j<3; j++) {
-                int oldVertexIndex = nextTriangle->vertexIndices[j];
-                if (vertexToCut == vertices[oldVertexIndex]) {
-                    oldIndexToNewIndexMap.insert({oldVertexIndex, vertices.size()-1});
-                }
-            }
-        }
+        oldIndexToNewIndexMap.insert({vertexToCut->index, newVertex->index});
     }
 
-    // Updating vertices on triangles and adding new triangles
+    // Updating vertices on triangles, adding new triangles, and removing out of date triangles
     for (std::vector<Triangle*> nextTrianglePath : trianglePathsToCut) {
         for (Triangle *triangle: nextTrianglePath) {
             for (int j = 0; j < 3; j++) {
@@ -187,28 +179,11 @@ void ResultsWidget::cutSurface() {
                     int newVertexIndex = oldIndexToNewIndexMap.at(oldVertexIndex);
                     triangle->vertexIndices[j] = newVertexIndex;
                     vertices[newVertexIndex]->triangles.insert(triangle);
+                    vertices[oldVertexIndex]->triangles.erase(triangle);
                 }
             }
         }
     }
-
-    // Removing old triangles that are no longer accurate
-    for (Vertex* vertex : verticesToCut) {
-        int newIndex = oldVertexToNewIndexMap.at(vertex);
-        std::set<Triangle *> newTriangles;
-        for (Triangle* triangle : vertex->triangles) {
-            int index1 = triangle->vertexIndices[0];
-            int index2 = triangle->vertexIndices[1];
-            int index3 = triangle->vertexIndices[2];
-
-            if (index1 != newIndex && index2 != newIndex && index3 != newIndex) {
-                newTriangles.insert(triangle);
-            }
-        }
-        vertex->triangles = newTriangles;
-    }
-
-    boundaryVertices1 = verticesToCut;
     geometryEngine->initMesh(mesh);
     update();
 }
