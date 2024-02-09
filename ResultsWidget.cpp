@@ -105,6 +105,7 @@ void ResultsWidget::cutSurface() {
     }
 
     stepStartingTriangle = startingTriangle;
+    verticesToCut.push_back(drawnVertices[0]);
     verticesToCut.push_back(drawnVertices[1]);
     trianglePathsToCut.push_back({stepStartingTriangle});
     bool startingRotationDirectionAligns = rotationDirectionAligns(startingTriangle, drawnVertices[0], drawnVertices[1], vertices);
