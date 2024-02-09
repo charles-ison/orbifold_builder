@@ -42,6 +42,7 @@ void ResultsWidget::addSurface(surface newSurface) {
     } else {
         geometryEngine->initMesh(mesh);
     }
+    geometryEngine->initLine(drawnVertices);
     update();
 }
 
