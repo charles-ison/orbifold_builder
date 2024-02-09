@@ -109,7 +109,7 @@ void GeometryEngine::drawMesh(QOpenGLShaderProgram *program) {
     program->enableAttributeArray(vertexLocation);
     program->setAttributeBuffer(vertexLocation, GL_FLOAT, 0, 3, sizeof(Vertex));
 
-    program->setUniformValue("use_line_color", (GLfloat)0.0);
+    program->setUniformValue("input_color_flag", (GLfloat)0.0);
 
     // Draw geometry using indices from VBO 1
     glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_SHORT, nullptr);
@@ -126,7 +126,26 @@ void GeometryEngine::drawLine(QOpenGLShaderProgram *program, QColor color) {
 
     QRgb rgb = color.rgb();
     program->setUniformValue("line_color", qRed(rgb), qGreen(rgb), qBlue(rgb));
-    program->setUniformValue("use_line_color", (GLfloat)1.0);
+    program->setUniformValue("input_color_flag", (GLfloat)2.0);
+
+    // Draw geometry using indices from VBO 1
+    glLineWidth(10.0);
+    glDrawArrays(GL_LINE_STRIP, 0, numLineVertices);
+}
+
+// Actually drawLine
+void GeometryEngine::drawBoundary(QOpenGLShaderProgram *program, QColor color) {
+    // Tell OpenGL which VBOs to use
+    lineArrayBuf.bind();
+
+    // Tell OpenGL programmable pipeline how to locate vertex position data
+    int vertexLocation = program->attributeLocation("a_position");
+    program->enableAttributeArray(vertexLocation);
+    program->setAttributeBuffer(vertexLocation, GL_FLOAT, 0, 3, sizeof(Vertex));
+
+    QRgb rgb = color.rgb();
+    program->setUniformValue("line_color", qRed(rgb), qGreen(rgb), qBlue(rgb));
+    program->setUniformValue("input_color_flag", (GLfloat)1.0);
 
     // Draw geometry using indices from VBO 1
     glLineWidth(10.0);

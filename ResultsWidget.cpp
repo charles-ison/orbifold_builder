@@ -199,6 +199,8 @@ void ResultsWidget::cutSurface() {
             }
         }
     }
+    drawnVertices.clear();
+    geometryEngine->initLine(drawnVertices);
     geometryEngine->initMesh(mesh);
     update();
 }

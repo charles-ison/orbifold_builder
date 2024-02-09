@@ -13,6 +13,7 @@ public:
     void drawMesh(QOpenGLShaderProgram *program);
     void drawLine(QOpenGLShaderProgram *program, QColor color);
     void initLine(std::vector<Vertex*> lineVerticesVector);
+    void initBoundary(std::vector<Vertex*> boundaryVerticesVector);
     void initMesh(Mesh* mesh);
     void initAnimation(Mesh* mesh);
 
