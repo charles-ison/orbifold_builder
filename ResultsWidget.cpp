@@ -201,6 +201,7 @@ void ResultsWidget::cutSurface() {
     }
     drawnVertices.clear();
     geometryEngine->initLine(drawnVertices);
+    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2);
     geometryEngine->initMesh(mesh);
     update();
 }
@@ -455,6 +456,7 @@ void ResultsWidget::paintGL() {
         // Draw geometry
         geometryEngine->drawMesh(&program);
         geometryEngine->drawLine(&program, drawingColor);
+        geometryEngine->drawBoundary(&program);
     }
 }
 

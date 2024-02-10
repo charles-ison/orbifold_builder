@@ -7,6 +7,8 @@ precision mediump float;
 varying vec4 position;
 varying vec3 color;
 varying float color_flag;
+//varying float color_scale;
+varying float boundary_count;
 
 void main() {
     if (color_flag == 2.0) {

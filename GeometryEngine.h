@@ -12,8 +12,9 @@ public:
     virtual ~GeometryEngine();
     void drawMesh(QOpenGLShaderProgram *program);
     void drawLine(QOpenGLShaderProgram *program, QColor color);
-    void drawBoundary(QOpenGLShaderProgram *program, QColor color);
+    void drawBoundary(QOpenGLShaderProgram *program);
     void initLine(std::vector<Vertex*> lineVerticesVector);
+    void initBoundary(std::vector<Vertex*> boundaryVerticesVector1, std::vector<Vertex*> boundaryVerticesVector2);
     void initMesh(Mesh* mesh);
     void initAnimation(Mesh* mesh);
 
@@ -24,6 +25,10 @@ private:
 
     int numLineVertices;
     QOpenGLBuffer lineArrayBuf;
+
+    int numBoundaryVertices;
+    QOpenGLBuffer boundaryArrayBuf;
+    QOpenGLBuffer boundaryIndexBuf;
 
     static const int animationSpeed = 100;
     int originalIndexToEndAnimation = 0;
