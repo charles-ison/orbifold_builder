@@ -55,7 +55,7 @@ void ResultsWidget::addSurface(surface newSurface) {
     } else {
         geometryEngine->initMesh(mesh);
     }
-    geometryEngine->initLine(drawnVertices);
+    geometryEngine->initLine(drawnVertices, drawingColor);
     update();
 }
 
@@ -200,7 +200,7 @@ void ResultsWidget::cutSurface() {
         }
     }
     drawnVertices.clear();
-    geometryEngine->initLine(drawnVertices);
+    geometryEngine->initLine(drawnVertices, drawingColor);
     geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2);
     geometryEngine->initMesh(mesh);
     update();
@@ -251,7 +251,7 @@ void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
         addDrawnVertices(vertex);
     }
 
-    geometryEngine->initLine(drawnVertices);
+    geometryEngine->initLine(drawnVertices, drawingColor);
     update();
 }
 
@@ -455,7 +455,7 @@ void ResultsWidget::paintGL() {
 
         // Draw geometry
         geometryEngine->drawMesh(&program);
-        geometryEngine->drawLine(&program, drawingColor);
+        geometryEngine->drawLine(&program);
         geometryEngine->drawBoundary(&program);
     }
 }
