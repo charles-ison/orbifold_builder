@@ -48,7 +48,7 @@ private:
     void deleteSurface(QMouseEvent *e);
     void addDrawnVertices(Vertex *newVertex);
     std::vector<Vertex*> getNewVertices(Vertex *newVertex);
-    void checkDrawnVerticesForLoop(Vertex *newVertex);
+    bool drawnVerticesContainLoop(Vertex *newVertex);
     Vertex* getVertexFromMouseEvent(QMouseEvent *e);
     bool triangleContainsVertex(Vertex *vertex, Triangle *triangle, std::vector<Vertex*> vertices);
     bool rotationDirectionAligns(Triangle* triangle, Vertex* vertex1, Vertex* vertex2, std::vector<Vertex*> vertices);

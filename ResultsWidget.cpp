@@ -296,8 +296,11 @@ void ResultsWidget::addDrawnVertices(Vertex *newVertex) {
             drawnVertices.pop_back();
         }
         else {
-            checkDrawnVerticesForLoop(newVertices[i]);
+            bool loopFound = drawnVerticesContainLoop(newVertices[i]);
             drawnVertices.push_back(newVertices[i]);
+            if (loopFound) {
+                break;
+            }
         }
     }
 }
@@ -336,15 +339,18 @@ std::vector<Vertex*> ResultsWidget::getNewVertices(Vertex *newVertex) {
     return {newVertex};
 }
 
-void ResultsWidget::checkDrawnVerticesForLoop(Vertex *newVertex) {
+bool ResultsWidget::drawnVerticesContainLoop(Vertex *newVertex) {
+    bool loopFound = false;
     for (int i=0; i<drawnVertices.size(); i++) {
         if (drawnVertices[i] == newVertex) {
             isDrawingMode = false;
+            loopFound = true;
             for (int j=0; j<i; j++) {
                 drawnVertices.erase(drawnVertices.begin());
             }
         }
     }
+    return loopFound;
 }
 
 void ResultsWidget::wheelEvent(QWheelEvent *e) {
