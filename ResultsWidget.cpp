@@ -464,6 +464,14 @@ void ResultsWidget::setDrawingColor(QColor newColor) {
     drawingColor = newColor;
 }
 
+int ResultsWidget::getNewIndex(int index) {
+    if (index > boundaryVertices2.size()/2) {
+        return (boundaryVertices2.size()/2) - index % (boundaryVertices2.size()/2);
+    } else {
+        return index;
+    }
+}
+
 void ResultsWidget::glue() {
     for (int i=0; i<boundaryVertices1.size(); i++) {
         Vertex* boundaryVertex1 = boundaryVertices1[i];
@@ -472,8 +480,14 @@ void ResultsWidget::glue() {
             std::vector<int> boundaryVertexIndices1 = boundaryTriangle1->vertexIndices;
             for (int j=0; j<3; j++) {
                 if (boundaryVertexIndices1[j] == boundaryVertex1->index) {
-                    boundaryTriangle1->vertexIndices[j] = boundaryVertex2->index;
+                    boundaryTriangle1->vertexIndices[j] = getNewIndex(boundaryVertex2->index);
                 }
+            }
+        }
+        for (Triangle* boundaryTriangle2 : boundaryVertex2->triangles) {
+            std::vector<int> boundaryVertexIndices2 = boundaryTriangle2->vertexIndices;
+            for (int j=0; j<3; j++) {
+                boundaryTriangle2->vertexIndices[j] = getNewIndex(boundaryVertex2->index);
             }
         }
     }
