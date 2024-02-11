@@ -1,5 +1,6 @@
 #include <QtGui/qcolor.h>
 #include "GeometryEngine.h"
+#include <iostream>
 
 GeometryEngine::GeometryEngine() : indexBuf(QOpenGLBuffer::IndexBuffer) {
     initializeOpenGLFunctions();
@@ -9,7 +10,7 @@ GeometryEngine::GeometryEngine() : indexBuf(QOpenGLBuffer::IndexBuffer) {
     indexBuf.create();
     lineArrayBuf.create();
     boundaryArrayBuf.create();
-    boundaryIndexBuf.create();
+    boundaryColorsBuf.create();
 }
 
 GeometryEngine::~GeometryEngine() {
@@ -17,7 +18,7 @@ GeometryEngine::~GeometryEngine() {
     indexBuf.destroy();
     lineArrayBuf.destroy();
     boundaryArrayBuf.destroy();
-    boundaryIndexBuf.destroy();
+    boundaryColorsBuf.destroy();
 }
 
 void GeometryEngine::initAnimation(Mesh* mesh) {
@@ -104,7 +105,7 @@ void GeometryEngine::initLine(std::vector<Vertex*> lineVerticesVector) {
 
 void GeometryEngine::initBoundary(std::vector<Vertex*> boundaryVerticesVector1, std::vector<Vertex*> boundaryVerticesVector2) {
     std::vector<QVector3D> positions;
-    std::vector<GLushort> boundaryIndices;
+    std::vector<QVector3D> boundaryColors;
     numBoundaryVertices = boundaryVerticesVector1.size() + boundaryVerticesVector2.size();
 
     for (Vertex* boundaryVertex : boundaryVerticesVector1) {
@@ -115,12 +116,14 @@ void GeometryEngine::initBoundary(std::vector<Vertex*> boundaryVerticesVector1, 
         positions.push_back(boundaryVertex->position);
     }
 
-    for (int i=0; i<numBoundaryVertices; i++) {
-        boundaryIndices.push_back(i);
+    for (int i=0; i<boundaryVerticesVector1.size(); i++) {
+        float boundaryColorScale = float(i)/float(boundaryVerticesVector1.size());
+        boundaryColors.push_back({boundaryColorScale, boundaryColorScale, boundaryColorScale});
     }
 
-    for (int i=numBoundaryVertices; i>0; i--) {
-        boundaryIndices.push_back(i);
+    for (float i=boundaryVerticesVector2.size(); i>0; i--) {
+        float boundaryColorScale = float(i)/float(boundaryVerticesVector2.size());
+        boundaryColors.push_back({boundaryColorScale, boundaryColorScale, boundaryColorScale});
     }
 
     // Transfer position data to VBO 0
@@ -128,8 +131,8 @@ void GeometryEngine::initBoundary(std::vector<Vertex*> boundaryVerticesVector1, 
     boundaryArrayBuf.allocate(&positions[0], numBoundaryVertices * sizeof(QVector3D));
 
     // Transfer color scale data to VBO 0
-    boundaryIndexBuf.bind();
-    boundaryIndexBuf.allocate(&boundaryIndices[0], numBoundaryVertices * sizeof(GLushort));
+    boundaryColorsBuf.bind();
+    boundaryColorsBuf.allocate(&boundaryColors[0], numBoundaryVertices * sizeof(QVector3D));
 }
 
 void GeometryEngine::drawMesh(QOpenGLShaderProgram *program) {
@@ -170,20 +173,21 @@ void GeometryEngine::drawLine(QOpenGLShaderProgram *program, QColor color) {
 void GeometryEngine::drawBoundary(QOpenGLShaderProgram *program) {
     // Tell OpenGL which VBOs to use
     boundaryArrayBuf.bind();
-    //boundaryIndexBuf.bind();
 
     // Tell OpenGL programmable pipeline how to locate position data
     int positionLocation = program->attributeLocation("a_position");
     program->enableAttributeArray(positionLocation);
     program->setAttributeBuffer(positionLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
 
-    // Tell OpenGL programmable pipeline how to locate position data
-    //int colorScaleLocation = program->attributeLocation("input_color_scale");
-    //program->enableAttributeArray(colorScaleLocation);
-    //program->setAttributeBuffer(colorScaleLocation, GL_FLOAT, 0, 3, sizeof(GLushort));
+    // Tell OpenGL which VBOs to use
+    boundaryColorsBuf.bind();
+
+    // Tell OpenGL programmable pipeline how to locate color data
+    int inputBoundaryColorLocation = program->attributeLocation("input_boundary_color");
+    program->enableAttributeArray(inputBoundaryColorLocation);
+    program->setAttributeBuffer(inputBoundaryColorLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
 
     program->setUniformValue("input_color_flag", (GLfloat) 2.0);
-    program->setUniformValue("input_boundary_count", (GLfloat) numBoundaryVertices/2);
 
     // Draw geometry using indices from VBO 1
     glLineWidth(10.0);

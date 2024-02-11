@@ -28,7 +28,7 @@ private:
 
     int numBoundaryVertices;
     QOpenGLBuffer boundaryArrayBuf;
-    QOpenGLBuffer boundaryIndexBuf;
+    QOpenGLBuffer boundaryColorsBuf;
 
     static const int animationSpeed = 100;
     int originalIndexToEndAnimation = 0;
