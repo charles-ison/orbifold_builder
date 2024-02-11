@@ -235,6 +235,14 @@ void ResultsWidget::deleteSurface(QMouseEvent *e) {
     }
     mesh->deleteVertices(verticesToDeleteSet);
     geometryEngine->initMesh(mesh);
+
+    auto first = boundaryVertices1.begin();
+    auto middle = boundaryVertices1.begin() + boundaryVertices1.size()/2;
+    auto last = boundaryVertices1.end();
+    boundaryVertices1 = std::vector<Vertex*>(first, middle);
+    boundaryVertices2 = std::vector<Vertex*>(middle, last);
+    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2);
+    
     update();
 }
 
