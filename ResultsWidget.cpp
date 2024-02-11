@@ -23,6 +23,8 @@ ResultsWidget::~ResultsWidget() {
 void ResultsWidget::addSurface(surface newSurface) {
     shouldPaintGL = true;
     drawnVertices.clear();
+    boundaryVertices1.clear();
+    boundaryVertices2.clear();
     QVector3D centerPosition = {0, 0, 0};
     if (newSurface == surface::cube) {
         QVector3D scale = {1.0, 0.0, 0.0};
@@ -56,6 +58,7 @@ void ResultsWidget::addSurface(surface newSurface) {
         geometryEngine->initMesh(mesh);
     }
     geometryEngine->initLine(drawnVertices, drawingColor);
+    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2);
     update();
 }
 
