@@ -8,7 +8,7 @@ uniform mat4 mvp_matrix;
 uniform vec3 line_color;
 uniform float input_color_flag;
 
-attribute vec3 input_boundary_color;
+//attribute vec3 input_boundary_color;
 attribute vec4 a_position;
 
 varying vec4 position;
@@ -25,6 +25,6 @@ void main() {
     color = line_color;
 
     if (color_flag == 2.0) {
-        boundary_color = input_boundary_color;
+        //boundary_color = input_boundary_color;
     }
 }
