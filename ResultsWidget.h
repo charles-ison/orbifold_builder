@@ -52,7 +52,7 @@ private:
     Vertex* getVertexFromMouseEvent(QMouseEvent *e);
     bool triangleContainsVertex(Vertex *vertex, Triangle *triangle, std::vector<Vertex*> vertices);
     bool rotationDirectionAligns(Triangle* triangle, Vertex* vertex1, Vertex* vertex2, std::vector<Vertex*> vertices);
-    int getNewIndex(int index);
+    int getNewFoldingIndex(int index);
 
     Mesh* mesh;
     Cube* cubeSurface;

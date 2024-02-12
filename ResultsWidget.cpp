@@ -491,9 +491,17 @@ void ResultsWidget::setDrawingColor(QColor newColor) {
     drawingColor = newColor;
 }
 
-int ResultsWidget::getNewIndex(int index) {
-    if (index > boundaryVertices2.size()/2) {
-        return (boundaryVertices2.size()/2) - index % (boundaryVertices2.size()/2);
+int ResultsWidget::getNewFoldingIndex(int index) {
+    int midpointAjuster;
+    if (boundaryVertices2.size() % 2 == 0) {
+        midpointAjuster = 1;
+    } else {
+        midpointAjuster = 0;
+    }
+
+    int midpointIndex = boundaryVertices2.size()/2;
+    if (index >= midpointIndex) {
+        return midpointIndex - midpointAjuster - (index - midpointIndex);
     } else {
         return index;
     }
@@ -502,19 +510,25 @@ int ResultsWidget::getNewIndex(int index) {
 void ResultsWidget::glue() {
     for (int i=0; i<boundaryVertices1.size(); i++) {
         Vertex* boundaryVertex1 = boundaryVertices1[i];
-        Vertex* boundaryVertex2 = boundaryVertices2[boundaryVertices2.size()-i-1];
+        int boundaryVertex2Index = boundaryVertices2.size()-i-1;
+        Vertex* oldBoundaryVertex2 = boundaryVertices2[boundaryVertex2Index];
+        int newBoundaryVertex2Index = getNewFoldingIndex(boundaryVertex2Index);
+        Vertex* newBoundaryVertex2 = boundaryVertices2[newBoundaryVertex2Index];
+
         for (Triangle* boundaryTriangle1 : boundaryVertex1->triangles) {
             std::vector<int> boundaryVertexIndices1 = boundaryTriangle1->vertexIndices;
             for (int j=0; j<3; j++) {
                 if (boundaryVertexIndices1[j] == boundaryVertex1->index) {
-                    boundaryTriangle1->vertexIndices[j] = getNewIndex(boundaryVertex2->index);
+                    boundaryTriangle1->vertexIndices[j] = newBoundaryVertex2->index;
                 }
             }
         }
-        for (Triangle* boundaryTriangle2 : boundaryVertex2->triangles) {
+        for (Triangle* boundaryTriangle2 : oldBoundaryVertex2->triangles) {
             std::vector<int> boundaryVertexIndices2 = boundaryTriangle2->vertexIndices;
             for (int j=0; j<3; j++) {
-                boundaryTriangle2->vertexIndices[j] = getNewIndex(boundaryVertex2->index);
+                if (boundaryVertexIndices2[j] == oldBoundaryVertex2->index) {
+                    boundaryTriangle2->vertexIndices[j] = newBoundaryVertex2->index;
+                }
             }
         }
     }

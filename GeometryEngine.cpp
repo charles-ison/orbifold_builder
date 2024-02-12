@@ -1,6 +1,5 @@
 #include <QtGui/qcolor.h>
 #include "GeometryEngine.h"
-#include <iostream>
 
 GeometryEngine::GeometryEngine() : indexBuf(QOpenGLBuffer::IndexBuffer) {
     initializeOpenGLFunctions();
