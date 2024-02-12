@@ -106,6 +106,7 @@ void ResultsWidget::cutSurface() {
         return;
     }
 
+    bool loopDetected = false;
     boundaryVertices1.clear();
     boundaryVertices2.clear();
     Triangle* startingTriangle;
@@ -129,6 +130,7 @@ void ResultsWidget::cutSurface() {
 
     // Required for loops
     if (drawnVertices.front() == drawnVertices.back()) {
+        loopDetected = true;
         drawnVertices.push_back(drawnVertices[1]);
     }
 
@@ -188,6 +190,11 @@ void ResultsWidget::cutSurface() {
         oldIndexToNewIndexMap.insert({vertexToCut->index, newVertex->index});
     }
 
+    if (loopDetected) {
+        boundaryVertices1.pop_back();
+        boundaryVertices2.pop_back();
+    }
+
     // Updating vertices on triangles, adding new triangles, and removing out of date triangles
     for (std::vector<Triangle*> nextTrianglePath : trianglePathsToCut) {
         for (Triangle *triangle: nextTrianglePath) {
@@ -242,10 +249,13 @@ void ResultsWidget::deleteSurface(QMouseEvent *e) {
     auto first = boundaryVertices1.begin();
     auto middle = boundaryVertices1.begin() + boundaryVertices1.size()/2;
     auto last = boundaryVertices1.end();
-    boundaryVertices1 = std::vector<Vertex*>(first, middle);
-    boundaryVertices2 = std::vector<Vertex*>(middle, last);
+    std::vector<Vertex*> newBoundaryVertices1 = std::vector<Vertex*>(first, middle);
+    std::vector<Vertex*> newBoundaryVertices2 = std::vector<Vertex*>(middle, last);
+    boundaryVertices1 = newBoundaryVertices1;
+    boundaryVertices2 = newBoundaryVertices2;
+    boundaryVertices1.push_back(boundaryVertices2.front());
     geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2);
-    
+
     update();
 }
 
@@ -508,6 +518,9 @@ void ResultsWidget::glue() {
             }
         }
     }
+    boundaryVertices1.clear();
+    boundaryVertices2.clear();
+    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2);
     geometryEngine->initMesh(mesh);
     update();
 }

@@ -28,9 +28,13 @@ private:
     QOpenGLBuffer lineColorBuf;
     QOpenGLBuffer lineArrayBuf;
 
-    int numBoundaryVertices;
-    QOpenGLBuffer boundaryColorBuf;
-    QOpenGLBuffer boundaryArrayBuf;
+    int numBoundaryVertices1;
+    QOpenGLBuffer boundaryColorBuf1;
+    QOpenGLBuffer boundaryArrayBuf1;
+
+    int numBoundaryVertices2;
+    QOpenGLBuffer boundaryColorBuf2;
+    QOpenGLBuffer boundaryArrayBuf2;
 
     int numBoundaryPoints;
     QOpenGLBuffer boundaryPointBuf;

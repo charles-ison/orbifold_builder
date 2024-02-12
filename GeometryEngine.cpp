@@ -11,8 +11,10 @@ GeometryEngine::GeometryEngine() : indexBuf(QOpenGLBuffer::IndexBuffer) {
     colorBuf.create();
     lineArrayBuf.create();
     lineColorBuf.create();
-    boundaryArrayBuf.create();
-    boundaryColorBuf.create();
+    boundaryArrayBuf1.create();
+    boundaryColorBuf1.create();
+    boundaryArrayBuf2.create();
+    boundaryColorBuf2.create();
     boundaryPointBuf.create();
     boundaryPointColorBuf.create();
 }
@@ -23,8 +25,10 @@ GeometryEngine::~GeometryEngine() {
     colorBuf.destroy();
     lineArrayBuf.destroy();
     lineColorBuf.destroy();
-    boundaryArrayBuf.destroy();
-    boundaryColorBuf.destroy();
+    boundaryArrayBuf1.destroy();
+    boundaryColorBuf1.destroy();
+    boundaryArrayBuf2.destroy();
+    boundaryColorBuf2.destroy();
     boundaryPointBuf.destroy();
     boundaryPointColorBuf.destroy();
 }
@@ -127,28 +131,31 @@ void GeometryEngine::initLine(std::vector<Vertex*> lineVerticesVector, QColor co
 }
 
 void GeometryEngine::initBoundary(std::vector<Vertex*> boundaryVerticesVector1, std::vector<Vertex*> boundaryVerticesVector2) {
-    std::vector<QVector3D> positions;
-    std::vector<QVector3D> colors;
+    std::vector<QVector3D> positions1;
+    std::vector<QVector3D> colors1;
+    std::vector<QVector3D> positions2;
+    std::vector<QVector3D> colors2;
     std::vector<QVector3D> points;
     std::vector<QVector3D> pointColors;
-    numBoundaryVertices = boundaryVerticesVector1.size() + boundaryVerticesVector2.size();
+    numBoundaryVertices1 = boundaryVerticesVector1.size();
+    numBoundaryVertices2 = boundaryVerticesVector1.size();
 
     for (Vertex* boundaryVertex : boundaryVerticesVector1) {
-        positions.push_back(boundaryVertex->position);
+        positions1.push_back(boundaryVertex->position);
     }
 
     for (Vertex* boundaryVertex : boundaryVerticesVector2) {
-        positions.push_back(boundaryVertex->position);
+        positions2.push_back(boundaryVertex->position);
     }
 
-    for (int i=0; i<boundaryVerticesVector1.size(); i++) {
-        float boundaryColorScale = float(i)/float(boundaryVerticesVector1.size());
-        colors.push_back({boundaryColorScale, boundaryColorScale, boundaryColorScale});
+    for (int i=1; i<=boundaryVerticesVector1.size(); i++) {
+        float boundaryColorScale = float(i)/float(numBoundaryVertices1-1);
+        colors1.push_back({boundaryColorScale, boundaryColorScale, boundaryColorScale});
     }
 
     for (float i=boundaryVerticesVector2.size(); i>0; i--) {
-        float boundaryColorScale = float(i)/float(boundaryVerticesVector2.size());
-        colors.push_back({boundaryColorScale, boundaryColorScale, boundaryColorScale});
+        float boundaryColorScale = float(i)/float(numBoundaryVertices2-1);
+        colors2.push_back({boundaryColorScale, boundaryColorScale, boundaryColorScale});
     }
 
     if (boundaryVerticesVector1.size() > 2) {
@@ -162,12 +169,20 @@ void GeometryEngine::initBoundary(std::vector<Vertex*> boundaryVerticesVector1, 
     }
 
     // Transfer position data to VBO 0
-    boundaryArrayBuf.bind();
-    boundaryArrayBuf.allocate(&positions[0], numBoundaryVertices * sizeof(QVector3D));
+    boundaryArrayBuf1.bind();
+    boundaryArrayBuf1.allocate(&positions1[0], numBoundaryVertices1 * sizeof(QVector3D));
 
     // Transfer color scale data to VBO 0
-    boundaryColorBuf.bind();
-    boundaryColorBuf.allocate(&colors[0], numBoundaryVertices * sizeof(QVector3D));
+    boundaryColorBuf1.bind();
+    boundaryColorBuf1.allocate(&colors1[0], numBoundaryVertices1 * sizeof(QVector3D));
+
+    // Transfer position data to VBO 0
+    boundaryArrayBuf2.bind();
+    boundaryArrayBuf2.allocate(&positions2[0], numBoundaryVertices2 * sizeof(QVector3D));
+
+    // Transfer color scale data to VBO 0
+    boundaryColorBuf2.bind();
+    boundaryColorBuf2.allocate(&colors2[0], numBoundaryVertices2 * sizeof(QVector3D));
 
     // Transfer point data to VBO 0
     boundaryPointBuf.bind();
@@ -224,24 +239,44 @@ void GeometryEngine::drawLine(QOpenGLShaderProgram *program) {
 // Actually drawLine
 void GeometryEngine::drawBoundary(QOpenGLShaderProgram *program) {
     // Tell OpenGL which VBOs to use
-    boundaryArrayBuf.bind();
+    boundaryArrayBuf1.bind();
 
     // Tell OpenGL programmable pipeline how to locate position data
-    int positionLocation = program->attributeLocation("a_position");
-    program->enableAttributeArray(positionLocation);
-    program->setAttributeBuffer(positionLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
+    int positionLocation1 = program->attributeLocation("a_position");
+    program->enableAttributeArray(positionLocation1);
+    program->setAttributeBuffer(positionLocation1, GL_FLOAT, 0, 3, sizeof(QVector3D));
 
     // Tell OpenGL which VBOs to use
-    boundaryColorBuf.bind();
+    boundaryColorBuf1.bind();
 
     // Tell OpenGL programmable pipeline how to locate color data
-    int inputBoundaryColorLocation = program->attributeLocation("input_color");
-    program->enableAttributeArray(inputBoundaryColorLocation);
-    program->setAttributeBuffer(inputBoundaryColorLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
+    int inputBoundaryColorLocation1 = program->attributeLocation("input_color");
+    program->enableAttributeArray(inputBoundaryColorLocation1);
+    program->setAttributeBuffer(inputBoundaryColorLocation1, GL_FLOAT, 0, 3, sizeof(QVector3D));
 
     // Draw geometry using indices from VBO 1
     glLineWidth(10.0);
-    glDrawArrays(GL_LINE_STRIP, 0, numBoundaryVertices);
+    glDrawArrays(GL_LINE_STRIP, 0, numBoundaryVertices1);
+
+    // Tell OpenGL which VBOs to use
+    boundaryArrayBuf2.bind();
+
+    // Tell OpenGL programmable pipeline how to locate position data
+    int positionLocation2 = program->attributeLocation("a_position");
+    program->enableAttributeArray(positionLocation2);
+    program->setAttributeBuffer(positionLocation2, GL_FLOAT, 0, 3, sizeof(QVector3D));
+
+    // Tell OpenGL which VBOs to use
+    boundaryColorBuf2.bind();
+
+    // Tell OpenGL programmable pipeline how to locate color data
+    int inputBoundaryColorLocation2 = program->attributeLocation("input_color");
+    program->enableAttributeArray(inputBoundaryColorLocation2);
+    program->setAttributeBuffer(inputBoundaryColorLocation2, GL_FLOAT, 0, 3, sizeof(QVector3D));
+
+    // Draw geometry using indices from VBO 1
+    glLineWidth(10.0);
+    glDrawArrays(GL_LINE_STRIP, 0, numBoundaryVertices2);
 
     // Tell OpenGL which VBOs to use
     boundaryPointBuf.bind();
