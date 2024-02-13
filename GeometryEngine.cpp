@@ -137,7 +137,7 @@ void GeometryEngine::initBoundary(std::vector<Vertex*> boundaryVerticesVector1, 
     std::vector<QVector3D> points;
     std::vector<QVector3D> pointColors;
     numBoundaryVertices1 = boundaryVerticesVector1.size();
-    numBoundaryVertices2 = boundaryVerticesVector1.size();
+    numBoundaryVertices2 = boundaryVerticesVector2.size();
 
     for (Vertex* boundaryVertex : boundaryVerticesVector1) {
         positions1.push_back(boundaryVertex->position);
