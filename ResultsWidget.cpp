@@ -5,6 +5,7 @@
 #include <limits>
 #include <queue>
 #include <unordered_set>
+#include <tuple>
 
 ResultsWidget::~ResultsWidget() {
     // Make sure the context is current when deleting the buffers.
@@ -267,7 +268,7 @@ void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
     Vertex *vertex = getVertexFromMouseEvent(e);
     if (vertex == nullptr) {
         // TODO: comment out for testing
-        drawnVertices.clear();
+        //drawnVertices.clear();
     } else if (drawnVertices.size() == 0 || vertex != drawnVertices.back()) {
         addDrawnVertices(vertex);
     }
@@ -303,7 +304,7 @@ Vertex* ResultsWidget::getVertexFromMouseEvent(QMouseEvent *e) {
 }
 
 void ResultsWidget::addDrawnVertices(Vertex *newVertex) {
-    std::vector<Vertex *> newVertices = getNewVertices(newVertex);
+    std::vector<Vertex *> newVertices = getNewVerticesFastMarching(newVertex);
     for (int i = newVertices.size() - 1; i > -1; i--) {
         if (drawnVertices.size() > 2 && newVertices[i] == drawnVertices[drawnVertices.size()-2]) {
             drawnVertices.pop_back();
@@ -318,20 +319,23 @@ void ResultsWidget::addDrawnVertices(Vertex *newVertex) {
     }
 }
 
-std::vector<Vertex*> ResultsWidget::getNewVertices(Vertex *newVertex) {
+std::vector<Vertex*> ResultsWidget::getNewVerticesFastMarching(Vertex *newVertex) {
     std::vector<Vertex*> newVertices = {newVertex};
     if (drawnVertices.size() == 0) {
         return newVertices;
     }
 
     std::unordered_set<Vertex*> checkedVertices;
-    std::queue<std::vector<Vertex*>> potentialPaths;
-    potentialPaths.push(newVertices);
+    std::priority_queue<std::tuple<float, std::vector<Vertex*>>, std::vector<std::tuple<float, std::vector<Vertex*>>>, std::greater<std::tuple<float, std::vector<Vertex*>>> > potentialPaths;
+
+    potentialPaths.push({0.0, newVertices});
     QVector3D lastVertexPosition = drawnVertices.back()->position;
     std::vector<Vertex*> meshVertices = mesh->getVertices();
 
     while(!potentialPaths.empty()) {
-        std::vector<Vertex*> nextPath = potentialPaths.front();
+        std::tuple<float, std::vector<Vertex*>> nextDistanceAndPath = potentialPaths.top();
+        float oldDistance = std::get<0>(nextDistanceAndPath);
+        std::vector<Vertex*> nextPath = std::get<1>(nextDistanceAndPath);
         Vertex *nextVertex = nextPath.back();
         potentialPaths.pop();
 
@@ -343,13 +347,26 @@ std::vector<Vertex*> ResultsWidget::getNewVertices(Vertex *newVertex) {
                 } else if (checkedVertices.find(neighbor) == checkedVertices.end()) {
                     std::vector<Vertex*> newPotentialPath = nextPath;
                     newPotentialPath.push_back(neighbor);
-                    potentialPaths.push(newPotentialPath);
+                    float distance = calculateFastMarchingDistance(oldDistance, neighbor, nextVertex);
+                    potentialPaths.push({distance, newPotentialPath});
                     checkedVertices.insert(neighbor);
                 }
             }
         }
     }
     return {newVertex};
+}
+
+float ResultsWidget::calculateFastMarchingDistance(float oldDistance, Vertex* vertex1, Vertex* vertex2) {
+    float dx = vertex1->position.x()-vertex2->position.x();
+    float dy = vertex1->position.y()-vertex2->position.y();
+    float dz = vertex1->position.z()-vertex2->position.z();
+    float delta = 2 * oldDistance - pow(dx-dy-dz, 2);
+    if (delta >= 0) {
+        return (dx + dy + dz + sqrt(delta))/2;
+    } else {
+        return oldDistance + sqrt(pow(dx, 2) + pow(dy, 2) + pow(dz, 2));;
+    }
 }
 
 bool ResultsWidget::drawnVerticesContainLoop(Vertex *newVertex) {
