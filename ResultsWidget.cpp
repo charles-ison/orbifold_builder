@@ -508,6 +508,27 @@ int ResultsWidget::getNewFoldingIndex(int index) {
 }
 
 void ResultsWidget::glue() {
+    for (int i=0; i<boundaryVertices2.size(); i++) {
+        Vertex* boundaryVertex2 = boundaryVertices2[i];
+        Vertex* boundaryVertex1 = boundaryVertices1[boundaryVertices1.size()-i-1];
+        for (Triangle* boundaryTriangle2 : boundaryVertex2->triangles) {
+            std::vector<int> boundaryVertexIndices2 = boundaryTriangle2->vertexIndices;
+            for (int j=0; j<3; j++) {
+                if (boundaryVertexIndices2[j] == boundaryVertex2->index) {
+                    boundaryTriangle2->vertexIndices[j] = boundaryVertex1->index;
+                }
+            }
+        }
+    }
+
+    boundaryVertices1.clear();
+    boundaryVertices2.clear();
+    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2);
+    geometryEngine->initMesh(mesh);
+    update();
+}
+
+void ResultsWidget::newGlue() {
     for (int i=0; i<boundaryVertices1.size(); i++) {
         Vertex* boundaryVertex1 = boundaryVertices1[i];
         int boundaryVertex2Index = boundaryVertices2.size()-i-1;
