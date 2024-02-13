@@ -525,7 +525,7 @@ int ResultsWidget::getNewFoldingIndex(int index) {
     }
 }
 
-void ResultsWidget::glue() {
+void ResultsWidget::oldGlue() {
     for (int i=0; i<boundaryVertices2.size(); i++) {
         Vertex* boundaryVertex2 = boundaryVertices2[i];
         Vertex* boundaryVertex1 = boundaryVertices1[boundaryVertices1.size()-i-1];
@@ -546,7 +546,7 @@ void ResultsWidget::glue() {
     update();
 }
 
-void ResultsWidget::newGlue() {
+void ResultsWidget::glue() {
     for (int i=0; i<boundaryVertices1.size(); i++) {
         Vertex* boundaryVertex1 = boundaryVertices1[i];
         int boundaryVertex2Index = boundaryVertices2.size()-i-1;
@@ -559,6 +559,7 @@ void ResultsWidget::newGlue() {
             for (int j=0; j<3; j++) {
                 if (boundaryVertexIndices1[j] == boundaryVertex1->index) {
                     boundaryTriangle1->vertexIndices[j] = newBoundaryVertex2->index;
+                    newBoundaryVertex2->triangles.insert(boundaryTriangle1);
                 }
             }
         }
@@ -567,6 +568,7 @@ void ResultsWidget::newGlue() {
             for (int j=0; j<3; j++) {
                 if (boundaryVertexIndices2[j] == oldBoundaryVertex2->index) {
                     boundaryTriangle2->vertexIndices[j] = newBoundaryVertex2->index;
+                    newBoundaryVertex2->triangles.insert(boundaryTriangle2);
                 }
             }
         }
