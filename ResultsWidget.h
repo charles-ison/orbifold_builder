@@ -48,13 +48,13 @@ protected:
 private:
     void deleteSurface(QMouseEvent *e);
     void addDrawnVertices(Vertex *newVertex);
-    std::vector<Vertex*> getNewVerticesFastMarching(Vertex *newVertex);
+    std::vector<Vertex*> getNewVerticesPath(Vertex *newVertex);
     bool drawnVerticesContainLoop(Vertex *newVertex);
     Vertex* getVertexFromMouseEvent(QMouseEvent *e);
     bool triangleContainsVertex(Vertex *vertex, Triangle *triangle, std::vector<Vertex*> vertices);
     bool rotationDirectionAligns(Triangle* triangle, Vertex* vertex1, Vertex* vertex2, std::vector<Vertex*> vertices);
     int getNewFoldingIndex(int index);
-    float calculateFastMarchingDistance(float oldDistance, Vertex* vertex1, Vertex* vertex2);
+    float calculateDistance(float oldDistance, Vertex* vertex1, Vertex* vertex2);
 
     Mesh* mesh;
     Cube* cubeSurface;

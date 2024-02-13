@@ -304,7 +304,7 @@ Vertex* ResultsWidget::getVertexFromMouseEvent(QMouseEvent *e) {
 }
 
 void ResultsWidget::addDrawnVertices(Vertex *newVertex) {
-    std::vector<Vertex *> newVertices = getNewVerticesFastMarching(newVertex);
+    std::vector<Vertex *> newVertices = getNewVerticesPath(newVertex);
     for (int i = newVertices.size() - 1; i > -1; i--) {
         if (drawnVertices.size() > 2 && newVertices[i] == drawnVertices[drawnVertices.size()-2]) {
             drawnVertices.pop_back();
@@ -319,7 +319,7 @@ void ResultsWidget::addDrawnVertices(Vertex *newVertex) {
     }
 }
 
-std::vector<Vertex*> ResultsWidget::getNewVerticesFastMarching(Vertex *newVertex) {
+std::vector<Vertex*> ResultsWidget::getNewVerticesPath(Vertex *newVertex) {
     std::vector<Vertex*> newVertices = {newVertex};
     if (drawnVertices.size() == 0) {
         return newVertices;
@@ -347,7 +347,7 @@ std::vector<Vertex*> ResultsWidget::getNewVerticesFastMarching(Vertex *newVertex
                 } else if (checkedVertices.find(neighbor) == checkedVertices.end()) {
                     std::vector<Vertex*> newPotentialPath = nextPath;
                     newPotentialPath.push_back(neighbor);
-                    float distance = calculateFastMarchingDistance(oldDistance, neighbor, nextVertex);
+                    float distance = calculateDistance(oldDistance, neighbor, nextVertex);
                     potentialPaths.push({distance, newPotentialPath});
                     checkedVertices.insert(neighbor);
                 }
@@ -357,11 +357,11 @@ std::vector<Vertex*> ResultsWidget::getNewVerticesFastMarching(Vertex *newVertex
     return {newVertex};
 }
 
-float ResultsWidget::calculateFastMarchingDistance(float oldDistance, Vertex* vertex1, Vertex* vertex2) {
+float ResultsWidget::calculateDistance(float oldDistance, Vertex* vertex1, Vertex* vertex2) {
     float dx = vertex1->position.x()-vertex2->position.x();
     float dy = vertex1->position.y()-vertex2->position.y();
     float dz = vertex1->position.z()-vertex2->position.z();
-    float delta = 2 *oldDistance - pow(dx-dy-dz, 2);
+    float delta = 2*oldDistance - pow(dx-dy-dz, 2);
     //if (delta >= 0) {
     //    return (dx + dy + dz + sqrt(delta))/2;
     //} else {
