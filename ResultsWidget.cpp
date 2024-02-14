@@ -6,7 +6,6 @@
 #include <queue>
 #include <unordered_set>
 #include <tuple>
-#include <iostream>
 
 ResultsWidget::~ResultsWidget() {
     // Make sure the context is current when deleting the buffers.
@@ -73,8 +72,8 @@ void ResultsWidget::mousePressEvent(QMouseEvent *e) {
         deleteSurface(e);
     } else {
         // TODO: Switch comments for testing
-        //mouseMoveEvent(e);
-        drawnVertices.clear();
+        mouseMoveEvent(e);
+        //drawnVertices.clear();
         isDrawingMode = true;
     }
 }
@@ -274,7 +273,7 @@ void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
     Vertex *vertex = getVertexFromMouseEvent(e);
     if (vertex == nullptr) {
         // TODO: comment out for testing
-        drawnVertices.clear();
+        //drawnVertices.clear();
     } else if (drawnVertices.size() == 0 || vertex != drawnVertices.back()) {
         addDrawnVertices(vertex);
     }
@@ -296,7 +295,7 @@ Vertex* ResultsWidget::getVertexFromMouseEvent(QMouseEvent *e) {
         float xyDistance = sqrt(pow(x - surfacePosition.x(), 2) + pow(y - surfacePosition.y(), 2));
 
         //TODO: Change to 0.1 for testing
-        if (xyDistance < 0.01 && surfacePosition.z() < smallestZDistance) {
+        if (xyDistance < 0.1 && surfacePosition.z() < smallestZDistance) {
             smallestZDistance = surfacePosition.z();
             closestVertex = vertices[i];
             surfaceVertexFound = true;
@@ -551,17 +550,20 @@ void ResultsWidget::glue() {
     update();
 }
 
-// TODO: Calculate out on cube and double check
+//TODO: geodesic distance?
 void ResultsWidget::smooth() {
     float stepSize = 0.5;
     std::vector<Vertex*> vertices = mesh->getVertices();
+    std::vector<QVector3D> newPositions;
+
     for (Vertex* vertex : vertices) {
         float xDiff = 0.0;
         float yDiff = 0.0;
         float zDiff = 0.0;
-        // Using cord weights
         float weightDenominator = 0.0;
         std::unordered_set<Vertex*> visitedNeighbors;
+
+        // Initializing cord weights
         for (Triangle* triangle : vertex->triangles) {
             std::vector<int> triangleIndices = triangle->vertexIndices;
             for (int index : triangleIndices) {
@@ -589,14 +591,14 @@ void ResultsWidget::smooth() {
             }
         }
 
-        //std::cout << "old position: " << vertex->toString() << std::endl;
-        //std::cout << "new x: " << vertex->position.x() + stepSize * xDiff << std::endl;
-        //std::cout << "new y: " << vertex->position.y() + stepSize * yDiff << std::endl;
-        //std::cout << "new z: " << vertex->position.z() + stepSize * zDiff << std::endl;
+        float newX = vertex->position.x() + stepSize * xDiff;
+        float newY = vertex->position.y() + stepSize * yDiff;
+        float newZ = vertex->position.z() + stepSize * zDiff;
+        newPositions.push_back({newX, newY, newZ});
+    }
 
-        vertex->position.setX(vertex->position.x() + stepSize * xDiff);
-        vertex->position.setY(vertex->position.y() + stepSize * yDiff);
-        vertex->position.setZ(vertex->position.z() + stepSize * zDiff);
+    for (int i=0; i<vertices.size(); i++) {
+        vertices[i]->position = newPositions[i];
     }
 
     geometryEngine->initMesh(mesh);
