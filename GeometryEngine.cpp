@@ -144,6 +144,10 @@ void GeometryEngine::initBoundary(std::vector<Vertex*> boundaryVerticesVector1, 
     for (int i=1; i<=boundaryVerticesVector1.size(); i++) {
         float boundaryColorScale = float(i)/float(numBoundaryVertices1-1);
         colors1.push_back({boundaryColorScale, boundaryColorScale, boundaryColorScale});
+    }
+
+    for (float i=boundaryVerticesVector2.size(); i>0; i--) {
+        float boundaryColorScale = float(i)/float(numBoundaryVertices2-1);
         colors2.push_back({boundaryColorScale, boundaryColorScale, boundaryColorScale});
     }
 
