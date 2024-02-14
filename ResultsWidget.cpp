@@ -72,8 +72,8 @@ void ResultsWidget::mousePressEvent(QMouseEvent *e) {
         deleteSurface(e);
     } else {
         // TODO: Switch comments for testing
-        mouseMoveEvent(e);
-        //drawnVertices.clear();
+        //mouseMoveEvent(e);
+        drawnVertices.clear();
         isDrawingMode = true;
     }
 }
@@ -273,7 +273,7 @@ void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
     Vertex *vertex = getVertexFromMouseEvent(e);
     if (vertex == nullptr) {
         // TODO: comment out for testing
-        //drawnVertices.clear();
+        drawnVertices.clear();
     } else if (drawnVertices.size() == 0 || vertex != drawnVertices.back()) {
         addDrawnVertices(vertex);
     }
@@ -295,7 +295,7 @@ Vertex* ResultsWidget::getVertexFromMouseEvent(QMouseEvent *e) {
         float xyDistance = sqrt(pow(x - surfacePosition.x(), 2) + pow(y - surfacePosition.y(), 2));
 
         //TODO: Change to 0.1 for testing
-        if (xyDistance < 0.1 && surfacePosition.z() < smallestZDistance) {
+        if (xyDistance < 0.01 && surfacePosition.z() < smallestZDistance) {
             smallestZDistance = surfacePosition.z();
             closestVertex = vertices[i];
             surfaceVertexFound = true;
@@ -550,9 +550,8 @@ void ResultsWidget::glue() {
     update();
 }
 
-//TODO: geodesic distance?
 void ResultsWidget::smooth() {
-    float stepSize = 0.5;
+    float stepSize = 1.0;
     std::vector<Vertex*> vertices = mesh->getVertices();
     std::vector<QVector3D> newPositions;
 
