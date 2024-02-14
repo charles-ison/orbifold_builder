@@ -247,16 +247,21 @@ void ResultsWidget::deleteSurface(QMouseEvent *e) {
     mesh->deleteVertices(verticesToDeleteSet);
     geometryEngine->initMesh(mesh);
 
-    auto first = boundaryVertices1.begin();
-    auto middle = boundaryVertices1.begin() + boundaryVertices1.size()/2;
-    auto last = boundaryVertices1.end();
-    std::vector<Vertex*> newBoundaryVertices1 = std::vector<Vertex*>(first, middle);
-    std::vector<Vertex*> newBoundaryVertices2 = std::vector<Vertex*>(middle, last);
-    boundaryVertices1 = newBoundaryVertices1;
-    boundaryVertices2 = newBoundaryVertices2;
-    boundaryVertices1.push_back(boundaryVertices2.front());
-    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2);
+    std::vector<Vertex*> remainingVertices;
+    if (verticesToDeleteSet.find(boundaryVertices1.back()) == verticesToDeleteSet.end()) {
+        remainingVertices = boundaryVertices1;
+    } else {
+        remainingVertices = boundaryVertices2;
+    }
+    auto first = remainingVertices.begin();
+    auto middle = remainingVertices.begin() + remainingVertices.size()/2;
+    auto last = remainingVertices.end();
+    boundaryVertices1 = std::vector<Vertex*>(first, middle);
+    boundaryVertices2 = std::vector<Vertex*>(middle, last);
 
+    boundaryVertices1.push_back(boundaryVertices2.front());
+    std::reverse(boundaryVertices2.begin(), boundaryVertices2.end());
+    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2);
     update();
 }
 

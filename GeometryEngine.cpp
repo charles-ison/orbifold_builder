@@ -14,8 +14,6 @@ GeometryEngine::GeometryEngine() : indexBuf(QOpenGLBuffer::IndexBuffer) {
     boundaryColorBuf1.create();
     boundaryArrayBuf2.create();
     boundaryColorBuf2.create();
-    boundaryPointBuf.create();
-    boundaryPointColorBuf.create();
 }
 
 GeometryEngine::~GeometryEngine() {
@@ -28,8 +26,6 @@ GeometryEngine::~GeometryEngine() {
     boundaryColorBuf1.destroy();
     boundaryArrayBuf2.destroy();
     boundaryColorBuf2.destroy();
-    boundaryPointBuf.destroy();
-    boundaryPointColorBuf.destroy();
 }
 
 void GeometryEngine::initAnimation(Mesh* mesh) {
@@ -134,8 +130,6 @@ void GeometryEngine::initBoundary(std::vector<Vertex*> boundaryVerticesVector1, 
     std::vector<QVector3D> colors1;
     std::vector<QVector3D> positions2;
     std::vector<QVector3D> colors2;
-    std::vector<QVector3D> points;
-    std::vector<QVector3D> pointColors;
     numBoundaryVertices1 = boundaryVerticesVector1.size();
     numBoundaryVertices2 = boundaryVerticesVector2.size();
 
@@ -150,21 +144,7 @@ void GeometryEngine::initBoundary(std::vector<Vertex*> boundaryVerticesVector1, 
     for (int i=1; i<=boundaryVerticesVector1.size(); i++) {
         float boundaryColorScale = float(i)/float(numBoundaryVertices1-1);
         colors1.push_back({boundaryColorScale, boundaryColorScale, boundaryColorScale});
-    }
-
-    for (float i=boundaryVerticesVector2.size(); i>0; i--) {
-        float boundaryColorScale = float(i)/float(numBoundaryVertices2-1);
         colors2.push_back({boundaryColorScale, boundaryColorScale, boundaryColorScale});
-    }
-
-    if (boundaryVerticesVector1.size() > 2) {
-        numBoundaryPoints = 2;
-        points.push_back(boundaryVerticesVector1.front()->position);
-        points.push_back(boundaryVerticesVector1.back()->position);
-        pointColors.push_back({1, 1, 1});
-        pointColors.push_back({0, 0, 0});
-    } else {
-        numBoundaryPoints = 0;
     }
 
     // Transfer position data to VBO 0
@@ -182,13 +162,6 @@ void GeometryEngine::initBoundary(std::vector<Vertex*> boundaryVerticesVector1, 
     // Transfer color scale data to VBO 0
     boundaryColorBuf2.bind();
     boundaryColorBuf2.allocate(&colors2[0], numBoundaryVertices2 * sizeof(QVector3D));
-
-    // Transfer point data to VBO 0
-    boundaryPointBuf.bind();
-    boundaryPointBuf.allocate(&points[0], points.size() * sizeof(QVector3D));
-
-    boundaryPointColorBuf.bind();
-    boundaryPointColorBuf.allocate(&pointColors[0], pointColors.size() * sizeof(QVector3D));
 }
 
 void GeometryEngine::drawMesh(QOpenGLShaderProgram *program) {
@@ -276,24 +249,4 @@ void GeometryEngine::drawBoundary(QOpenGLShaderProgram *program) {
     // Draw geometry using indices from VBO 1
     glLineWidth(10.0);
     glDrawArrays(GL_LINE_STRIP, 0, numBoundaryVertices2);
-
-    // Tell OpenGL which VBOs to use
-    boundaryPointBuf.bind();
-
-    // Tell OpenGL programmable pipeline how to locate position data
-    int pointLocation = program->attributeLocation("a_position");
-    program->enableAttributeArray(pointLocation);
-    program->setAttributeBuffer(pointLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
-
-    // Tell OpenGL which VBOs to use
-    boundaryPointColorBuf.bind();
-
-    // Tell OpenGL programmable pipeline how to locate color data
-    int inputBoundaryPointColorLocation = program->attributeLocation("input_color");
-    program->enableAttributeArray(inputBoundaryPointColorLocation);
-    program->setAttributeBuffer(inputBoundaryPointColorLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
-
-    glPointSize(12.0);
-    glEnable(GL_POINT_SMOOTH);
-    glDrawArrays(GL_POINTS, 0, numBoundaryPoints);
 }

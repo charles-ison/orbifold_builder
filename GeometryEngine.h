@@ -36,10 +36,6 @@ private:
     QOpenGLBuffer boundaryColorBuf2;
     QOpenGLBuffer boundaryArrayBuf2;
 
-    int numBoundaryPoints;
-    QOpenGLBuffer boundaryPointBuf;
-    QOpenGLBuffer boundaryPointColorBuf;
-
     static const int animationSpeed = 100;
     int originalIndexToEndAnimation = 0;
     int indexToStartAnimation = 0;
