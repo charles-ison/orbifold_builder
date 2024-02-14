@@ -525,54 +525,32 @@ int ResultsWidget::getNewFoldingIndex(int index) {
     }
 }
 
-void ResultsWidget::oldGlue() {
+void ResultsWidget::glue() {
     for (int i=0; i<boundaryVertices2.size(); i++) {
         Vertex* boundaryVertex2 = boundaryVertices2[i];
         Vertex* boundaryVertex1 = boundaryVertices1[boundaryVertices1.size()-i-1];
-        for (Triangle* boundaryTriangle2 : boundaryVertex2->triangles) {
-            std::vector<int> boundaryVertexIndices2 = boundaryTriangle2->vertexIndices;
+
+        for (Triangle* triangle : boundaryVertex2->triangles) {
+            std::vector<int> boundaryTriangleIndices = triangle->vertexIndices;
             for (int j=0; j<3; j++) {
-                if (boundaryVertexIndices2[j] == boundaryVertex2->index) {
-                    boundaryTriangle2->vertexIndices[j] = boundaryVertex1->index;
+                if (boundaryTriangleIndices[j] == boundaryVertex2->index) {
+                    triangle->vertexIndices[j] = boundaryVertex1->index;
+                    boundaryVertex1->triangles.insert(triangle);
                 }
             }
         }
     }
 
-    boundaryVertices1.clear();
-    boundaryVertices2.clear();
-    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2);
-    geometryEngine->initMesh(mesh);
-    update();
-}
-
-void ResultsWidget::glue() {
-    for (int i=0; i<boundaryVertices1.size(); i++) {
-        Vertex* boundaryVertex1 = boundaryVertices1[i];
-        int boundaryVertex2Index = boundaryVertices2.size()-i-1;
-        Vertex* oldBoundaryVertex2 = boundaryVertices2[boundaryVertex2Index];
-        int newBoundaryVertex2Index = getNewFoldingIndex(boundaryVertex2Index);
-        Vertex* newBoundaryVertex2 = boundaryVertices2[newBoundaryVertex2Index];
-
-        for (Triangle* boundaryTriangle1 : boundaryVertex1->triangles) {
-            std::vector<int> boundaryVertexIndices1 = boundaryTriangle1->vertexIndices;
-            for (int j=0; j<3; j++) {
-                if (boundaryVertexIndices1[j] == boundaryVertex1->index) {
-                    boundaryTriangle1->vertexIndices[j] = newBoundaryVertex2->index;
-                    newBoundaryVertex2->triangles.insert(boundaryTriangle1);
-                }
-            }
-        }
-        for (Triangle* boundaryTriangle2 : oldBoundaryVertex2->triangles) {
-            std::vector<int> boundaryVertexIndices2 = boundaryTriangle2->vertexIndices;
-            for (int j=0; j<3; j++) {
-                if (boundaryVertexIndices2[j] == oldBoundaryVertex2->index) {
-                    boundaryTriangle2->vertexIndices[j] = newBoundaryVertex2->index;
-                    newBoundaryVertex2->triangles.insert(boundaryTriangle2);
-                }
+    for (Triangle* triangle: boundaryVertices1.back()->triangles) {
+        std::vector<int> boundaryTriangleVertices = triangle->vertexIndices;
+        for (int j=0; j<3; j++) {
+            if (boundaryTriangleVertices[j] == boundaryVertices1.back()->index) {
+                triangle->vertexIndices[j] = boundaryVertices1.front()->index;
+                boundaryVertices1.front()->triangles.insert(triangle);
             }
         }
     }
+
     boundaryVertices1.clear();
     boundaryVertices2.clear();
     geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2);
@@ -583,40 +561,6 @@ void ResultsWidget::glue() {
 void ResultsWidget::glueAnimation() {
     //shouldAnimate = !shouldAnimate;
 
-    float sumX = 0.0;
-    float sumY = 0.0;
-    float sumZ = 0.0;
-    float maxX = std::numeric_limits<float>::min();;
-    float maxY = std::numeric_limits<float>::min();;
-    float maxZ = std::numeric_limits<float>::min();;
-    float minX = std::numeric_limits<float>::max();;
-    float minY = std::numeric_limits<float>::max();;
-    float minZ = std::numeric_limits<float>::max();;
-
-    for (Vertex* vertex : drawnVertices) {
-        float x = vertex->position.x();
-        float y = vertex->position.y();
-        float z = vertex->position.z();
-
-        maxX = std::max(x, maxX);
-        maxY = std::max(y, maxY);
-        maxZ = std::max(z, maxZ);
-        minX = std::min(x, minX);
-        minY = std::min(y, minY);
-        minZ = std::min(z, minZ);
-        sumX += x;
-        sumY += y;
-        sumZ += z;
-    }
-
-    float avgX = sumX / drawnVertices.size();
-    float avgY = sumY / drawnVertices.size();
-    float avgZ = sumZ / drawnVertices.size();
-    float xRange = maxX - minX;
-    float yRange = maxY - minY;
-    float zRange = maxZ - minZ;
-    QVector3D centerPosition = QVector3D(avgX, avgY, avgZ);
-    QVector3D scale = {xRange, yRange, zRange};
     //mesh->addSurface(new CrossCap(centerPosition, scale));
     //geometryEngine->initMesh(mesh);
     //update();
