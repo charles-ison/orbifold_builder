@@ -6,6 +6,7 @@
 #include <queue>
 #include <unordered_set>
 #include <tuple>
+#include <iostream>
 
 ResultsWidget::~ResultsWidget() {
     // Make sure the context is current when deleting the buffers.
@@ -352,7 +353,7 @@ std::vector<Vertex*> ResultsWidget::getNewVerticesPath(Vertex *newVertex) {
                 } else if (checkedVertices.find(neighbor) == checkedVertices.end()) {
                     std::vector<Vertex*> newPotentialPath = nextPath;
                     newPotentialPath.push_back(neighbor);
-                    float distance = calculateDistance(oldDistance, neighbor, nextVertex);
+                    float distance = oldDistance + euclideanDistance(neighbor, nextVertex);
                     potentialPaths.push({distance, newPotentialPath});
                     checkedVertices.insert(neighbor);
                 }
@@ -362,17 +363,20 @@ std::vector<Vertex*> ResultsWidget::getNewVerticesPath(Vertex *newVertex) {
     return {newVertex};
 }
 
-float ResultsWidget::calculateDistance(float oldDistance, Vertex* vertex1, Vertex* vertex2) {
+float ResultsWidget::euclideanDistance(Vertex* vertex1, Vertex* vertex2) {
     float dx = vertex1->position.x()-vertex2->position.x();
     float dy = vertex1->position.y()-vertex2->position.y();
     float dz = vertex1->position.z()-vertex2->position.z();
-    float delta = 2*oldDistance - pow(dx-dy-dz, 2);
+
+    // Use for fast marching
+    //float delta = 2*oldDistance - pow(dx-dy-dz, 2);
     //if (delta >= 0) {
     //    return (dx + dy + dz + sqrt(delta))/2;
     //} else {
     //    return oldDistance + sqrt(pow(dx, 2) + pow(dy, 2) + pow(dz, 2));
     //}
-    return oldDistance + sqrt(pow(dx, 2) + pow(dy, 2) + pow(dz, 2));
+
+    return sqrt(pow(dx, 2) + pow(dy, 2) + pow(dz, 2));
 }
 
 bool ResultsWidget::drawnVerticesContainLoop(Vertex *newVertex) {
@@ -514,22 +518,6 @@ void ResultsWidget::setDrawingColor(QColor newColor) {
     drawingColor = newColor;
 }
 
-int ResultsWidget::getNewFoldingIndex(int index) {
-    int midpointAjuster;
-    if (boundaryVertices2.size() % 2 == 0) {
-        midpointAjuster = 1;
-    } else {
-        midpointAjuster = 0;
-    }
-
-    int midpointIndex = boundaryVertices2.size()/2;
-    if (index >= midpointIndex) {
-        return midpointIndex - midpointAjuster - (index - midpointIndex);
-    } else {
-        return index;
-    }
-}
-
 void ResultsWidget::glue() {
     for (int i=0; i<boundaryVertices2.size(); i++) {
         Vertex* boundaryVertex2 = boundaryVertices2[i];
@@ -563,8 +551,58 @@ void ResultsWidget::glue() {
     update();
 }
 
+// TODO: Calculate out on cube and double check
 void ResultsWidget::smooth() {
+    float stepSize = 0.5;
+    std::vector<Vertex*> vertices = mesh->getVertices();
+    for (Vertex* vertex : vertices) {
+        float xDiff = 0.0;
+        float yDiff = 0.0;
+        float zDiff = 0.0;
+        // Using cord weights
+        float weightDenominator = 0.0;
+        std::unordered_set<Vertex*> visitedNeighbors;
+        for (Triangle* triangle : vertex->triangles) {
+            std::vector<int> triangleIndices = triangle->vertexIndices;
+            for (int index : triangleIndices) {
+                Vertex* neighbor = vertices[index];
+                if (neighbor != vertex && visitedNeighbors.find(neighbor) == visitedNeighbors.end()) {
+                    weightDenominator += (1.0 / euclideanDistance(vertex, neighbor));
+                    visitedNeighbors.insert(neighbor);
+                }
+            }
+        }
 
+        visitedNeighbors.clear();
+        for (Triangle* triangle : vertex->triangles) {
+            std::vector<int> triangleIndices = triangle->vertexIndices;
+            for (int index : triangleIndices) {
+                Vertex* neighbor = vertices[index];
+                if (neighbor != vertex && visitedNeighbors.find(neighbor) == visitedNeighbors.end()) {
+                    float distance = euclideanDistance(vertex, neighbor);
+                    float weight = (1.0 / distance) / weightDenominator;
+                    xDiff += weight * (neighbor->position.x() - vertex->position.x());
+                    yDiff += weight * (neighbor->position.y() - vertex->position.y());
+                    zDiff += weight * (neighbor->position.z() - vertex->position.z());
+                    visitedNeighbors.insert(neighbor);
+                }
+            }
+        }
+
+        //std::cout << "old position: " << vertex->toString() << std::endl;
+        //std::cout << "new x: " << vertex->position.x() + stepSize * xDiff << std::endl;
+        //std::cout << "new y: " << vertex->position.y() + stepSize * yDiff << std::endl;
+        //std::cout << "new z: " << vertex->position.z() + stepSize * zDiff << std::endl;
+
+        vertex->position.setX(vertex->position.x() + stepSize * xDiff);
+        vertex->position.setY(vertex->position.y() + stepSize * yDiff);
+        vertex->position.setZ(vertex->position.z() + stepSize * zDiff);
+    }
+
+    geometryEngine->initMesh(mesh);
+    geometryEngine->initLine(drawnVertices, drawingColor);
+    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2);
+    update();
 }
 
 void ResultsWidget::glueAnimation() {
