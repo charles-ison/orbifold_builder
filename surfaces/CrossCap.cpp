@@ -35,13 +35,13 @@ void CrossCap::initTriangles() {
     int triangleCounter = 0;
     for (int i=0; i<=numVertSteps; i++) {
         for (int j=0; j<numHorSteps; j++) {
-            if (j == numVertSteps - 1) {
-                int index1 = (faceCounter + 1 - numHorSteps) % numVertices;
+            if (j == numHorSteps - 1) {
+                int index1 = (faceCounter + 1 - numVertSteps) % numVertices;
                 int index2 = faceCounter % numVertices;
                 int index3 = (faceCounter + 1) % numVertices;
                 triangles[triangleCounter] = {{index1, index2, index3}};
 
-                int index4 = (faceCounter + numHorSteps) % numVertices;
+                int index4 = (faceCounter + numVertSteps) % numVertices;
                 int index5 = (faceCounter + 1) % numVertices;
                 int index6 = faceCounter % numVertices;
                 triangles[triangleCounter+1] = {{index4, index5, index6}};
@@ -49,11 +49,11 @@ void CrossCap::initTriangles() {
             else {
                 int index1 = (faceCounter + 1) % numVertices;
                 int index2 = faceCounter % numVertices;
-                int index3 = (faceCounter + 1 + numVertSteps) % numVertices;
+                int index3 = (faceCounter + 1 + numHorSteps) % numVertices;
                 triangles[triangleCounter] = {{index1, index2, index3}};
 
-                int index4 = (faceCounter + numVertSteps) % numVertices;
-                int index5 = (faceCounter + 1 + numVertSteps) % numVertices;
+                int index4 = (faceCounter + numHorSteps) % numVertices;
+                int index5 = (faceCounter + 1 + numHorSteps) % numVertices;
                 int index6 = faceCounter % numVertices;
                 triangles[triangleCounter+1] = {{index4, index5, index6}};
             }
