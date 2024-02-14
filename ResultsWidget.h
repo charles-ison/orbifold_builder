@@ -33,6 +33,7 @@ public:
     void resizeGL(int w, int h) override;
     void toggleShouldDeleteSurface();
     void glue();
+    void smooth();
     void glueAnimation();
 
 protected:

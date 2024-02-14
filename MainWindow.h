@@ -32,6 +32,7 @@ private slots:
     void addSurface();
     void cutSurface();
     void glue();
+    void smooth();
     void toggleShouldDeleteSurface();
     void toggleFundamentalPolygon();
     void drawingColorChanged();
@@ -99,6 +100,7 @@ private:
     QToolButton *cutSurfaceButton;
     QToolButton *deleteSurfaceButton;
     QToolButton *glueButton;
+    QToolButton *smoothButton;
     QAction *textAction;
     QAction *fillAction;
     QAction *lineAction;

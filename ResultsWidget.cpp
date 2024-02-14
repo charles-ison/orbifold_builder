@@ -563,6 +563,10 @@ void ResultsWidget::glue() {
     update();
 }
 
+void ResultsWidget::smooth() {
+
+}
+
 void ResultsWidget::glueAnimation() {
     //shouldAnimate = !shouldAnimate;
 

@@ -113,6 +113,10 @@ void MainWindow::glue() {
     resultsWidget->glue();
 }
 
+void MainWindow::smooth() {
+    resultsWidget->smooth();
+}
+
 void MainWindow::toggleFundamentalPolygon() {
     hideFundamentalPolygon = !hideFundamentalPolygon;
     fundamentalPolygonToolBar->setHidden(hideFundamentalPolygon);
@@ -302,6 +306,11 @@ void MainWindow::createToolbars() {
     glueButton->setMinimumHeight(fundamentalPolygonToolBarHeight);
     connect(glueButton, &QAbstractButton::clicked, this, &MainWindow::glue);
 
+    smoothButton = new QToolButton;
+    smoothButton->setText(tr("Smooth"));
+    smoothButton->setMinimumHeight(fundamentalPolygonToolBarHeight);
+    connect(smoothButton, &QAbstractButton::clicked, this, &MainWindow::smooth);
+
     zoomButton = new QToolButton;
     zoomButton->setPopupMode(QToolButton::MenuButtonPopup);
     zoomButton->setMenu(createZoomMenu(&MainWindow::zoomScaleChanged));
@@ -315,6 +324,7 @@ void MainWindow::createToolbars() {
     resultsToolBar->addWidget(cutSurfaceButton);
     resultsToolBar->addWidget(deleteSurfaceButton);
     resultsToolBar->addWidget(glueButton);
+    resultsToolBar->addWidget(smoothButton);
     resultsToolBar->addWidget(zoomButton);
     resultsToolBar->setMovable(false);
 }
