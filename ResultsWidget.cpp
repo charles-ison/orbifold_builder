@@ -309,8 +309,13 @@ Vertex* ResultsWidget::getVertexFromMouseEvent(QMouseEvent *e) {
 }
 
 void ResultsWidget::addDrawnVertices(Vertex *newVertex) {
-    std::tuple<float, std::vector<Vertex*>> verticesPathAndDistance = getVerticesPathAndDistance(newVertex, drawnVertices.back());
-    std::vector<Vertex*> newVertices = std::get<1>(verticesPathAndDistance);
+    std::vector<Vertex*> newVertices;
+    if (drawnVertices.size() == 0) {
+        newVertices= {newVertex};
+    } else {
+        std::tuple<float, std::vector<Vertex*>> verticesPathAndDistance = getVerticesPathAndDistance(newVertex, drawnVertices.back());
+        newVertices = std::get<1>(verticesPathAndDistance);
+    }
     for (int i = newVertices.size() - 1; i > -1; i--) {
         if (drawnVertices.size() > 2 && newVertices[i] == drawnVertices[drawnVertices.size()-2]) {
             drawnVertices.pop_back();
@@ -327,10 +332,6 @@ void ResultsWidget::addDrawnVertices(Vertex *newVertex) {
 
 std::tuple<float, std::vector<Vertex*>> ResultsWidget::getVerticesPathAndDistance(Vertex *startVertex, Vertex *endVertex) {
     std::vector<Vertex*> path = {startVertex};
-    if (drawnVertices.size() == 0) {
-        return {0.0, path};
-    }
-
     std::unordered_set<Vertex*> checkedVertices;
     std::priority_queue<std::tuple<float, std::vector<Vertex*>>, std::vector<std::tuple<float, std::vector<Vertex*>>>, std::greater<std::tuple<float, std::vector<Vertex*>>> > potentialPaths;
 
@@ -568,7 +569,7 @@ std::vector<Vertex*> ResultsWidget::findVerticesToSmooth() {
     for (Vertex* vertex : oldBoundaries) {
         std::queue<std::tuple<float, Vertex*>> potentialVerticesToSmooth;
         std::unordered_set<Vertex*> potentialVerticesToSmoothSet;
-        potentialVerticesToSmooth.push({0, vertex});
+        potentialVerticesToSmooth.push({0.0, vertex});
         potentialVerticesToSmoothSet.insert(vertex);
 
         while (!potentialVerticesToSmooth.empty()) {
