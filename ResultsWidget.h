@@ -48,12 +48,13 @@ protected:
 private:
     void deleteSurface(QMouseEvent *e);
     void addDrawnVertices(Vertex *newVertex);
-    std::vector<Vertex*> getNewVerticesPath(Vertex *newVertex);
+    std::tuple<float, std::vector<Vertex*>> getVerticesPathAndDistance(Vertex *startVertex, Vertex *endVertex);
     bool drawnVerticesContainLoop(Vertex *newVertex);
     Vertex* getVertexFromMouseEvent(QMouseEvent *e);
     bool triangleContainsVertex(Vertex *vertex, Triangle *triangle, std::vector<Vertex*> vertices);
     bool rotationDirectionAligns(Triangle* triangle, Vertex* vertex1, Vertex* vertex2, std::vector<Vertex*> vertices);
     float euclideanDistance(Vertex* vertex1, Vertex* vertex2);
+    std::vector<Vertex*> findVerticesToSmooth();
 
     Mesh* mesh;
     Cube* cubeSurface;
@@ -73,6 +74,7 @@ private:
     std::vector<Vertex*> drawnVertices;
     std::vector<Vertex*> boundaryVertices1;
     std::vector<Vertex*> boundaryVertices2;
+    std::vector<Vertex*> oldBoundaries;
     QColor drawingColor;
     bool isDrawingMode;
     bool shouldPaintGL;

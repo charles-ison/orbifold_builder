@@ -309,7 +309,8 @@ Vertex* ResultsWidget::getVertexFromMouseEvent(QMouseEvent *e) {
 }
 
 void ResultsWidget::addDrawnVertices(Vertex *newVertex) {
-    std::vector<Vertex *> newVertices = getNewVerticesPath(newVertex);
+    std::tuple<float, std::vector<Vertex*>> verticesPathAndDistance = getVerticesPathAndDistance(newVertex, drawnVertices.back());
+    std::vector<Vertex*> newVertices = std::get<1>(verticesPathAndDistance);
     for (int i = newVertices.size() - 1; i > -1; i--) {
         if (drawnVertices.size() > 2 && newVertices[i] == drawnVertices[drawnVertices.size()-2]) {
             drawnVertices.pop_back();
@@ -324,17 +325,17 @@ void ResultsWidget::addDrawnVertices(Vertex *newVertex) {
     }
 }
 
-std::vector<Vertex*> ResultsWidget::getNewVerticesPath(Vertex *newVertex) {
-    std::vector<Vertex*> newVertices = {newVertex};
+std::tuple<float, std::vector<Vertex*>> ResultsWidget::getVerticesPathAndDistance(Vertex *startVertex, Vertex *endVertex) {
+    std::vector<Vertex*> path = {startVertex};
     if (drawnVertices.size() == 0) {
-        return newVertices;
+        return {0.0, path};
     }
 
     std::unordered_set<Vertex*> checkedVertices;
     std::priority_queue<std::tuple<float, std::vector<Vertex*>>, std::vector<std::tuple<float, std::vector<Vertex*>>>, std::greater<std::tuple<float, std::vector<Vertex*>>> > potentialPaths;
 
-    potentialPaths.push({0.0, newVertices});
-    QVector3D lastVertexPosition = drawnVertices.back()->position;
+    potentialPaths.push({0.0, path});
+    QVector3D endVertexPosition = endVertex->position;
     std::vector<Vertex*> meshVertices = mesh->getVertices();
 
     while(!potentialPaths.empty()) {
@@ -347,8 +348,9 @@ std::vector<Vertex*> ResultsWidget::getNewVerticesPath(Vertex *newVertex) {
         for (Triangle* triangle : nextVertex->triangles) {
             for (int vertexIndex : triangle->vertexIndices) {
                 Vertex *neighbor = meshVertices[vertexIndex];
-                if (neighbor->position == lastVertexPosition) {
-                    return nextPath;
+                if (neighbor->position == endVertexPosition) {
+                    float distance = oldDistance + euclideanDistance(neighbor, nextVertex);
+                    return {distance, nextPath};
                 } else if (checkedVertices.find(neighbor) == checkedVertices.end()) {
                     std::vector<Vertex*> newPotentialPath = nextPath;
                     newPotentialPath.push_back(neighbor);
@@ -359,7 +361,7 @@ std::vector<Vertex*> ResultsWidget::getNewVerticesPath(Vertex *newVertex) {
             }
         }
     }
-    return {newVertex};
+    return {0.0, path};;
 }
 
 float ResultsWidget::euclideanDistance(Vertex* vertex1, Vertex* vertex2) {
@@ -543,6 +545,13 @@ void ResultsWidget::glue() {
         }
     }
 
+    for (Vertex* vertex : boundaryVertices1) {
+        oldBoundaries.push_back(vertex);
+    }
+    for (Vertex* vertex : boundaryVertices2) {
+        oldBoundaries.push_back(vertex);
+    }
+
     boundaryVertices1.clear();
     boundaryVertices2.clear();
     geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2);
@@ -550,12 +559,52 @@ void ResultsWidget::glue() {
     update();
 }
 
+std::vector<Vertex*> ResultsWidget::findVerticesToSmooth() {
+    float distanceThreshold = 0.1;
+    std::vector<Vertex*> vertices = mesh->getVertices();
+    std::vector<Vertex*> verticesToSmooth;
+    std::unordered_set<Vertex*> verticesToSmoothSet;
+
+    for (Vertex* vertex : oldBoundaries) {
+        std::queue<std::tuple<float, Vertex*>> potentialVerticesToSmooth;
+        std::unordered_set<Vertex*> potentialVerticesToSmoothSet;
+        potentialVerticesToSmooth.push({0, vertex});
+        potentialVerticesToSmoothSet.insert(vertex);
+
+        while (!potentialVerticesToSmooth.empty()) {
+            std::tuple<float, Vertex*> nextVertexAndDistance = potentialVerticesToSmooth.front();
+            float distance = std::get<0>(nextVertexAndDistance);
+            Vertex* nextVertex = std::get<1>(nextVertexAndDistance);
+
+            potentialVerticesToSmooth.pop();
+            verticesToSmooth.push_back(nextVertex);
+            verticesToSmoothSet.insert(nextVertex);
+
+            for (Triangle *triangle: nextVertex->triangles) {
+                for (int triangleIndex: triangle->vertexIndices) {
+                    Vertex *neighbor = vertices[triangleIndex];
+                    float newDistance = distance + euclideanDistance(nextVertex, neighbor);
+                    if (potentialVerticesToSmoothSet.find(neighbor) == potentialVerticesToSmoothSet.end()
+                        && verticesToSmoothSet.find(neighbor) == verticesToSmoothSet.end()
+                        && newDistance < distanceThreshold ) {
+
+                        potentialVerticesToSmooth.push({newDistance, neighbor});
+                        potentialVerticesToSmoothSet.insert({vertex, neighbor});
+                    }
+                }
+            }
+        }
+    }
+    return verticesToSmooth;
+}
+
 void ResultsWidget::smooth() {
     float stepSize = 1.0;
-    std::vector<Vertex*> vertices = mesh->getVertices();
     std::vector<QVector3D> newPositions;
+    std::vector<Vertex*> vertices = mesh->getVertices();
+    std::vector<Vertex*> verticesToSmooth = findVerticesToSmooth();
 
-    for (Vertex* vertex : vertices) {
+    for (Vertex* vertex : verticesToSmooth) {
         float xDiff = 0.0;
         float yDiff = 0.0;
         float zDiff = 0.0;
@@ -596,8 +645,8 @@ void ResultsWidget::smooth() {
         newPositions.push_back({newX, newY, newZ});
     }
 
-    for (int i=0; i<vertices.size(); i++) {
-        vertices[i]->position = newPositions[i];
+    for (int i=0; i<verticesToSmooth.size(); i++) {
+        verticesToSmooth[i]->position = newPositions[i];
     }
 
     geometryEngine->initMesh(mesh);
@@ -605,6 +654,8 @@ void ResultsWidget::smooth() {
     geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2);
     update();
 }
+
+
 
 void ResultsWidget::glueAnimation() {
     //shouldAnimate = !shouldAnimate;
