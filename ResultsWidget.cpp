@@ -604,7 +604,8 @@ void ResultsWidget::smooth() {
     float stepSize = 1.0;
     std::vector<QVector3D> newPositions;
     std::vector<Vertex*> vertices = mesh->getVertices();
-    std::vector<Vertex*> verticesToSmooth = findVerticesToSmooth();
+    //std::vector<Vertex*> verticesToSmooth = findVerticesToSmooth();
+    std::vector<Vertex*> verticesToSmooth = vertices;
 
     for (Vertex* vertex : verticesToSmooth) {
         float xDiff = 0.0;
