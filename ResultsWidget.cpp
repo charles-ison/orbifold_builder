@@ -26,6 +26,7 @@ void ResultsWidget::addSurface(surface newSurface) {
     drawnVertices.clear();
     boundaryVertices1.clear();
     boundaryVertices2.clear();
+    oldBoundaries.clear();
     QVector3D centerPosition = {0, 0, 0};
     if (newSurface == surface::cube) {
         QVector3D scale = {1.0, 0.0, 0.0};
