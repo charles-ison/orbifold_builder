@@ -16,8 +16,8 @@ public:
 private:
     void initVertices(QVector3D centerPosition, QVector3D scale);
     void initTriangles();
-    static const int numVertSteps = 3;
-    static const int numHorSteps = 3;
+    static const int numVertSteps = 200;
+    static const int numHorSteps = 200;
     static const int numVertices = numVertSteps * numHorSteps;
     static const int numTriangles = 2 * (numVertSteps-1) * numHorSteps;
     Vertex vertices[numVertices];

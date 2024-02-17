@@ -1,5 +1,4 @@
 #include "MobiusStrip.h"
-#include <iostream>
 
 MobiusStrip::MobiusStrip(QVector3D centerPosition, QVector3D scale) {
     initVertices(centerPosition, scale);
@@ -32,7 +31,7 @@ void MobiusStrip::initTriangles() {
     int triangleCounter = 0;
     for (int i=0; i<numHorSteps; i++) {
         for (int j=0; j<numVertSteps-1; j++) {
-            if (i !- numHorSteps-1) {
+            if (i < numHorSteps-1) {
                 int index1 = indexCounter % numVertices;
                 int index2 = (indexCounter + numVertSteps) % numVertices;
                 int index3 = (indexCounter + 1) % numVertices;
@@ -42,15 +41,25 @@ void MobiusStrip::initTriangles() {
                 int index5 = (indexCounter + numVertSteps) % numVertices;
                 int index6 = (indexCounter + numVertSteps + 1) % numVertices;
                 triangles[triangleCounter + 1] = {{index4, index5, index6}};
-
-                std::cout << "index1: " << index1 << std::endl;
-                std::cout << "index2: " << index2 << std::endl;
-                std::cout << "index3: " << index3 << std::endl;
-                std::cout << "index4: " << index4 << std::endl;
-                std::cout << "index5: " << index5 << std::endl;
-                std::cout << "index6: " << index6 << std::endl;
             } else {
-                
+                int index1 = indexCounter % numVertices;
+                int index2 = (indexCounter + numVertSteps) % numVertices;
+                if (index2 < numVertSteps) {
+                    index2 = numVertSteps - index2 - 1;
+                }
+                int index3 = (indexCounter + 1) % numVertices;
+                triangles[triangleCounter] = {{index1, index2, index3}};
+
+                int index4 = (indexCounter + 1) % numVertices;
+                int index5 = (indexCounter + numVertSteps) % numVertices;
+                if (index5 < numVertSteps) {
+                    index5 = numVertSteps - index5 - 1;
+                }
+                int index6 = (indexCounter + numVertSteps + 1) % numVertices;
+                if (index6 < numVertSteps) {
+                    index6 = numVertSteps - index6 - 1;
+                }
+                triangles[triangleCounter + 1] = {{index4, index5, index6}};
             }
 
             if (indexCounter % numVertSteps == numVertSteps-2 && indexCounter != 0) {
