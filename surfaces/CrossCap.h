@@ -18,8 +18,8 @@ private:
     void initTriangles();
     static const int numVertSteps = 200;
     static const int numHorSteps = 200;
-    static const int numVertices = (numVertSteps+1) * numHorSteps;
-    static const int numTriangles = 2 * numVertices;
+    static const int numVertices = numVertSteps * numHorSteps + 1;
+    static const int numTriangles = 2 * numVertSteps * numHorSteps + numHorSteps;
     Vertex vertices[numVertices];
     Triangle triangles[numTriangles];
 };

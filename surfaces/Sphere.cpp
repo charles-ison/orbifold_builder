@@ -34,7 +34,7 @@ void Sphere::initTriangles() {
     for (int i=0; i<numVertSteps; i++) {
         for (int j=0; j<numHorSteps; j++) {
             if (i == 0) {
-                int index1 = i;
+                int index1 = 0;
                 int index2 = faceCounter + 1;
                 int index3;
                 if (j == numHorSteps-1) {

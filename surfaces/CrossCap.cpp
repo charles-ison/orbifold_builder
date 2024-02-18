@@ -17,8 +17,8 @@ void CrossCap::initVertices(QVector3D centerPosition, QVector3D scale) {
     int vertexCounter = 0;
     for (int i=0; i<=numVertSteps; i++) {
         float verticalAngle = vertStepSize * i;
-        //int tempNumHorSteps = (i == 0) ? 1 : numHorSteps;
-        for (int j=0; j<numHorSteps; j++) {
+        int tempNumHorSteps = (i == 0) ? 1 : numHorSteps;
+        for (int j=0; j<tempNumHorSteps; j++) {
             float horizontalAngle = horStepSize * j;
 
             float x = centerPosition.x() + sizeX * cosf(horizontalAngle) * sinf(2 * verticalAngle);
@@ -36,9 +36,8 @@ void CrossCap::initTriangles() {
     int triangleCounter = 0;
     for (int i=0; i<=numVertSteps; i++) {
         for (int j=0; j<numHorSteps; j++) {
-            /*
             if (i == 0) {
-                int index1 = i;
+                int index1 = 0;
                 int index2 = faceCounter + 1;
                 int index3;
                 if (j == numHorSteps-1) {
@@ -49,8 +48,8 @@ void CrossCap::initTriangles() {
                 }
                 triangles[triangleCounter] = {{index1, index2, index3}};
                 triangleCounter += 1;
-            }*/
-            if (j == numHorSteps - 1) {
+            }
+            else if (j == numHorSteps - 1) {
                 int index1 = (faceCounter + 1 - numVertSteps) % numVertices;
                 int index2 = faceCounter % numVertices;
                 int index3 = (faceCounter + 1) % numVertices;
