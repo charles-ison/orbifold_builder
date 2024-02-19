@@ -117,6 +117,10 @@ void MainWindow::smooth() {
     resultsWidget->smooth();
 }
 
+void MainWindow::reverseBoundaries() {
+    resultsWidget->reverseBoundaries();
+}
+
 void MainWindow::toggleFundamentalPolygon() {
     hideFundamentalPolygon = !hideFundamentalPolygon;
     fundamentalPolygonToolBar->setHidden(hideFundamentalPolygon);
@@ -311,6 +315,11 @@ void MainWindow::createToolbars() {
     smoothButton->setMinimumHeight(fundamentalPolygonToolBarHeight);
     connect(smoothButton, &QAbstractButton::clicked, this, &MainWindow::smooth);
 
+    reverseButton = new QToolButton;
+    reverseButton->setText(tr("Reverse"));
+    reverseButton->setMinimumHeight(fundamentalPolygonToolBarHeight);
+    connect(reverseButton, &QAbstractButton::clicked, this, &MainWindow::reverseBoundaries);
+
     zoomButton = new QToolButton;
     zoomButton->setPopupMode(QToolButton::MenuButtonPopup);
     zoomButton->setMenu(createZoomMenu(&MainWindow::zoomScaleChanged));
@@ -325,6 +334,7 @@ void MainWindow::createToolbars() {
     resultsToolBar->addWidget(deleteSurfaceButton);
     resultsToolBar->addWidget(glueButton);
     resultsToolBar->addWidget(smoothButton);
+    resultsToolBar->addWidget(reverseButton);
     resultsToolBar->addWidget(zoomButton);
     resultsToolBar->setMovable(false);
 }

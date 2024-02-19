@@ -125,11 +125,27 @@ void GeometryEngine::initLine(std::vector<Vertex*> lineVerticesVector, QColor co
     lineColorBuf.allocate(&colors[0], numLineVertices * sizeof(QVector3D));
 }
 
-void GeometryEngine::initBoundary(std::vector<Vertex*> boundaryVerticesVector1, std::vector<Vertex*> boundaryVerticesVector2) {
+std::vector<QVector3D> GeometryEngine::initBoundaryColorForward(int size) {
+    std::vector<QVector3D> colors;
+    for (int i=1; i<=size; i++) {
+        float boundaryColorScale = float(i)/float(size-1);
+        colors.push_back({boundaryColorScale, boundaryColorScale, boundaryColorScale});
+    }
+    return colors;
+}
+
+std::vector<QVector3D> GeometryEngine::initBoundaryColorsBackward(int size) {
+    std::vector<QVector3D> colors;
+    for (float i=size; i>0; i--) {
+        float boundaryColorScale = float(i)/float(size-1);
+        colors.push_back({boundaryColorScale, boundaryColorScale, boundaryColorScale});
+    }
+    return colors;
+}
+
+void GeometryEngine::initBoundary(std::vector<Vertex*> boundaryVerticesVector1, std::vector<Vertex*> boundaryVerticesVector2, bool boundariesReversed) {
     std::vector<QVector3D> positions1;
-    std::vector<QVector3D> colors1;
     std::vector<QVector3D> positions2;
-    std::vector<QVector3D> colors2;
     numBoundaryVertices1 = boundaryVerticesVector1.size();
     numBoundaryVertices2 = boundaryVerticesVector2.size();
 
@@ -139,6 +155,16 @@ void GeometryEngine::initBoundary(std::vector<Vertex*> boundaryVerticesVector1, 
 
     for (Vertex* boundaryVertex : boundaryVerticesVector2) {
         positions2.push_back(boundaryVertex->position);
+    }
+
+    std::vector<QVector3D> colors1;
+    std::vector<QVector3D> colors2;
+    if (boundariesReversed) {
+        colors1 = initBoundaryColorForward(numBoundaryVertices1);
+        colors2 = initBoundaryColorsBackward(numBoundaryVertices2);
+    } else {
+        colors1 = initBoundaryColorsBackward(numBoundaryVertices1);
+        colors2 = initBoundaryColorsBackward(numBoundaryVertices2);
     }
 
     for (int i=1; i<=boundaryVerticesVector1.size(); i++) {

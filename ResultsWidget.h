@@ -34,6 +34,7 @@ public:
     void toggleShouldDeleteSurface();
     void glue();
     void smooth();
+    void reverseBoundaries();
     void glueAnimation();
 
 protected:
@@ -55,6 +56,8 @@ private:
     bool rotationDirectionAligns(Triangle* triangle, Vertex* vertex1, Vertex* vertex2, std::vector<Vertex*> vertices);
     float euclideanDistance(Vertex* vertex1, Vertex* vertex2);
     std::vector<Vertex*> findVerticesToSmooth();
+    void glueCrossCap();
+    void glueTraditional();
 
     Mesh* mesh;
     Cube* cubeSurface;
@@ -80,6 +83,7 @@ private:
     bool shouldPaintGL;
     bool shouldAnimate;
     bool shouldDeleteSurface;
+    bool boundariesReversed;
 };
 
 #endif
