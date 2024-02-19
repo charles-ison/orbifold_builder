@@ -529,6 +529,13 @@ void ResultsWidget::glue() {
         glueTraditional();
     }
 
+    for (Vertex* vertex : boundaryVertices1) {
+        oldBoundaries.push_back(vertex);
+    }
+    for (Vertex* vertex : boundaryVertices2) {
+        oldBoundaries.push_back(vertex);
+    }
+
     boundaryVertices1.clear();
     boundaryVertices2.clear();
     geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundariesReversed);
@@ -537,7 +544,20 @@ void ResultsWidget::glue() {
 }
 
 void ResultsWidget::glueTraditional() {
+    for (int i=0; i<boundaryVertices2.size(); i++) {
+        Vertex* boundaryVertex1 = boundaryVertices1[i];
+        Vertex* boundaryVertex2 = boundaryVertices2[i];
 
+        for (Triangle* triangle : boundaryVertex2->triangles) {
+            std::vector<int> boundaryTriangleIndices = triangle->vertexIndices;
+            for (int j=0; j<3; j++) {
+                if (boundaryTriangleIndices[j] == boundaryVertex2->index) {
+                    triangle->vertexIndices[j] = boundaryVertex1->index;
+                    boundaryVertex1->triangles.insert(triangle);
+                }
+            }
+        }
+    }
 }
 
 void ResultsWidget::glueCrossCap() {
@@ -565,13 +585,6 @@ void ResultsWidget::glueCrossCap() {
             }
         }
     }
-
-    for (Vertex* vertex : boundaryVertices1) {
-        oldBoundaries.push_back(vertex);
-    }
-    for (Vertex* vertex : boundaryVertices2) {
-        oldBoundaries.push_back(vertex);
-    }
 }
 
 void ResultsWidget::reverseBoundaries() {
@@ -581,7 +594,7 @@ void ResultsWidget::reverseBoundaries() {
 }
 
 std::vector<Vertex*> ResultsWidget::findVerticesToSmooth() {
-    float distanceThreshold = 0.1;
+    float distanceThreshold = 0.2;
     std::vector<Vertex*> vertices = mesh->getVertices();
     std::vector<Vertex*> verticesToSmooth;
     std::unordered_set<Vertex*> verticesToSmoothSet;
