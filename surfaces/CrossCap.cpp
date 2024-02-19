@@ -13,11 +13,11 @@ void CrossCap::initVertices(QVector3D centerPosition, QVector3D scale) {
     float sizeZ = scale.z();
     float horStepSize = 2 * M_PI / numHorSteps;
     float vertStepSize = M_PI / (2 * numVertSteps);
-
     int vertexCounter = 0;
-    for (int i=0; i<=numVertSteps; i++) {
+    for (int i=0; i<numVertSteps; i++) {
         float verticalAngle = vertStepSize * i;
-        int tempNumHorSteps = (i == 0 || i == numVertSteps) ? 1 : numHorSteps;
+        int tempNumHorSteps = (i == 0) ? 1 : numHorSteps;
+        tempNumHorSteps = (i == numVertSteps-1) ? numHorSteps/2 : tempNumHorSteps;
         for (int j=0; j<tempNumHorSteps; j++) {
             float horizontalAngle = horStepSize * j;
 
@@ -31,10 +31,19 @@ void CrossCap::initVertices(QVector3D centerPosition, QVector3D scale) {
     }
 }
 
+int CrossCap::getCrossCapFoldIndex(int oldIndex) {
+    if (oldIndex >= numVertices) {
+        return (numVertices - numHorSteps/2) + (oldIndex % numVertices);
+    }
+    else {
+        return oldIndex;
+    }
+}
+
 void CrossCap::initTriangles() {
     int faceCounter = 0;
     int triangleCounter = 0;
-    for (int i=0; i<numVertSteps; i++) {
+    for (int i=0; i<numVertSteps-1; i++) {
         for (int j=0; j<numHorSteps; j++) {
             if (i == 0) {
                 int index1 = 0;
@@ -49,39 +58,27 @@ void CrossCap::initTriangles() {
                 triangles[triangleCounter] = {{index1, index2, index3}};
                 triangleCounter += 1;
             }
-            else if (i == numVertSteps - 1) {
-                int index1 = numVertices - 1;
-                int index2 = faceCounter;
-                int index3;
-                if (j == numHorSteps-1) {
-                    index3 = faceCounter + 1 - numHorSteps ;
-                } else {
-                    index3 = faceCounter + 1;
-                }
-                triangles[triangleCounter] = {{index3, index2, index1}};
-                triangleCounter += 1;
-            }
             else if (j == numHorSteps - 1) {
-                int index1 = (faceCounter + 1 - numVertSteps) % numVertices;
-                int index2 = faceCounter % numVertices;
-                int index3 = (faceCounter + 1) % numVertices;
+                int index1 = getCrossCapFoldIndex((faceCounter + 1 - numVertSteps));
+                int index2 = getCrossCapFoldIndex(faceCounter);
+                int index3 = getCrossCapFoldIndex((faceCounter + 1));
                 triangles[triangleCounter] = {{index1, index2, index3}};
 
-                int index4 = (faceCounter + numVertSteps) % numVertices;
-                int index5 = (faceCounter + 1) % numVertices;
-                int index6 = faceCounter % numVertices;
+                int index4 = getCrossCapFoldIndex((faceCounter + numVertSteps));
+                int index5 = getCrossCapFoldIndex((faceCounter + 1));
+                int index6 = getCrossCapFoldIndex(faceCounter);
                 triangles[triangleCounter+1] = {{index4, index5, index6}};
                 triangleCounter += 2;
             }
             else {
-                int index1 = (faceCounter + 1) % numVertices;
-                int index2 = faceCounter % numVertices;
-                int index3 = (faceCounter + 1 + numHorSteps) % numVertices;
+                int index1 = getCrossCapFoldIndex((faceCounter + 1));
+                int index2 = getCrossCapFoldIndex(faceCounter);
+                int index3 = getCrossCapFoldIndex((faceCounter + 1 + numHorSteps));
                 triangles[triangleCounter] = {{index1, index2, index3}};
 
-                int index4 = (faceCounter + numHorSteps) % numVertices;
-                int index5 = (faceCounter + 1 + numHorSteps) % numVertices;
-                int index6 = faceCounter % numVertices;
+                int index4 = getCrossCapFoldIndex((faceCounter + numHorSteps));
+                int index5 = getCrossCapFoldIndex((faceCounter + 1 + numHorSteps));
+                int index6 = getCrossCapFoldIndex(faceCounter);
                 triangles[triangleCounter+1] = {{index4, index5, index6}};
                 triangleCounter += 2;
             }

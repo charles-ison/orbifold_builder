@@ -16,10 +16,11 @@ public:
 private:
     void initVertices(QVector3D centerPosition, QVector3D scale);
     void initTriangles();
+    int getCrossCapFoldIndex(int oldIndex);
     static const int numVertSteps = 200;
     static const int numHorSteps = 200;
-    static const int numVertices = (numVertSteps-1) * numHorSteps + 2;
-    static const int numTriangles = 2 * (numVertSteps-2) * numHorSteps + numHorSteps + numHorSteps;
+    static const int numVertices = (numVertSteps-2) * numHorSteps + 1 + numHorSteps/2;
+    static const int numTriangles = 2 * (numVertSteps-2) * numHorSteps + numHorSteps;
     Vertex vertices[numVertices];
     Triangle triangles[numTriangles];
 };
