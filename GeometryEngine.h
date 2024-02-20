@@ -19,8 +19,7 @@ public:
     void initAnimation(Mesh* mesh);
 
 private:
-    std::vector<QVector3D> initBoundaryColorForward(int size);
-    std::vector<QVector3D> initBoundaryColorsBackward(int size);
+    std::vector<QVector3D> initBoundaryColors(int size);
 
     int numIndices;
     QOpenGLBuffer arrayBuf;

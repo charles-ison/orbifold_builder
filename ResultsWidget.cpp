@@ -222,6 +222,9 @@ void ResultsWidget::cutSurface() {
         boundaryVertices2 = tempBoundaryVertices2;
     } else {
         std::reverse(boundaryVertices2.begin(), boundaryVertices2.end());
+        if (boundariesReversed) {
+            std::reverse(boundaryVertices2.begin(), boundaryVertices2.end());
+        }
         boundaryVertices1.insert(boundaryVertices1.end(), boundaryVertices2.begin(), boundaryVertices2.end());
         boundaryVertices2.clear();
         boundaryVertices2.insert(boundaryVertices2.end(), tempBoundaryVertices1.begin(), tempBoundaryVertices1.end());
@@ -561,7 +564,7 @@ void ResultsWidget::setDrawingColor(QColor newColor) {
 }
 
 void ResultsWidget::glue() {
-    if (boundariesReversed) {
+    if (boundariesReversed && numOpenings == 1) {
         glueCrossCap();
     } else {
         glueTraditional();
@@ -594,14 +597,13 @@ void ResultsWidget::glueTraditional() {
         smallerBoundaryVertices = boundaryVertices1;
     }
 
-    for (int i=0; i<smallerBoundaryVertices.size(); i++) {
-        float smallerBoundaryPercentageCompleted = i/smallerBoundaryVertices.size();
-        Vertex* smallerBoundaryVertex = smallerBoundaryVertices[i];
-
-        int j=0;
-        float largerBoundaryPercentageCompleted = j/largerBoundaryVertices.size();
+    int i=0;
+    for (int j=0; j<smallerBoundaryVertices.size(); j++) {
+        Vertex* smallerBoundaryVertex = smallerBoundaryVertices[j];
+        float smallerBoundaryPercentageCompleted = float(j)/smallerBoundaryVertices.size();
+        float largerBoundaryPercentageCompleted = float(i)/largerBoundaryVertices.size();
         while (largerBoundaryPercentageCompleted <= smallerBoundaryPercentageCompleted) {
-            Vertex* largerBoundaryVertex = largerBoundaryVertices[j];
+            Vertex* largerBoundaryVertex = largerBoundaryVertices[i];
             for (Triangle* triangle : largerBoundaryVertex->triangles) {
                 std::vector<int> boundaryTriangleIndices = triangle->vertexIndices;
                 for (int k=0; k<3; k++) {
@@ -611,8 +613,8 @@ void ResultsWidget::glueTraditional() {
                     }
                 }
             }
-            j += 1;
-            largerBoundaryPercentageCompleted = j/boundaryVertices1.size();
+            i += 1;
+            largerBoundaryPercentageCompleted = float(i)/largerBoundaryVertices.size();
         }
     }
 }
@@ -646,6 +648,7 @@ void ResultsWidget::glueCrossCap() {
 
 void ResultsWidget::reverseBoundaries() {
     boundariesReversed = !boundariesReversed;
+    std::reverse(boundaryVertices2.begin(), boundaryVertices2.end());
     geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundariesReversed);
     update();
 }
