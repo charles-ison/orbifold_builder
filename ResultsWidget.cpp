@@ -23,6 +23,7 @@ ResultsWidget::~ResultsWidget() {
 
 void ResultsWidget::addSurface(surface newSurface) {
     shouldPaintGL = true;
+    numOpenings = 0;
     drawnVertices.clear();
     boundaryVertices1.clear();
     boundaryVertices2.clear();
@@ -108,11 +109,15 @@ void ResultsWidget::cutSurface() {
         return;
     }
 
+    if (numOpenings >= 2) {
+        return;
+    }
+
     bool loopDetected = false;
-    boundaryVertices1.clear();
-    boundaryVertices2.clear();
     Triangle* startingTriangle;
     Triangle* stepStartingTriangle;
+    std::vector<Vertex*> tempBoundaryVertices1;
+    std::vector<Vertex*> tempBoundaryVertices2;
     std::vector<Vertex*> vertices = mesh->getVertices();
     std::vector<Vertex*> verticesToCut;
     std::vector<std::vector<Triangle*>> trianglePathsToCut;
@@ -186,15 +191,15 @@ void ResultsWidget::cutSurface() {
         newVertex->index = vertices.size();
         newVertex->position = vertexToCut->position;
         mesh->addVertex(newVertex);
-        boundaryVertices1.push_back(vertexToCut);
-        boundaryVertices2.push_back(newVertex);
+        tempBoundaryVertices1.push_back(vertexToCut);
+        tempBoundaryVertices2.push_back(newVertex);
         vertices = mesh->getVertices();
         oldIndexToNewIndexMap.insert({vertexToCut->index, newVertex->index});
     }
 
     if (loopDetected) {
-        boundaryVertices1.pop_back();
-        boundaryVertices2.pop_back();
+        tempBoundaryVertices1.pop_back();
+        tempBoundaryVertices2.pop_back();
     }
 
     // Updating vertices on triangles, adding new triangles, and removing out of date triangles
@@ -211,7 +216,19 @@ void ResultsWidget::cutSurface() {
             }
         }
     }
-    boundariesReversed = false;
+
+    if (numOpenings == 0) {
+        boundaryVertices1 = tempBoundaryVertices1;
+        boundaryVertices2 = tempBoundaryVertices2;
+    } else {
+        std::reverse(boundaryVertices2.begin(), boundaryVertices2.end());
+        boundaryVertices1.insert(boundaryVertices1.end(), boundaryVertices2.begin(), boundaryVertices2.end());
+        boundaryVertices2.clear();
+        boundaryVertices2.insert(boundaryVertices2.end(), tempBoundaryVertices1.begin(), tempBoundaryVertices1.end());
+        boundaryVertices2.insert(boundaryVertices2.end(), tempBoundaryVertices2.begin(), tempBoundaryVertices2.end());
+    }
+
+    numOpenings += 1;
     drawnVertices.clear();
     geometryEngine->initLine(drawnVertices, drawingColor);
     geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundariesReversed);
@@ -246,23 +263,42 @@ void ResultsWidget::deleteSurface(QMouseEvent *e) {
             }
         }
     }
+
+    if (numOpenings > 1) {
+        std::vector<Vertex*> newBoundaryVertices1;
+        for (auto itr = boundaryVertices1.begin(); itr < boundaryVertices1.end(); itr++) {
+            if (verticesToDeleteSet.find(*itr) == verticesToDeleteSet.end()) {
+                newBoundaryVertices1.push_back(*itr);
+            }
+        }
+        boundaryVertices1 = newBoundaryVertices1;
+
+        std::vector<Vertex*> newBoundaryVertices2;
+        for (auto itr = boundaryVertices2.begin(); itr < boundaryVertices2.end(); itr++) {
+            if (verticesToDeleteSet.find(*itr) == verticesToDeleteSet.end()) {
+                newBoundaryVertices2.push_back(*itr);
+            }
+        }
+        boundaryVertices2 = newBoundaryVertices2;
+    } else {
+        std::vector<Vertex*> remainingVertices;
+        if (verticesToDeleteSet.find(boundaryVertices1.back()) == verticesToDeleteSet.end()) {
+            remainingVertices = boundaryVertices1;
+        } else {
+            remainingVertices = boundaryVertices2;
+        }
+
+        auto first = remainingVertices.begin();
+        auto middle = remainingVertices.begin() + remainingVertices.size() / 2;
+        auto last = remainingVertices.end();
+        boundaryVertices1 = std::vector<Vertex *>(first, middle);
+        boundaryVertices2 = std::vector<Vertex *>(middle, last);
+        boundaryVertices1.push_back(boundaryVertices2.front());
+        std::reverse(boundaryVertices2.begin(), boundaryVertices2.end());
+    }
+
     mesh->deleteVertices(verticesToDeleteSet);
     geometryEngine->initMesh(mesh);
-
-    std::vector<Vertex*> remainingVertices;
-    if (verticesToDeleteSet.find(boundaryVertices1.back()) == verticesToDeleteSet.end()) {
-        remainingVertices = boundaryVertices1;
-    } else {
-        remainingVertices = boundaryVertices2;
-    }
-    auto first = remainingVertices.begin();
-    auto middle = remainingVertices.begin() + remainingVertices.size()/2;
-    auto last = remainingVertices.end();
-    boundaryVertices1 = std::vector<Vertex*>(first, middle);
-    boundaryVertices2 = std::vector<Vertex*>(middle, last);
-
-    boundaryVertices1.push_back(boundaryVertices2.front());
-    std::reverse(boundaryVertices2.begin(), boundaryVertices2.end());
     geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundariesReversed);
     update();
 }
@@ -450,6 +486,8 @@ void ResultsWidget::initializeGL() {
     isDrawingMode = true;
     shouldPaintGL = false;
     shouldDeleteSurface = false;
+    boundariesReversed = false;
+    numOpenings = 0;
     drawingColor = Qt::white;
 
     // Use QBasicTimer because it's faster than QTimer
@@ -536,6 +574,7 @@ void ResultsWidget::glue() {
         oldBoundaries.push_back(vertex);
     }
 
+    numOpenings -= 1;
     boundaryVertices1.clear();
     boundaryVertices2.clear();
     geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundariesReversed);

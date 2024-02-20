@@ -84,6 +84,7 @@ private:
     bool shouldAnimate;
     bool shouldDeleteSurface;
     bool boundariesReversed;
+    int numOpenings;
 };
 
 #endif
