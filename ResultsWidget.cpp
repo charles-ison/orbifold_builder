@@ -23,6 +23,7 @@ ResultsWidget::~ResultsWidget() {
 
 void ResultsWidget::addSurface(surface newSurface) {
     shouldPaintGL = true;
+    boundariesReversed = false;
     numOpenings = 0;
     drawnVertices.clear();
     boundaryVertices1.clear();
