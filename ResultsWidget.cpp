@@ -564,10 +564,19 @@ void ResultsWidget::setDrawingColor(QColor newColor) {
 }
 
 void ResultsWidget::glue() {
+    if (numOpenings < 1) {
+        return;
+    }
+
     if (boundariesReversed && numOpenings == 1) {
         glueCrossCap();
+        numOpenings -= 1;
+    } else if (numOpenings == 1) {
+        glueTraditional();
+        numOpenings -= 1;
     } else {
         glueTraditional();
+        numOpenings -= 2;
     }
 
     for (Vertex* vertex : boundaryVertices1) {
@@ -577,7 +586,6 @@ void ResultsWidget::glue() {
         oldBoundaries.push_back(vertex);
     }
 
-    numOpenings -= 1;
     boundaryVertices1.clear();
     boundaryVertices2.clear();
     geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundariesReversed);
