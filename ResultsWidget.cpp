@@ -583,18 +583,36 @@ void ResultsWidget::glue() {
 }
 
 void ResultsWidget::glueTraditional() {
-    for (int i=0; i<boundaryVertices2.size(); i++) {
-        Vertex* boundaryVertex1 = boundaryVertices1[i];
-        Vertex* boundaryVertex2 = boundaryVertices2[i];
+    std::vector<Vertex*> smallerBoundaryVertices;
+    std::vector<Vertex*> largerBoundaryVertices;
 
-        for (Triangle* triangle : boundaryVertex2->triangles) {
-            std::vector<int> boundaryTriangleIndices = triangle->vertexIndices;
-            for (int j=0; j<3; j++) {
-                if (boundaryTriangleIndices[j] == boundaryVertex2->index) {
-                    triangle->vertexIndices[j] = boundaryVertex1->index;
-                    boundaryVertex1->triangles.insert(triangle);
+    if (boundaryVertices1.size() > boundaryVertices2.size()) {
+        largerBoundaryVertices = boundaryVertices1;
+        smallerBoundaryVertices = boundaryVertices2;
+    } else {
+        largerBoundaryVertices = boundaryVertices2;
+        smallerBoundaryVertices = boundaryVertices1;
+    }
+
+    for (int i=0; i<smallerBoundaryVertices.size(); i++) {
+        float smallerBoundaryPercentageCompleted = i/smallerBoundaryVertices.size();
+        Vertex* smallerBoundaryVertex = smallerBoundaryVertices[i];
+
+        int j=0;
+        float largerBoundaryPercentageCompleted = j/largerBoundaryVertices.size();
+        while (largerBoundaryPercentageCompleted <= smallerBoundaryPercentageCompleted) {
+            Vertex* largerBoundaryVertex = largerBoundaryVertices[j];
+            for (Triangle* triangle : largerBoundaryVertex->triangles) {
+                std::vector<int> boundaryTriangleIndices = triangle->vertexIndices;
+                for (int k=0; k<3; k++) {
+                    if (boundaryTriangleIndices[k] == largerBoundaryVertex->index) {
+                        triangle->vertexIndices[k] = smallerBoundaryVertex->index;
+                        smallerBoundaryVertex->triangles.insert(triangle);
+                    }
                 }
             }
+            j += 1;
+            largerBoundaryPercentageCompleted = j/boundaryVertices1.size();
         }
     }
 }
