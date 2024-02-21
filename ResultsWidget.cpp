@@ -62,7 +62,7 @@ void ResultsWidget::addSurface(surface newSurface) {
         geometryEngine->initMesh(mesh);
     }
     geometryEngine->initLine(drawnVertices, drawingColor);
-    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundariesReversed);
+    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2);
     update();
 }
 
@@ -230,7 +230,7 @@ void ResultsWidget::cutSurface() {
     numOpenings += 1;
     drawnVertices.clear();
     geometryEngine->initLine(drawnVertices, drawingColor);
-    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundariesReversed);
+    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2);
     geometryEngine->initMesh(mesh);
     update();
 }
@@ -296,9 +296,10 @@ void ResultsWidget::deleteSurface(QMouseEvent *e) {
         std::reverse(boundaryVertices2.begin(), boundaryVertices2.end());
     }
 
+    boundariesReversed = false;
     mesh->deleteVertices(verticesToDeleteSet);
     geometryEngine->initMesh(mesh);
-    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundariesReversed);
+    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2);
     update();
 }
 
@@ -584,7 +585,7 @@ void ResultsWidget::glue() {
 
     boundaryVertices1.clear();
     boundaryVertices2.clear();
-    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundariesReversed);
+    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2);
     geometryEngine->initMesh(mesh);
     update();
 }
@@ -653,7 +654,7 @@ void ResultsWidget::glueCrossCap() {
 void ResultsWidget::reverseBoundaries() {
     boundariesReversed = !boundariesReversed;
     std::reverse(boundaryVertices2.begin(), boundaryVertices2.end());
-    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundariesReversed);
+    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2);
     update();
 }
 
@@ -749,7 +750,7 @@ void ResultsWidget::smooth() {
 
     geometryEngine->initMesh(mesh);
     geometryEngine->initLine(drawnVertices, drawingColor);
-    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundariesReversed);
+    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2);
     update();
 }
 

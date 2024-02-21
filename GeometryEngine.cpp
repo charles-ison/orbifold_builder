@@ -134,7 +134,7 @@ std::vector<QVector3D> GeometryEngine::initBoundaryColors(int size) {
     return colors;
 }
 
-void GeometryEngine::initBoundary(std::vector<Vertex*> boundaryVerticesVector1, std::vector<Vertex*> boundaryVerticesVector2, bool boundariesReversed) {
+void GeometryEngine::initBoundary(std::vector<Vertex*> boundaryVerticesVector1, std::vector<Vertex*> boundaryVerticesVector2) {
     std::vector<QVector3D> positions1;
     std::vector<QVector3D> positions2;
     numBoundaryVertices1 = boundaryVerticesVector1.size();
@@ -215,26 +215,6 @@ void GeometryEngine::drawLine(QOpenGLShaderProgram *program) {
 // Actually drawLine
 void GeometryEngine::drawBoundary(QOpenGLShaderProgram *program) {
     // Tell OpenGL which VBOs to use
-    boundaryArrayBuf1.bind();
-
-    // Tell OpenGL programmable pipeline how to locate position data
-    int positionLocation1 = program->attributeLocation("a_position");
-    program->enableAttributeArray(positionLocation1);
-    program->setAttributeBuffer(positionLocation1, GL_FLOAT, 0, 3, sizeof(QVector3D));
-
-    // Tell OpenGL which VBOs to use
-    boundaryColorBuf1.bind();
-
-    // Tell OpenGL programmable pipeline how to locate color data
-    int inputBoundaryColorLocation1 = program->attributeLocation("input_color");
-    program->enableAttributeArray(inputBoundaryColorLocation1);
-    program->setAttributeBuffer(inputBoundaryColorLocation1, GL_FLOAT, 0, 3, sizeof(QVector3D));
-
-    // Draw geometry using indices from VBO 1
-    glLineWidth(10.0);
-    glDrawArrays(GL_LINE_STRIP, 0, numBoundaryVertices1);
-
-    // Tell OpenGL which VBOs to use
     boundaryArrayBuf2.bind();
 
     // Tell OpenGL programmable pipeline how to locate position data
@@ -253,4 +233,24 @@ void GeometryEngine::drawBoundary(QOpenGLShaderProgram *program) {
     // Draw geometry using indices from VBO 1
     glLineWidth(10.0);
     glDrawArrays(GL_LINE_STRIP, 0, numBoundaryVertices2);
+
+    // Tell OpenGL which VBOs to use
+    boundaryArrayBuf1.bind();
+
+    // Tell OpenGL programmable pipeline how to locate position data
+    int positionLocation1 = program->attributeLocation("a_position");
+    program->enableAttributeArray(positionLocation1);
+    program->setAttributeBuffer(positionLocation1, GL_FLOAT, 0, 3, sizeof(QVector3D));
+
+    // Tell OpenGL which VBOs to use
+    boundaryColorBuf1.bind();
+
+    // Tell OpenGL programmable pipeline how to locate color data
+    int inputBoundaryColorLocation1 = program->attributeLocation("input_color");
+    program->enableAttributeArray(inputBoundaryColorLocation1);
+    program->setAttributeBuffer(inputBoundaryColorLocation1, GL_FLOAT, 0, 3, sizeof(QVector3D));
+
+    // Draw geometry using indices from VBO 1
+    glLineWidth(10.0);
+    glDrawArrays(GL_LINE_STRIP, 0, numBoundaryVertices1);
 }
