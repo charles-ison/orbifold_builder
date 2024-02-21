@@ -62,7 +62,7 @@ void ResultsWidget::addSurface(surface newSurface) {
         geometryEngine->initMesh(mesh);
     }
     geometryEngine->initLine(drawnVertices, drawingColor);
-    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2);
+    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize);
     update();
 }
 
@@ -217,6 +217,8 @@ void ResultsWidget::cutSurface() {
     if (numOpenings == 0) {
         boundaryVertices1 = tempBoundaryVertices1;
         boundaryVertices2 = tempBoundaryVertices2;
+        boundary1DisplaySize = boundaryVertices1.size();
+        boundary2DisplaySize = boundaryVertices2.size();
     } else {
         if (!boundariesReversed) {
             std::reverse(boundaryVertices2.begin(), boundaryVertices2.end());
@@ -225,12 +227,13 @@ void ResultsWidget::cutSurface() {
         boundaryVertices2.clear();
         boundaryVertices2.insert(boundaryVertices2.end(), tempBoundaryVertices1.begin(), tempBoundaryVertices1.end());
         boundaryVertices2.insert(boundaryVertices2.end(), tempBoundaryVertices2.begin(), tempBoundaryVertices2.end());
+        boundary2DisplaySize = tempBoundaryVertices2.size();
     }
 
     numOpenings += 1;
     drawnVertices.clear();
     geometryEngine->initLine(drawnVertices, drawingColor);
-    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2);
+    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize);
     geometryEngine->initMesh(mesh);
     update();
 }
@@ -294,12 +297,14 @@ void ResultsWidget::deleteSurface(QMouseEvent *e) {
         boundaryVertices2 = std::vector<Vertex *>(middle, last);
         boundaryVertices1.push_back(boundaryVertices2.front());
         std::reverse(boundaryVertices2.begin(), boundaryVertices2.end());
+        boundary1DisplaySize = boundaryVertices1.size();
+        boundary2DisplaySize = boundaryVertices2.size();
     }
 
     boundariesReversed = false;
     mesh->deleteVertices(verticesToDeleteSet);
     geometryEngine->initMesh(mesh);
-    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2);
+    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize);
     update();
 }
 
@@ -488,6 +493,8 @@ void ResultsWidget::initializeGL() {
     shouldDeleteSurface = false;
     boundariesReversed = false;
     numOpenings = 0;
+    boundary1DisplaySize = 0;
+    boundary2DisplaySize = 0;
     drawingColor = Qt::white;
 
     // Use QBasicTimer because it's faster than QTimer
@@ -585,7 +592,7 @@ void ResultsWidget::glue() {
 
     boundaryVertices1.clear();
     boundaryVertices2.clear();
-    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2);
+    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize);
     geometryEngine->initMesh(mesh);
     update();
 }
@@ -654,7 +661,7 @@ void ResultsWidget::glueCrossCap() {
 void ResultsWidget::reverseBoundaries() {
     boundariesReversed = !boundariesReversed;
     std::reverse(boundaryVertices2.begin(), boundaryVertices2.end());
-    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2);
+    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize);
     update();
 }
 
@@ -750,7 +757,7 @@ void ResultsWidget::smooth() {
 
     geometryEngine->initMesh(mesh);
     geometryEngine->initLine(drawnVertices, drawingColor);
-    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2);
+    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize);
     update();
 }
 

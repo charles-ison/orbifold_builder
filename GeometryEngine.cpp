@@ -125,16 +125,16 @@ void GeometryEngine::initLine(std::vector<Vertex*> lineVerticesVector, QColor co
     lineColorBuf.allocate(&colors[0], numLineVertices * sizeof(QVector3D));
 }
 
-std::vector<QVector3D> GeometryEngine::initBoundaryColors(int size) {
+std::vector<QVector3D> GeometryEngine::initBoundaryColors(int numVertices, int displaySize) {
     std::vector<QVector3D> colors;
-    for (int i=0; i<size; i++) {
-        float boundaryColorScale = float(i)/float(size-1);
+    for (int i=0; i<numVertices; i++) {
+        float boundaryColorScale = float(i % displaySize)/float(displaySize-1);
         colors.push_back({boundaryColorScale, boundaryColorScale, boundaryColorScale});
     }
     return colors;
 }
 
-void GeometryEngine::initBoundary(std::vector<Vertex*> boundaryVerticesVector1, std::vector<Vertex*> boundaryVerticesVector2) {
+void GeometryEngine::initBoundary(std::vector<Vertex*> boundaryVerticesVector1, std::vector<Vertex*> boundaryVerticesVector2, int displaySize1, int displaySize2) {
     std::vector<QVector3D> positions1;
     std::vector<QVector3D> positions2;
     numBoundaryVertices1 = boundaryVerticesVector1.size();
@@ -148,8 +148,8 @@ void GeometryEngine::initBoundary(std::vector<Vertex*> boundaryVerticesVector1, 
         positions2.push_back(boundaryVertex->position);
     }
 
-    std::vector<QVector3D> colors1 = initBoundaryColors(numBoundaryVertices1);
-    std::vector<QVector3D> colors2 = initBoundaryColors(numBoundaryVertices2);
+    std::vector<QVector3D> colors1 = initBoundaryColors(numBoundaryVertices1, displaySize1);
+    std::vector<QVector3D> colors2 = initBoundaryColors(numBoundaryVertices2, displaySize2);
 
     // Transfer position data to VBO 0
     boundaryArrayBuf1.bind();

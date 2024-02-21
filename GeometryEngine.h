@@ -14,12 +14,12 @@ public:
     void drawLine(QOpenGLShaderProgram *program);
     void drawBoundary(QOpenGLShaderProgram *program);
     void initLine(std::vector<Vertex*> lineVerticesVector, QColor color);
-    void initBoundary(std::vector<Vertex*> boundaryVerticesVector1, std::vector<Vertex*> boundaryVerticesVector2);
+    void initBoundary(std::vector<Vertex*> boundaryVerticesVector1, std::vector<Vertex*> boundaryVerticesVector2, int displaySize1, int displaySize2);
     void initMesh(Mesh* mesh);
     void initAnimation(Mesh* mesh);
 
 private:
-    std::vector<QVector3D> initBoundaryColors(int size);
+    std::vector<QVector3D> initBoundaryColors(int numVertices, int displaySize);
 
     int numIndices;
     QOpenGLBuffer arrayBuf;
