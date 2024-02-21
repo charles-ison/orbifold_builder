@@ -186,7 +186,7 @@ void ResultsWidget::cutSurface() {
     }
 
     std::unordered_map<int, int> oldIndexToNewIndexMap;
-    for (int i=0; i<verticesToCut.size(); i++) {
+    for (int i=0; i<verticesToCut.size()-2; i++) {
         Vertex* vertexToCut = verticesToCut[i];
         Vertex* newVertex = new Vertex;
         newVertex->index = vertices.size();
@@ -198,10 +198,10 @@ void ResultsWidget::cutSurface() {
         oldIndexToNewIndexMap.insert({vertexToCut->index, newVertex->index});
     }
 
-    if (loopDetected) {
-        tempBoundaryVertices1.pop_back();
-        tempBoundaryVertices2.pop_back();
-    }
+    //if (loopDetected) {
+    //    tempBoundaryVertices1.pop_back();
+    //    tempBoundaryVertices2.pop_back();
+    //}
 
     // Updating vertices on triangles, adding new triangles, and removing out of date triangles
     for (std::vector<Triangle*> nextTrianglePath : trianglePathsToCut) {
@@ -217,6 +217,9 @@ void ResultsWidget::cutSurface() {
             }
         }
     }
+
+    tempBoundaryVertices1.push_back(tempBoundaryVertices1.front());
+    tempBoundaryVertices2.push_back(tempBoundaryVertices2.front());
 
     if (numOpenings == 0) {
         boundaryVertices1 = tempBoundaryVertices1;
@@ -609,8 +612,8 @@ void ResultsWidget::glueTraditional() {
     int i=0;
     for (int j=0; j<smallerBoundaryVertices.size(); j++) {
         Vertex* smallerBoundaryVertex = smallerBoundaryVertices[j];
-        float smallerBoundaryPercentageCompleted = float(j)/smallerBoundaryVertices.size();
-        float largerBoundaryPercentageCompleted = float(i)/largerBoundaryVertices.size();
+        float smallerBoundaryPercentageCompleted = float(j)/(smallerBoundaryVertices.size()-1);
+        float largerBoundaryPercentageCompleted = float(i)/(largerBoundaryVertices.size()-1);
         while (largerBoundaryPercentageCompleted <= smallerBoundaryPercentageCompleted) {
             Vertex* largerBoundaryVertex = largerBoundaryVertices[i];
             for (Triangle* triangle : largerBoundaryVertex->triangles) {
@@ -623,7 +626,7 @@ void ResultsWidget::glueTraditional() {
                 }
             }
             i += 1;
-            largerBoundaryPercentageCompleted = float(i)/largerBoundaryVertices.size();
+            largerBoundaryPercentageCompleted = float(i)/(largerBoundaryVertices.size()-1);
         }
     }
 }
