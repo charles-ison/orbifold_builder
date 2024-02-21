@@ -227,6 +227,7 @@ void ResultsWidget::cutSurface() {
         boundaryVertices2.clear();
         boundaryVertices2.insert(boundaryVertices2.end(), tempBoundaryVertices1.begin(), tempBoundaryVertices1.end());
         boundaryVertices2.insert(boundaryVertices2.end(), tempBoundaryVertices2.begin(), tempBoundaryVertices2.end());
+        boundary1DisplaySize = boundaryVertices1.size();
         boundary2DisplaySize = tempBoundaryVertices2.size();
     }
 
