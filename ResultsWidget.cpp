@@ -218,8 +218,7 @@ void ResultsWidget::cutSurface() {
         boundaryVertices1 = tempBoundaryVertices1;
         boundaryVertices2 = tempBoundaryVertices2;
     } else {
-        std::reverse(boundaryVertices2.begin(), boundaryVertices2.end());
-        if (boundariesReversed) {
+        if (!boundariesReversed) {
             std::reverse(boundaryVertices2.begin(), boundaryVertices2.end());
         }
         boundaryVertices1.insert(boundaryVertices1.end(), boundaryVertices2.begin(), boundaryVertices2.end());
