@@ -114,7 +114,6 @@ void ResultsWidget::cutSurface() {
         return;
     }
 
-    bool loopDetected = false;
     Triangle* startingTriangle;
     Triangle* stepStartingTriangle;
     std::vector<Vertex*> tempBoundaryVertices1;
@@ -138,7 +137,6 @@ void ResultsWidget::cutSurface() {
 
     // Required for loops
     if (drawnVertices.front() == drawnVertices.back()) {
-        loopDetected = true;
         drawnVertices.push_back(drawnVertices[1]);
     }
 
@@ -197,11 +195,6 @@ void ResultsWidget::cutSurface() {
         vertices = mesh->getVertices();
         oldIndexToNewIndexMap.insert({vertexToCut->index, newVertex->index});
     }
-
-    //if (loopDetected) {
-    //    tempBoundaryVertices1.pop_back();
-    //    tempBoundaryVertices2.pop_back();
-    //}
 
     // Updating vertices on triangles, adding new triangles, and removing out of date triangles
     for (std::vector<Triangle*> nextTrianglePath : trianglePathsToCut) {
