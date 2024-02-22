@@ -26,6 +26,7 @@ void ResultsWidget::addSurface(surface newSurface) {
     boundariesReversed = false;
     isBoundary1Loop = false;
     isBoundary2Loop = false;
+    boundariesAreCombinedLoop = false;
     numOpenings = 0;
     boundary1DisplaySize = 0;
     boundary2DisplaySize = 0;
@@ -66,7 +67,7 @@ void ResultsWidget::addSurface(surface newSurface) {
         geometryEngine->initMesh(mesh);
     }
     geometryEngine->initLine(drawnVertices, drawingColor);
-    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop);
+    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed);
     update();
 }
 
@@ -227,10 +228,13 @@ void ResultsWidget::cutSurface() {
         if (loopDetected) {
             isBoundary1Loop = true;
             isBoundary2Loop = true;
+            boundariesAreCombinedLoop = false;
         }
     } else {
         if (loopDetected) {
+            isBoundary1Loop = true;
             isBoundary2Loop = true;
+            boundariesAreCombinedLoop = false;
         }
 
         if (!boundariesReversed) {
@@ -252,7 +256,7 @@ void ResultsWidget::cutSurface() {
     numOpenings += 1;
     drawnVertices.clear();
     geometryEngine->initLine(drawnVertices, drawingColor);
-    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop);
+    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed);
     geometryEngine->initMesh(mesh);
     update();
 }
@@ -314,8 +318,15 @@ void ResultsWidget::deleteSurface(QMouseEvent *e) {
         auto last = remainingVertices.end();
         boundaryVertices1 = std::vector<Vertex *>(first, middle);
         boundaryVertices2 = std::vector<Vertex *>(middle, last);
-        boundaryVertices1.push_back(boundaryVertices2.front());
         std::reverse(boundaryVertices2.begin(), boundaryVertices2.end());
+
+        if (isBoundary1Loop && isBoundary2Loop) {
+            boundariesAreCombinedLoop = true;
+        }
+
+        isBoundary1Loop = false;
+        isBoundary2Loop = false;
+
         boundary1DisplaySize = boundaryVertices1.size();
         boundary2DisplaySize = boundaryVertices2.size();
     }
@@ -323,7 +334,7 @@ void ResultsWidget::deleteSurface(QMouseEvent *e) {
     boundariesReversed = false;
     mesh->deleteVertices(verticesToDeleteSet);
     geometryEngine->initMesh(mesh);
-    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop);
+    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed);
     update();
 }
 
@@ -513,6 +524,7 @@ void ResultsWidget::initializeGL() {
     boundariesReversed = false;
     isBoundary1Loop = false;
     isBoundary2Loop = false;
+    boundariesAreCombinedLoop = false;
     numOpenings = 0;
     boundary1DisplaySize = 0;
     boundary2DisplaySize = 0;
@@ -613,8 +625,9 @@ void ResultsWidget::glue() {
     isBoundary1Loop = false;
     isBoundary2Loop = false;
     boundariesReversed = false;
+    boundariesAreCombinedLoop = false;
 
-    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop);
+    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed);
     geometryEngine->initMesh(mesh);
     update();
 }
@@ -668,7 +681,7 @@ void ResultsWidget::glueTraditional() {
 void ResultsWidget::reverseBoundaries() {
     boundariesReversed = !boundariesReversed;
     std::reverse(boundaryVertices2.begin(), boundaryVertices2.end());
-    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop);
+    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed);
     update();
 }
 
@@ -764,7 +777,7 @@ void ResultsWidget::smooth() {
 
     geometryEngine->initMesh(mesh);
     geometryEngine->initLine(drawnVertices, drawingColor);
-    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop);
+    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed);
     update();
 }
 

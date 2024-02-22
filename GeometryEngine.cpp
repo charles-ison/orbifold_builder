@@ -134,18 +134,33 @@ std::vector<QVector3D> GeometryEngine::initBoundaryColors(int numVertices, int d
     return colors;
 }
 
-void GeometryEngine::initBoundary(std::vector<Vertex*> boundaryVerticesVector1, std::vector<Vertex*> boundaryVerticesVector2, int displaySize1, int displaySize2, bool isBoundary1Loop, bool isBoundary2Loop) {
+void GeometryEngine::initBoundary(std::vector<Vertex*> boundaryVerticesVector1, std::vector<Vertex*> boundaryVerticesVector2, int displaySize1, int displaySize2, bool isBoundary1Loop, bool isBoundary2Loop, bool boundariesAreCombinedLoop, bool boundariesReversed) {
     std::vector<QVector3D> positions1;
     std::vector<QVector3D> positions2;
 
     std::vector<Vertex*> newBoundaryVerticesVector1 = boundaryVerticesVector1;
     std::vector<Vertex*> newBoundaryVerticesVector2 = boundaryVerticesVector2;
+    int newDisplaySize1 = displaySize1;
+    int newDisplaySize2 = displaySize2;
 
     if (isBoundary1Loop) {
         newBoundaryVerticesVector1.push_back(newBoundaryVerticesVector1.front());
+        newDisplaySize1 += 1;
     }
     if (isBoundary2Loop) {
         newBoundaryVerticesVector2.push_back(newBoundaryVerticesVector2.front());
+        newDisplaySize2 += 1;
+    }
+    if (boundariesAreCombinedLoop) {
+        if (boundariesReversed) {
+            newBoundaryVerticesVector1.push_back(newBoundaryVerticesVector2.front());
+            newBoundaryVerticesVector2.insert(newBoundaryVerticesVector2.begin(), newBoundaryVerticesVector1.back());
+        } else {
+            newBoundaryVerticesVector1.push_back(newBoundaryVerticesVector2.back());
+            newBoundaryVerticesVector2.insert(newBoundaryVerticesVector2.begin(), newBoundaryVerticesVector1.front());
+        }
+        newDisplaySize1 += 1;
+        newDisplaySize2 += 1;
     }
 
     numBoundaryVertices1 = newBoundaryVerticesVector1.size();
@@ -159,8 +174,8 @@ void GeometryEngine::initBoundary(std::vector<Vertex*> boundaryVerticesVector1, 
         positions2.push_back(boundaryVertex->position);
     }
 
-    std::vector<QVector3D> colors1 = initBoundaryColors(numBoundaryVertices1, displaySize1);
-    std::vector<QVector3D> colors2 = initBoundaryColors(numBoundaryVertices2, displaySize2);
+    std::vector<QVector3D> colors1 = initBoundaryColors(numBoundaryVertices1, newDisplaySize1);
+    std::vector<QVector3D> colors2 = initBoundaryColors(numBoundaryVertices2, newDisplaySize2);
 
     // Transfer position data to VBO 0
     boundaryArrayBuf1.bind();

@@ -86,6 +86,7 @@ private:
     bool boundariesReversed;
     bool isBoundary1Loop;
     bool isBoundary2Loop;
+    bool boundariesAreCombinedLoop;
     int numOpenings;
     int boundary1DisplaySize;
     int boundary2DisplaySize;
