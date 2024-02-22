@@ -114,6 +114,7 @@ void ResultsWidget::cutSurface() {
         return;
     }
 
+    bool loopDetected = false;
     Triangle* startingTriangle;
     Triangle* stepStartingTriangle;
     std::vector<Vertex*> tempBoundaryVertices1;
@@ -138,6 +139,7 @@ void ResultsWidget::cutSurface() {
     // Required for loops
     if (drawnVertices.front() == drawnVertices.back()) {
         drawnVertices.push_back(drawnVertices[1]);
+        loopDetected = true;
     }
 
     // Find all triangles that need to be cut
@@ -184,7 +186,8 @@ void ResultsWidget::cutSurface() {
     }
 
     std::unordered_map<int, int> oldIndexToNewIndexMap;
-    for (int i=0; i<verticesToCut.size()-2; i++) {
+    int numVerticesToCut = loopDetected ? verticesToCut.size()-2 : verticesToCut.size();
+    for (int i=0; i<numVerticesToCut; i++) {
         Vertex* vertexToCut = verticesToCut[i];
         Vertex* newVertex = new Vertex;
         newVertex->index = vertices.size();
@@ -211,8 +214,10 @@ void ResultsWidget::cutSurface() {
         }
     }
 
-    tempBoundaryVertices1.push_back(tempBoundaryVertices1.front());
-    tempBoundaryVertices2.push_back(tempBoundaryVertices2.front());
+    if (loopDetected) {
+        tempBoundaryVertices1.push_back(tempBoundaryVertices1.front());
+        tempBoundaryVertices2.push_back(tempBoundaryVertices2.front());
+    }
 
     if (numOpenings == 0) {
         boundaryVertices1 = tempBoundaryVertices1;
@@ -573,14 +578,11 @@ void ResultsWidget::glue() {
         return;
     }
 
-    if (boundariesReversed && numOpenings == 1) {
-        glueCrossCap();
-        numOpenings -= 1;
-    } else if (numOpenings == 1) {
-        glueTraditional();
+    glueTraditional();
+
+    if (numOpenings == 1) {
         numOpenings -= 1;
     } else {
-        glueTraditional();
         numOpenings -= 2;
     }
 
@@ -630,30 +632,17 @@ void ResultsWidget::glueTraditional() {
             largerBoundaryPercentageCompleted = float(i)/(largerBoundaryVertices.size()-1);
         }
     }
-}
 
-void ResultsWidget::glueCrossCap() {
-    for (int i=0; i<boundaryVertices2.size(); i++) {
-        Vertex* boundaryVertex2 = boundaryVertices2[i];
-        Vertex* boundaryVertex1 = boundaryVertices1[boundaryVertices1.size()-i-1];
-
-        for (Triangle* triangle : boundaryVertex2->triangles) {
-            std::vector<int> boundaryTriangleIndices = triangle->vertexIndices;
-            for (int j=0; j<3; j++) {
-                if (boundaryTriangleIndices[j] == boundaryVertex2->index) {
-                    triangle->vertexIndices[j] = boundaryVertex1->index;
-                    boundaryVertex1->triangles.insert(triangle);
+    bool smallerBoundaryNotLoop = smallerBoundaryVertices.back() != smallerBoundaryVertices.front();
+    bool largerBoundaryNotLoop = largerBoundaryVertices.back() != largerBoundaryVertices.front();
+    if (smallerBoundaryNotLoop && largerBoundaryNotLoop) {
+        for (Triangle *triangle: smallerBoundaryVertices.back()->triangles) {
+            std::vector<int> boundaryTriangleVertices = triangle->vertexIndices;
+            for (int j = 0; j < 3; j++) {
+                if (boundaryTriangleVertices[j] == smallerBoundaryVertices.back()->index) {
+                    triangle->vertexIndices[j] = smallerBoundaryVertices.front()->index;
+                    smallerBoundaryVertices.front()->triangles.insert(triangle);
                 }
-            }
-        }
-    }
-
-    for (Triangle* triangle: boundaryVertices1.back()->triangles) {
-        std::vector<int> boundaryTriangleVertices = triangle->vertexIndices;
-        for (int j=0; j<3; j++) {
-            if (boundaryTriangleVertices[j] == boundaryVertices1.back()->index) {
-                triangle->vertexIndices[j] = boundaryVertices1.front()->index;
-                boundaryVertices1.front()->triangles.insert(triangle);
             }
         }
     }
