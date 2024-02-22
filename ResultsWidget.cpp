@@ -27,6 +27,8 @@ void ResultsWidget::addSurface(surface newSurface) {
     isBoundary1Loop = false;
     isBoundary2Loop = false;
     numOpenings = 0;
+    boundary1DisplaySize = 0;
+    boundary2DisplaySize = 0;
     drawnVertices.clear();
     boundaryVertices1.clear();
     boundaryVertices2.clear();
@@ -230,11 +232,16 @@ void ResultsWidget::cutSurface() {
         if (!boundariesReversed) {
             std::reverse(boundaryVertices2.begin(), boundaryVertices2.end());
         }
+
+        // This is a hack and should be removed
+        if (boundaryVertices1.front()->position != boundaryVertices2.front()->position && boundaryVertices1.front()->position != boundaryVertices2.back()->position ) {
+            boundary1DisplaySize = boundaryVertices1.size() + boundaryVertices2.size();
+        }
+
         boundaryVertices1.insert(boundaryVertices1.end(), boundaryVertices2.begin(), boundaryVertices2.end());
         boundaryVertices2.clear();
         boundaryVertices2.insert(boundaryVertices2.end(), tempBoundaryVertices1.begin(), tempBoundaryVertices1.end());
         boundaryVertices2.insert(boundaryVertices2.end(), tempBoundaryVertices2.begin(), tempBoundaryVertices2.end());
-        boundary1DisplaySize = boundaryVertices1.size();
         boundary2DisplaySize = tempBoundaryVertices2.size();
     }
 
