@@ -134,17 +134,28 @@ std::vector<QVector3D> GeometryEngine::initBoundaryColors(int numVertices, int d
     return colors;
 }
 
-void GeometryEngine::initBoundary(std::vector<Vertex*> boundaryVerticesVector1, std::vector<Vertex*> boundaryVerticesVector2, int displaySize1, int displaySize2) {
+void GeometryEngine::initBoundary(std::vector<Vertex*> boundaryVerticesVector1, std::vector<Vertex*> boundaryVerticesVector2, int displaySize1, int displaySize2, bool isBoundary1Loop, bool isBoundary2Loop) {
     std::vector<QVector3D> positions1;
     std::vector<QVector3D> positions2;
-    numBoundaryVertices1 = boundaryVerticesVector1.size();
-    numBoundaryVertices2 = boundaryVerticesVector2.size();
 
-    for (Vertex* boundaryVertex : boundaryVerticesVector1) {
+    std::vector<Vertex*> newBoundaryVerticesVector1 = boundaryVerticesVector1;
+    std::vector<Vertex*> newBoundaryVerticesVector2 = boundaryVerticesVector2;
+
+    if (isBoundary1Loop) {
+        newBoundaryVerticesVector1.push_back(newBoundaryVerticesVector1.front());
+    }
+    if (isBoundary2Loop) {
+        newBoundaryVerticesVector2.push_back(newBoundaryVerticesVector2.front());
+    }
+
+    numBoundaryVertices1 = newBoundaryVerticesVector1.size();
+    numBoundaryVertices2 = newBoundaryVerticesVector2.size();
+
+    for (Vertex* boundaryVertex : newBoundaryVerticesVector1) {
         positions1.push_back(boundaryVertex->position);
     }
 
-    for (Vertex* boundaryVertex : boundaryVerticesVector2) {
+    for (Vertex* boundaryVertex : newBoundaryVerticesVector2) {
         positions2.push_back(boundaryVertex->position);
     }
 

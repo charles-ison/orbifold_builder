@@ -14,7 +14,7 @@ public:
     void drawLine(QOpenGLShaderProgram *program);
     void drawBoundary(QOpenGLShaderProgram *program);
     void initLine(std::vector<Vertex*> lineVerticesVector, QColor color);
-    void initBoundary(std::vector<Vertex*> boundaryVerticesVector1, std::vector<Vertex*> boundaryVerticesVector2, int displaySize1, int displaySize2);
+    void initBoundary(std::vector<Vertex*> boundaryVerticesVector1, std::vector<Vertex*> boundaryVerticesVector2, int displaySize1, int displaySize2, bool isBoundary1Loop, bool isBoundary2Loop);
     void initMesh(Mesh* mesh);
     void initAnimation(Mesh* mesh);
 

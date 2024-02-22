@@ -84,7 +84,8 @@ private:
     bool shouldAnimate;
     bool shouldDeleteSurface;
     bool boundariesReversed;
-    bool recentOpeningIsCut;
+    bool isBoundary1Loop;
+    bool isBoundary2Loop;
     int numOpenings;
     int boundary1DisplaySize;
     int boundary2DisplaySize;
