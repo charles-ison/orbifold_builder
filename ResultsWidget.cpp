@@ -229,6 +229,10 @@ void ResultsWidget::cutSurface() {
             isBoundary2Loop = true;
         }
     } else {
+        if (loopDetected) {
+            isBoundary2Loop = true;
+        }
+
         if (!boundariesReversed) {
             std::reverse(boundaryVertices2.begin(), boundaryVertices2.end());
         }
@@ -507,8 +511,8 @@ void ResultsWidget::initializeGL() {
     shouldPaintGL = false;
     shouldDeleteSurface = false;
     boundariesReversed = false;
-    isBoundary1Loop = true;
-    isBoundary2Loop = true;
+    isBoundary1Loop = false;
+    isBoundary2Loop = false;
     numOpenings = 0;
     boundary1DisplaySize = 0;
     boundary2DisplaySize = 0;
@@ -648,9 +652,7 @@ void ResultsWidget::glueTraditional() {
         }
     }
 
-    bool smallerBoundaryNotLoop = smallerBoundaryVertices.back() != smallerBoundaryVertices.front();
-    bool largerBoundaryNotLoop = largerBoundaryVertices.back() != largerBoundaryVertices.front();
-    if (smallerBoundaryNotLoop && largerBoundaryNotLoop) {
+    if (!isBoundary1Loop && !isBoundary2Loop && boundariesReversed) {
         for (Triangle *triangle: smallerBoundaryVertices.back()->triangles) {
             std::vector<int> boundaryTriangleVertices = triangle->vertexIndices;
             for (int j = 0; j < 3; j++) {
