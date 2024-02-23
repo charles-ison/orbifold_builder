@@ -5,41 +5,42 @@
 PlyFile::PlyFile(QString fileName, QVector3D centerPosition, QVector3D scale) {
     std::ifstream plyFile(fileName.toStdString(), std::ifstream::binary);
     std::string plyFileToken;
+    int numProperties = -1;
     while(plyFileToken != "end_header") {
         plyFile >> plyFileToken;
         if (plyFileToken == "vertex") {
             plyFile >> plyFileToken;
             numVertices = stoi(plyFileToken);
         }
-        if (plyFileToken == "face") {
+        else if (plyFileToken == "face") {
             plyFile >> plyFileToken;
             numTriangles = stoi(plyFileToken);
         }
+        else if (plyFileToken == "property") {
+            numProperties += 1;
+        }
     }
 
-    int vertexCounter = 0;
-    for (int i=0; i<4*numVertices; i+=4) {
+    for (int i=0; i<numVertices; i+=1) {
         plyFile >> plyFileToken;
-        int x = stoi(plyFileToken);
-
-        plyFile >> plyFileToken;
-        int y = stoi(plyFileToken);
+        float x = stof(plyFileToken);
 
         plyFile >> plyFileToken;
-        int z = stoi(plyFileToken);
+        float y = stof(plyFileToken);
 
-        // Reading in angle deficit, but not doing anything with it
         plyFile >> plyFileToken;
+        float z = stof(plyFileToken);
 
-        std::cout << "x: " << x << std::endl;
-        std::cout << "y: " << y << std::endl;
-        std::cout << "z: " << z << std::endl;
+        int numPropertiesRead = 3;
+        while (numPropertiesRead < numProperties) {
+            plyFile >> plyFileToken;
+            numPropertiesRead += 1;
+        }
 
-        vertices.push_back({.index = vertexCounter, .position = QVector3D(x,  y,  z)});
-        vertexCounter += 1;
+        vertices.push_back({.index = i, .position = QVector3D(x,  y,  z)});
     }
 
-    for (int i=0; i<5*numTriangles; i+=5) {
+    for (int i=0; i<numTriangles; i+=1) {
         // Reading in number of vertices, but not doing anything with it
         plyFile >> plyFileToken;
 
@@ -52,11 +53,7 @@ PlyFile::PlyFile(QString fileName, QVector3D centerPosition, QVector3D scale) {
         plyFile >> plyFileToken;
         int index2 = stoi(plyFileToken);
 
-        plyFile >> plyFileToken;
-        int index3 = stoi(plyFileToken);
-
         triangles.push_back({{index0,  index1,  index2}});
-        triangles.push_back({{index1,  index2,  index3}});
     }
     plyFile.close();
     initNeighbors();

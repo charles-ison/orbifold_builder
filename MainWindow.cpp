@@ -398,7 +398,7 @@ template<typename PointerToMemberFunction> QMenu *MainWindow::createAddSurfaceMe
     QList<ResultsWidget::Surface> surfaceEnums;
     surfaceEnums << ResultsWidget::Surface::cube << ResultsWidget::Surface::sphere << ResultsWidget::Surface::torus << ResultsWidget::Surface::mobiusStrip << ResultsWidget::Surface::crossCap << ResultsWidget::Surface::kleinBottle << ResultsWidget::Surface::plyFile;
     QStringList surfaceNames;
-    surfaceNames << tr("Cube") << tr("Sphere") << tr("Torus") << tr("Mobius Strip") << tr("Cross-cap") << tr("Klein Bottle") << tr("From Ply File");
+    surfaceNames << tr("Cube") << tr("Sphere") << tr("Torus") << tr("Mobius Strip") << tr("Cross-cap") << tr("Klein Bottle") << tr("Ply File");
 
     QMenu *surfaceMenu = new QMenu(this);
     for (int i = 0; i < surfaceEnums.count(); ++i) {
