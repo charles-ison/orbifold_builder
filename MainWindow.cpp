@@ -97,7 +97,7 @@ void MainWindow::deleteItem() {
 void MainWindow::addSurface() {
     addSurfaceAction = qobject_cast<QAction *>(sender());
     addSurfaceButton->menu()->setDefaultAction(addSurfaceAction);
-    ResultsWidget::surface surface  = qvariant_cast<ResultsWidget::surface>(addSurfaceAction->data());
+    ResultsWidget::Surface surface  = qvariant_cast<ResultsWidget::Surface>(addSurfaceAction->data());
     resultsWidget->addSurface(surface);
 }
 
@@ -114,7 +114,10 @@ void MainWindow::glue() {
 }
 
 void MainWindow::smooth() {
-    resultsWidget->smooth();
+    smoothAction = qobject_cast<QAction *>(sender());
+    smoothButton->menu()->setDefaultAction(smoothAction);
+    ResultsWidget::SmoothingAmount smoothingAmount  = qvariant_cast<ResultsWidget::SmoothingAmount>(smoothAction->data());
+    resultsWidget->smooth(smoothingAmount);
 }
 
 void MainWindow::reverseBoundaries() {
@@ -311,9 +314,11 @@ void MainWindow::createToolbars() {
     connect(glueButton, &QAbstractButton::clicked, this, &MainWindow::glue);
 
     smoothButton = new QToolButton;
-    smoothButton->setText(tr("Smooth"));
+    smoothButton->setPopupMode(QToolButton::MenuButtonPopup);
+    smoothButton->setMenu(createSmoothingMenu(&MainWindow::smooth));
+    smoothAction = addSurfaceButton->menu()->defaultAction();
+    smoothButton->setText("Smooth");
     smoothButton->setMinimumHeight(fundamentalPolygonToolBarHeight);
-    connect(smoothButton, &QAbstractButton::clicked, this, &MainWindow::smooth);
 
     reverseButton = new QToolButton;
     reverseButton->setText(tr("Reverse"));
@@ -390,8 +395,8 @@ template<typename PointerToMemberFunction> QMenu *MainWindow::createZoomMenu(con
 }
 
 template<typename PointerToMemberFunction> QMenu *MainWindow::createAddSurfaceMenu(const PointerToMemberFunction &slot) {
-    QList<ResultsWidget::surface> surfaceEnums;
-    surfaceEnums << ResultsWidget::surface::cube << ResultsWidget::surface::sphere << ResultsWidget::surface::torus << ResultsWidget::surface::mobiusStrip << ResultsWidget::surface::crossCap << ResultsWidget::surface::kleinBottle << ResultsWidget::surface::plyFile;
+    QList<ResultsWidget::Surface> surfaceEnums;
+    surfaceEnums << ResultsWidget::Surface::cube << ResultsWidget::Surface::sphere << ResultsWidget::Surface::torus << ResultsWidget::Surface::mobiusStrip << ResultsWidget::Surface::crossCap << ResultsWidget::Surface::kleinBottle << ResultsWidget::Surface::plyFile;
     QStringList surfaceNames;
     surfaceNames << tr("Cube") << tr("Sphere") << tr("Torus") << tr("Mobius Strip") << tr("Cross-cap") << tr("Klein Bottle") << tr("Ply File");
 
@@ -405,6 +410,24 @@ template<typename PointerToMemberFunction> QMenu *MainWindow::createAddSurfaceMe
             surfaceMenu->setDefaultAction(action);
     }
     return surfaceMenu;
+}
+
+template<typename PointerToMemberFunction> QMenu *MainWindow::createSmoothingMenu(const PointerToMemberFunction &slot) {
+    QList<ResultsWidget::SmoothingAmount> smoothingAmounts;
+    smoothingAmounts << ResultsWidget::SmoothingAmount::constrained << ResultsWidget::SmoothingAmount::unconstrained;
+    QStringList smoothingAmountNames;
+    smoothingAmountNames << tr("Constrained") << tr("Unconstrained");
+
+    QMenu *smoothingMenu = new QMenu(this);
+    for (int i = 0; i < smoothingAmounts.count(); ++i) {
+        QAction *action = new QAction(smoothingAmountNames.at(i), this);
+        action->setData(smoothingAmounts.at(i));
+        connect(action, &QAction::triggered, this, slot);
+        smoothingMenu->addAction(action);
+        if (smoothingAmounts.at(i) == 1.0)
+            smoothingMenu->setDefaultAction(action);
+    }
+    return smoothingMenu;
 }
 
 QIcon MainWindow::createColorToolButtonIcon(const QString &imageFile, QColor color) {

@@ -22,7 +22,7 @@ ResultsWidget::~ResultsWidget() {
     doneCurrent();
 }
 
-void ResultsWidget::addSurface(surface newSurface) {
+void ResultsWidget::addSurface(Surface newSurface) {
     shouldPaintGL = true;
     boundariesReversed = false;
     isBoundary1Loop = false;
@@ -36,31 +36,31 @@ void ResultsWidget::addSurface(surface newSurface) {
     boundaryVertices2.clear();
     oldBoundaries.clear();
     QVector3D centerPosition = {0, 0, 0};
-    if (newSurface == surface::cube) {
+    if (newSurface == Surface::cube) {
         QVector3D scale = {1.0, 0.0, 0.0};
         cubeSurface = new Cube(centerPosition, scale);
         mesh->resetSurface(cubeSurface);
-    } else if (newSurface == surface::sphere) {
+    } else if (newSurface == Surface::sphere) {
         QVector3D scale = {1.3, 1.3, 1.3};
         sphereSurface = new Sphere(centerPosition, scale);
         mesh->resetSurface( sphereSurface);
-    } else if (newSurface == surface::torus) {
+    } else if (newSurface == Surface::torus) {
         QVector3D scale = {1.0, 0.5, 0.0};
         torusSurface = new Torus(centerPosition, scale);
         mesh->resetSurface(torusSurface);
-    } else if (newSurface == surface::mobiusStrip) {
+    } else if (newSurface == Surface::mobiusStrip) {
         QVector3D scale = {1.0, 0.0, 0.0};
         mobiusStripSurface = new MobiusStrip(centerPosition, scale);
         mesh->resetSurface(mobiusStripSurface);
-    } else if (newSurface == surface::crossCap) {
+    } else if (newSurface == Surface::crossCap) {
         QVector3D scale = {1.5, 1.0, 1.0};
         crossCapSurface = new CrossCap(centerPosition, scale);
         mesh->resetSurface(crossCapSurface);
-    } else if (newSurface == surface::kleinBottle) {
+    } else if (newSurface == Surface::kleinBottle) {
         QVector3D scale = {0.5, 1.0, 0.5};
         kleinBottleSurface = new KleinBottle(centerPosition, scale);
         mesh->resetSurface(kleinBottleSurface);
-    } else if (newSurface == surface::plyFile) {
+    } else if (newSurface == Surface::plyFile) {
         QString fileName = QFileDialog::getOpenFileName(this,tr("Open Ply File"), QDir::homePath(), tr("Ply Files (*.ply)"));
         std::cout << fileName.toStdString() << std::endl;
     }
@@ -728,11 +728,17 @@ std::vector<Vertex*> ResultsWidget::findVerticesToSmooth() {
     return verticesToSmooth;
 }
 
-void ResultsWidget::smooth() {
+void ResultsWidget::smooth(SmoothingAmount smoothingAmount) {
     float stepSize = 1.0;
     std::vector<QVector3D> newPositions;
     std::vector<Vertex*> vertices = mesh->getVertices();
-    std::vector<Vertex*> verticesToSmooth = findVerticesToSmooth();
+    std::vector<Vertex*> verticesToSmooth;
+
+    if (smoothingAmount == SmoothingAmount::constrained) {
+        verticesToSmooth = findVerticesToSmooth();
+    } else {
+        verticesToSmooth = vertices;
+    }
 
     for (Vertex* vertex : verticesToSmooth) {
         float xDiff = 0.0;

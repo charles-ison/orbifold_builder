@@ -26,14 +26,15 @@ class ResultsWidget : public QOpenGLWidget, protected QOpenGLFunctions {
 public:
     using QOpenGLWidget::QOpenGLWidget;
     ~ResultsWidget();
-    enum surface {sphere, cube, torus, mobiusStrip, crossCap, kleinBottle, plyFile};
-    void addSurface(surface newSurface);
+    enum Surface {sphere, cube, torus, mobiusStrip, crossCap, kleinBottle, plyFile};
+    enum SmoothingAmount {constrained, unconstrained};
+    void addSurface(Surface newSurface);
     void cutSurface();
     void setDrawingColor(QColor newColor);
     void resizeGL(int w, int h) override;
     void toggleShouldDeleteSurface();
     void glue();
-    void smooth();
+    void smooth(SmoothingAmount smoothingAmount);
     void reverseBoundaries();
     void glueAnimation();
 

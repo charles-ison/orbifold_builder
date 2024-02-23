@@ -60,6 +60,7 @@ private:
     template<typename PointerToMemberFunction> QMenu *createColorMenu(const PointerToMemberFunction &slot, QColor defaultColor);
     template<typename PointerToMemberFunction> QMenu *createZoomMenu(const PointerToMemberFunction &slot);
     template<typename PointerToMemberFunction> QMenu *createAddSurfaceMenu(const PointerToMemberFunction &slot);
+    template<typename PointerToMemberFunction> QMenu *createSmoothingMenu(const PointerToMemberFunction &slot);
     QIcon createColorToolButtonIcon(const QString &image, QColor color);
     QIcon createColorIcon(QColor color);
 
@@ -77,6 +78,7 @@ private:
     QAction *deleteAction;
     QAction *aboutAction;
     QAction *addSurfaceAction;
+    QAction *smoothAction;
     QAction *zoomAction;
     QAction *drawAction;
     QAction *fundamentalPolygonAction;
