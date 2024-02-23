@@ -26,7 +26,7 @@ class ResultsWidget : public QOpenGLWidget, protected QOpenGLFunctions {
 public:
     using QOpenGLWidget::QOpenGLWidget;
     ~ResultsWidget();
-    enum surface {sphere, cube, torus, mobiusStrip, crossCap, kleinBottle};
+    enum surface {sphere, cube, torus, mobiusStrip, crossCap, kleinBottle, plyFile};
     void addSurface(surface newSurface);
     void cutSurface();
     void setDrawingColor(QColor newColor);

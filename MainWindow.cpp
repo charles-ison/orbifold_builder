@@ -391,9 +391,9 @@ template<typename PointerToMemberFunction> QMenu *MainWindow::createZoomMenu(con
 
 template<typename PointerToMemberFunction> QMenu *MainWindow::createAddSurfaceMenu(const PointerToMemberFunction &slot) {
     QList<ResultsWidget::surface> surfaceEnums;
-    surfaceEnums << ResultsWidget::surface::cube << ResultsWidget::surface::sphere << ResultsWidget::surface::torus << ResultsWidget::surface::mobiusStrip << ResultsWidget::surface::crossCap << ResultsWidget::surface::kleinBottle;
+    surfaceEnums << ResultsWidget::surface::cube << ResultsWidget::surface::sphere << ResultsWidget::surface::torus << ResultsWidget::surface::mobiusStrip << ResultsWidget::surface::crossCap << ResultsWidget::surface::kleinBottle << ResultsWidget::surface::plyFile;
     QStringList surfaceNames;
-    surfaceNames << tr("Cube") << tr("Sphere") << tr("Torus") << tr("Mobius Strip") << tr("Cross-cap") << tr("Klein Bottle");
+    surfaceNames << tr("Cube") << tr("Sphere") << tr("Torus") << tr("Mobius Strip") << tr("Cross-cap") << tr("Klein Bottle") << tr("Ply File");
 
     QMenu *surfaceMenu = new QMenu(this);
     for (int i = 0; i < surfaceEnums.count(); ++i) {
