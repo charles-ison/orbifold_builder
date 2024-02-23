@@ -84,10 +84,12 @@ void ResultsWidget::mousePressEvent(QMouseEvent *e) {
     if (shouldDeleteSurface) {
         deleteSurface(e);
     } else {
-        // TODO: Switch comments for testing
-        //mouseMoveEvent(e);
-        drawnVertices.clear();
-        isDrawingMode = true;
+        if (drawingMode == DrawingMode::click) {
+            mouseMoveEvent(e);
+        } else {
+            drawnVertices.clear();
+        }
+        isDrawingEnabled = true;
     }
 }
 
@@ -344,14 +346,15 @@ void ResultsWidget::deleteSurface(QMouseEvent *e) {
 }
 
 void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
-    if (not isDrawingMode or not shouldPaintGL) {
+    if (not isDrawingEnabled or not shouldPaintGL) {
         return;
     }
 
     Vertex *vertex = getVertexFromMouseEvent(e);
     if (vertex == nullptr) {
-        // TODO: comment out for testing
-        drawnVertices.clear();
+        if (drawingMode==DrawingMode::drag) {
+            drawnVertices.clear();
+        }
     } else if (drawnVertices.size() == 0 || vertex != drawnVertices.back()) {
         addDrawnVertices(vertex);
     }
@@ -371,9 +374,7 @@ Vertex* ResultsWidget::getVertexFromMouseEvent(QMouseEvent *e) {
     for (int i=0; i<vertices.size(); i++) {
         QVector3D surfacePosition = mvp_matrix.map(vertices[i]->position);
         float xyDistance = sqrt(pow(x - surfacePosition.x(), 2) + pow(y - surfacePosition.y(), 2));
-
-        //TODO: Change to 0.15 for testing
-        if (xyDistance < 0.015 && surfacePosition.z() < smallestZDistance) {
+        if (xyDistance < xyThreshold && surfacePosition.z() < smallestZDistance) {
             smallestZDistance = surfacePosition.z();
             closestVertex = vertices[i];
             surfaceVertexFound = true;
@@ -463,7 +464,7 @@ bool ResultsWidget::drawnVerticesContainLoop(Vertex *newVertex) {
     bool loopFound = false;
     for (int i=0; i<drawnVertices.size(); i++) {
         if (drawnVertices[i] == newVertex) {
-            isDrawingMode = false;
+            isDrawingEnabled = false;
             loopFound = true;
             for (int j=0; j<i; j++) {
                 drawnVertices.erase(drawnVertices.begin());
@@ -523,16 +524,18 @@ void ResultsWidget::initializeGL() {
     geometryEngine = new GeometryEngine();
     mesh = new Mesh();
 
-    isDrawingMode = true;
+    isDrawingEnabled = true;
     shouldPaintGL = false;
     shouldDeleteSurface = false;
     boundariesReversed = false;
     isBoundary1Loop = false;
     isBoundary2Loop = false;
     boundariesAreCombinedLoop = false;
+    drawingMode = DrawingMode::click;
     numOpenings = 0;
     boundary1DisplaySize = 0;
     boundary2DisplaySize = 0;
+    xyThreshold = xyThresholdClick;
     drawingColor = Qt::white;
 
     // Use QBasicTimer because it's faster than QTimer
@@ -603,6 +606,15 @@ void ResultsWidget::paintGL() {
 
 void ResultsWidget::setDrawingColor(QColor newColor) {
     drawingColor = newColor;
+}
+
+void ResultsWidget::setDrawingMode(DrawingMode newDrawingMode) {
+    drawingMode = newDrawingMode;
+    if (drawingMode == DrawingMode::drag) {
+        xyThreshold = xyThresholdDrag;
+    } else {
+        xyThreshold = xyThresholdClick;
+    }
 }
 
 void ResultsWidget::glue() {

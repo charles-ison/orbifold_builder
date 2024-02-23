@@ -29,6 +29,7 @@ public:
     ~ResultsWidget();
     enum Surface {sphere, cube, torus, mobiusStrip, crossCap, kleinBottle, plyFile};
     enum SmoothingAmount {constrained, unconstrained};
+    enum DrawingMode {click, drag};
     void addSurface(Surface newSurface);
     void cutSurface();
     void setDrawingColor(QColor newColor);
@@ -38,6 +39,7 @@ public:
     void smooth(SmoothingAmount smoothingAmount);
     void reverseBoundaries();
     void glueAnimation();
+    void setDrawingMode(DrawingMode newDrawingMode);
 
 protected:
     void mousePressEvent(QMouseEvent *e) override;
@@ -82,7 +84,8 @@ private:
     std::vector<Vertex*> boundaryVertices2;
     std::vector<Vertex*> oldBoundaries;
     QColor drawingColor;
-    bool isDrawingMode;
+    DrawingMode drawingMode;
+    bool isDrawingEnabled;
     bool shouldPaintGL;
     bool shouldAnimate;
     bool shouldDeleteSurface;
@@ -93,6 +96,9 @@ private:
     int numOpenings;
     int boundary1DisplaySize;
     int boundary2DisplaySize;
+    float xyThreshold;
+    const float xyThresholdClick = 0.05;
+    const float xyThresholdDrag = 0.015;
 };
 
 #endif

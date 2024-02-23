@@ -33,6 +33,7 @@ private slots:
     void cutSurface();
     void glue();
     void smooth();
+    void drawingModeChanged();
     void reverseBoundaries();
     void toggleShouldDeleteSurface();
     void toggleFundamentalPolygon();
@@ -61,6 +62,7 @@ private:
     template<typename PointerToMemberFunction> QMenu *createZoomMenu(const PointerToMemberFunction &slot);
     template<typename PointerToMemberFunction> QMenu *createAddSurfaceMenu(const PointerToMemberFunction &slot);
     template<typename PointerToMemberFunction> QMenu *createSmoothingMenu(const PointerToMemberFunction &slot);
+    template<typename PointerToMemberFunction> QMenu *createDrawingModeMenu(const PointerToMemberFunction &slot);
     QIcon createColorToolButtonIcon(const QString &image, QColor color);
     QIcon createColorIcon(QColor color);
 
@@ -79,8 +81,9 @@ private:
     QAction *aboutAction;
     QAction *addSurfaceAction;
     QAction *smoothAction;
+    QAction *drawingModeAction;
     QAction *zoomAction;
-    QAction *drawAction;
+    QAction *drawingColorAction;
     QAction *fundamentalPolygonAction;
 
     QMenu *fileMenu;
@@ -99,11 +102,12 @@ private:
     QToolButton *textButton;
     QToolButton *zoomButton;
     QToolButton *addSurfaceButton;
-    QToolButton *drawButton;
+    QToolButton *drawingColorButton;
     QToolButton *cutSurfaceButton;
     QToolButton *deleteSurfaceButton;
     QToolButton *glueButton;
     QToolButton *smoothButton;
+    QToolButton *drawingModeButton;
     QToolButton *reverseButton;
     QAction *textAction;
     QAction *fillAction;

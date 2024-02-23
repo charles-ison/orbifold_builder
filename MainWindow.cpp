@@ -120,6 +120,13 @@ void MainWindow::smooth() {
     resultsWidget->smooth(smoothingAmount);
 }
 
+void MainWindow::drawingModeChanged() {
+    drawingModeAction = qobject_cast<QAction *>(sender());
+    drawingModeButton->menu()->setDefaultAction(drawingModeAction);
+    ResultsWidget::DrawingMode drawingMode  = qvariant_cast<ResultsWidget::DrawingMode>(drawingModeAction->data());
+    resultsWidget->setDrawingMode(drawingMode);
+}
+
 void MainWindow::reverseBoundaries() {
     resultsWidget->reverseBoundaries();
 }
@@ -131,10 +138,10 @@ void MainWindow::toggleFundamentalPolygon() {
 }
 
 void MainWindow::drawingColorChanged() {
-    drawAction = qobject_cast<QAction *>(sender());
-    drawButton->menu()->setDefaultAction(drawAction);
-    QColor newColor = qvariant_cast<QColor>(drawAction->data());
-    drawButton->setIcon(createColorToolButtonIcon(":/images/linecolor.png",newColor));
+    drawingColorAction = qobject_cast<QAction *>(sender());
+    drawingColorButton->menu()->setDefaultAction(drawingColorAction);
+    QColor newColor = qvariant_cast<QColor>(drawingColorAction->data());
+    drawingColorButton->setIcon(createColorToolButtonIcon(":/images/linecolor.png",newColor));
     resultsWidget->setDrawingColor(newColor);
 }
 
@@ -290,12 +297,19 @@ void MainWindow::createToolbars() {
     addSurfaceButton->setText("Add");
     addSurfaceButton->setMinimumHeight(fundamentalPolygonToolBarHeight);
 
-    drawButton = new QToolButton;
-    drawButton->setPopupMode(QToolButton::MenuButtonPopup);
-    drawButton->setMenu(createColorMenu(&MainWindow::drawingColorChanged, Qt::white));
-    drawAction = drawButton->menu()->defaultAction();
-    drawButton->setIcon(createColorToolButtonIcon(":/images/linecolor.png", Qt::white));
-    drawButton->setMinimumHeight(fundamentalPolygonToolBarHeight);
+    drawingModeButton = new QToolButton;
+    drawingModeButton->setPopupMode(QToolButton::MenuButtonPopup);
+    drawingModeButton->setMenu(createDrawingModeMenu(&MainWindow::drawingModeChanged));
+    drawingModeAction = drawingModeButton->menu()->defaultAction();
+    drawingModeButton->setText("Draw Mode");
+    drawingModeButton->setMinimumHeight(fundamentalPolygonToolBarHeight);
+
+    drawingColorButton = new QToolButton;
+    drawingColorButton->setPopupMode(QToolButton::MenuButtonPopup);
+    drawingColorButton->setMenu(createColorMenu(&MainWindow::drawingColorChanged, Qt::white));
+    drawingColorAction = drawingColorButton->menu()->defaultAction();
+    drawingColorButton->setIcon(createColorToolButtonIcon(":/images/linecolor.png", Qt::white));
+    drawingColorButton->setMinimumHeight(fundamentalPolygonToolBarHeight);
 
     cutSurfaceButton = new QToolButton;
     cutSurfaceButton->setText(tr("Cut"));
@@ -334,7 +348,8 @@ void MainWindow::createToolbars() {
 
     resultsToolBar = new QToolBar;
     resultsToolBar->addWidget(addSurfaceButton);
-    resultsToolBar->addWidget(drawButton);
+    resultsToolBar->addWidget(drawingModeButton);
+    resultsToolBar->addWidget(drawingColorButton);
     resultsToolBar->addWidget(cutSurfaceButton);
     resultsToolBar->addWidget(deleteSurfaceButton);
     resultsToolBar->addWidget(glueButton);
@@ -424,10 +439,28 @@ template<typename PointerToMemberFunction> QMenu *MainWindow::createSmoothingMen
         action->setData(smoothingAmounts.at(i));
         connect(action, &QAction::triggered, this, slot);
         smoothingMenu->addAction(action);
-        if (smoothingAmounts.at(i) == 1.0)
+        if (smoothingAmounts.at(i) == 0.0)
             smoothingMenu->setDefaultAction(action);
     }
     return smoothingMenu;
+}
+
+template<typename PointerToMemberFunction> QMenu *MainWindow::createDrawingModeMenu(const PointerToMemberFunction &slot) {
+    QList<ResultsWidget::DrawingMode> drawingModes;
+    drawingModes << ResultsWidget::DrawingMode::click << ResultsWidget::DrawingMode::drag;
+    QStringList drawingModeNames;
+    drawingModeNames << tr("Click") << tr("Drag");
+
+    QMenu *drawingModeMenu = new QMenu(this);
+    for (int i = 0; i < drawingModes.count(); ++i) {
+        QAction *action = new QAction(drawingModeNames.at(i), this);
+        action->setData(drawingModes.at(i));
+        connect(action, &QAction::triggered, this, slot);
+        drawingModeMenu->addAction(action);
+        if (drawingModes.at(i) == 0.0)
+            drawingModeMenu->setDefaultAction(action);
+    }
+    return drawingModeMenu;
 }
 
 QIcon MainWindow::createColorToolButtonIcon(const QString &imageFile, QColor color) {
