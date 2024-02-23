@@ -730,60 +730,64 @@ std::vector<Vertex*> ResultsWidget::findVerticesToSmooth() {
 }
 
 void ResultsWidget::smooth(SmoothingAmount smoothingAmount) {
-    float stepSize = 1.0;
-    std::vector<QVector3D> newPositions;
-    std::vector<Vertex*> vertices = mesh->getVertices();
-    std::vector<Vertex*> verticesToSmooth;
 
-    if (smoothingAmount == SmoothingAmount::constrained) {
-        verticesToSmooth = findVerticesToSmooth();
-    } else {
-        verticesToSmooth = vertices;
-    }
+    int numSmoothingSteps = 5;
+    for (int i=0; i<numSmoothingSteps; i++) {
+        float stepSize = 1.0;
+        std::vector<QVector3D> newPositions;
+        std::vector<Vertex *> vertices = mesh->getVertices();
+        std::vector<Vertex *> verticesToSmooth;
 
-    for (Vertex* vertex : verticesToSmooth) {
-        float xDiff = 0.0;
-        float yDiff = 0.0;
-        float zDiff = 0.0;
-        float weightDenominator = 0.0;
-        std::unordered_set<Vertex*> visitedNeighbors;
-
-        // Initializing cord weights
-        for (Triangle* triangle : vertex->triangles) {
-            std::vector<int> triangleIndices = triangle->vertexIndices;
-            for (int index : triangleIndices) {
-                Vertex* neighbor = vertices[index];
-                if (neighbor != vertex && visitedNeighbors.find(neighbor) == visitedNeighbors.end()) {
-                    weightDenominator += (1.0 / euclideanDistance(vertex, neighbor));
-                    visitedNeighbors.insert(neighbor);
-                }
-            }
+        if (smoothingAmount == SmoothingAmount::constrained) {
+            verticesToSmooth = findVerticesToSmooth();
+        } else {
+            verticesToSmooth = vertices;
         }
 
-        visitedNeighbors.clear();
-        for (Triangle* triangle : vertex->triangles) {
-            std::vector<int> triangleIndices = triangle->vertexIndices;
-            for (int index : triangleIndices) {
-                Vertex* neighbor = vertices[index];
-                if (neighbor != vertex && visitedNeighbors.find(neighbor) == visitedNeighbors.end()) {
-                    float distance = euclideanDistance(vertex, neighbor);
-                    float weight = (1.0 / distance) / weightDenominator;
-                    xDiff += weight * (neighbor->position.x() - vertex->position.x());
-                    yDiff += weight * (neighbor->position.y() - vertex->position.y());
-                    zDiff += weight * (neighbor->position.z() - vertex->position.z());
-                    visitedNeighbors.insert(neighbor);
+        for (Vertex *vertex: verticesToSmooth) {
+            float xDiff = 0.0;
+            float yDiff = 0.0;
+            float zDiff = 0.0;
+            float weightDenominator = 0.0;
+            std::unordered_set<Vertex *> visitedNeighbors;
+
+            // Initializing cord weights
+            for (Triangle *triangle: vertex->triangles) {
+                std::vector<int> triangleIndices = triangle->vertexIndices;
+                for (int index: triangleIndices) {
+                    Vertex *neighbor = vertices[index];
+                    if (neighbor != vertex && visitedNeighbors.find(neighbor) == visitedNeighbors.end()) {
+                        weightDenominator += (1.0 / euclideanDistance(vertex, neighbor));
+                        visitedNeighbors.insert(neighbor);
+                    }
                 }
             }
+
+            visitedNeighbors.clear();
+            for (Triangle *triangle: vertex->triangles) {
+                std::vector<int> triangleIndices = triangle->vertexIndices;
+                for (int index: triangleIndices) {
+                    Vertex *neighbor = vertices[index];
+                    if (neighbor != vertex && visitedNeighbors.find(neighbor) == visitedNeighbors.end()) {
+                        float distance = euclideanDistance(vertex, neighbor);
+                        float weight = (1.0 / distance) / weightDenominator;
+                        xDiff += weight * (neighbor->position.x() - vertex->position.x());
+                        yDiff += weight * (neighbor->position.y() - vertex->position.y());
+                        zDiff += weight * (neighbor->position.z() - vertex->position.z());
+                        visitedNeighbors.insert(neighbor);
+                    }
+                }
+            }
+
+            float newX = vertex->position.x() + stepSize * xDiff;
+            float newY = vertex->position.y() + stepSize * yDiff;
+            float newZ = vertex->position.z() + stepSize * zDiff;
+            newPositions.push_back({newX, newY, newZ});
         }
 
-        float newX = vertex->position.x() + stepSize * xDiff;
-        float newY = vertex->position.y() + stepSize * yDiff;
-        float newZ = vertex->position.z() + stepSize * zDiff;
-        newPositions.push_back({newX, newY, newZ});
-    }
-
-    for (int i=0; i<verticesToSmooth.size(); i++) {
-        verticesToSmooth[i]->position = newPositions[i];
+        for (int j = 0; j < verticesToSmooth.size(); j++) {
+            verticesToSmooth[j]->position = newPositions[j];
+        }
     }
 
     geometryEngine->initMesh(mesh);
