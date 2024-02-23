@@ -372,8 +372,8 @@ Vertex* ResultsWidget::getVertexFromMouseEvent(QMouseEvent *e) {
         QVector3D surfacePosition = mvp_matrix.map(vertices[i]->position);
         float xyDistance = sqrt(pow(x - surfacePosition.x(), 2) + pow(y - surfacePosition.y(), 2));
 
-        //TODO: Change to 0.1 for testing
-        if (xyDistance < 0.01 && surfacePosition.z() < smallestZDistance) {
+        //TODO: Change to 0.15 for testing
+        if (xyDistance < 0.015 && surfacePosition.z() < smallestZDistance) {
             smallestZDistance = surfacePosition.z();
             closestVertex = vertices[i];
             surfaceVertexFound = true;
