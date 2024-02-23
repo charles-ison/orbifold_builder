@@ -154,7 +154,7 @@ void GeometryEngine::initBoundary(std::vector<Vertex*> boundaryVerticesVector1, 
     if (boundariesAreCombinedLoop) {
         if (boundariesReversed) {
             newBoundaryVerticesVector1.push_back(newBoundaryVerticesVector2.front());
-            newBoundaryVerticesVector2.insert(newBoundaryVerticesVector2.begin(), newBoundaryVerticesVector1.back());
+            newBoundaryVerticesVector2.push_back(newBoundaryVerticesVector1.front());
         } else {
             newBoundaryVerticesVector1.push_back(newBoundaryVerticesVector2.back());
             newBoundaryVerticesVector2.insert(newBoundaryVerticesVector2.begin(), newBoundaryVerticesVector1.front());
