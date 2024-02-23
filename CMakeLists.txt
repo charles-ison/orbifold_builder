@@ -29,6 +29,7 @@ qt_add_executable(orbifold_builder
     surfaces/KleinBottle.cpp surfaces/KleinBottle.h
     surfaces/CrossCap.cpp surfaces/CrossCap.h
     surfaces/Vertex.h surfaces/Triangle.h
+    surfaces/PlyFile.h surfaces/PlyFile.cpp
 )
 
 set_target_properties(orbifold_builder PROPERTIES

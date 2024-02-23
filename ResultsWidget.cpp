@@ -6,7 +6,6 @@
 #include <queue>
 #include <unordered_set>
 #include <tuple>
-#include <iostream>
 
 ResultsWidget::~ResultsWidget() {
     // Make sure the context is current when deleting the buffers.
@@ -61,8 +60,10 @@ void ResultsWidget::addSurface(Surface newSurface) {
         kleinBottleSurface = new KleinBottle(centerPosition, scale);
         mesh->resetSurface(kleinBottleSurface);
     } else if (newSurface == Surface::plyFile) {
+        QVector3D scale = {1.0, 1.0, 1.0};
         QString fileName = QFileDialog::getOpenFileName(this,tr("Open Ply File"), QDir::homePath(), tr("Ply Files (*.ply)"));
-        std::cout << fileName.toStdString() << std::endl;
+        plyFileSurface = new PlyFile(fileName, centerPosition, scale);
+        mesh->resetSurface(plyFileSurface);
     }
 
     if (shouldAnimate) {
