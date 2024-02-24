@@ -13,7 +13,6 @@ void KleinBottle::initVertices(QVector3D centerPosition, QVector3D scale) {
     float horStepSize = M_PI / numHorSteps;
     float vertStepSize = 2 * M_PI / numVertSteps;
 
-    int vertexCounter = 0;
     for (int i=0; i<numHorSteps; i++) {
         float horizontalAngle = horStepSize * i;
         for (int j=0; j<numVertSteps; j++) {
@@ -22,8 +21,7 @@ void KleinBottle::initVertices(QVector3D centerPosition, QVector3D scale) {
             float x = (sizeX * (1 + sinf(horizontalAngle)) + r * cosf(verticalAngle)) * cosf(horizontalAngle);
             float y = (sizeY + r * cosf(verticalAngle)) * sinf(horizontalAngle);
             float z = r * sinf(verticalAngle);
-            vertices.push_back({.index = vertexCounter, .position = QVector3D(x,  y,  z)});
-            vertexCounter += 1;
+            vertices.push_back({.index = (int) vertices.size(), .position = QVector3D(x,  y,  z)});
         }
     }
 
@@ -35,8 +33,7 @@ void KleinBottle::initVertices(QVector3D centerPosition, QVector3D scale) {
             float x = sizeX * (1 + sinf(horizontalAngle)) * cosf(horizontalAngle) - r * cosf(verticalAngle);
             float y = sizeY * sinf(horizontalAngle);
             float z = r * sinf(verticalAngle);
-            vertices.push_back({.index = vertexCounter, .position = QVector3D(x,  y,  z)});
-            vertexCounter += 1;
+            vertices.push_back({.index = (int) vertices.size(), .position = QVector3D(x,  y,  z)});
         }
     }
 }

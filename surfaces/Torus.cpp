@@ -14,7 +14,6 @@ void Torus::initVertices(QVector3D centerPosition, QVector3D scale) {
     float bigRadius = scale.x();
     float smallRadius = scale.y();
 
-    int vertexCounter = 0;
     for (int i=0; i<numHorSteps; i++) {
         float horizontalAngle = horStepSize * i;
         for (int j=0; j<numVertSteps; j++) {
@@ -22,8 +21,7 @@ void Torus::initVertices(QVector3D centerPosition, QVector3D scale) {
             float x = (bigRadius + smallRadius * cosf(verticalAngle)) * cosf(horizontalAngle);
             float y = (bigRadius + smallRadius * cosf(verticalAngle)) * sinf(horizontalAngle);
             float z = smallRadius * sinf(verticalAngle);
-            vertices.push_back({.index = vertexCounter, .position = QVector3D(x,  y,  z)});
-            vertexCounter += 1;
+            vertices.push_back({.index = (int) vertices.size(), .position = QVector3D(x,  y,  z)});
         }
     }
 }

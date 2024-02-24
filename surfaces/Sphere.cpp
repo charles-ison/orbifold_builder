@@ -13,7 +13,6 @@ void Sphere::initVertices(QVector3D centerPosition, QVector3D scale) {
     float vertStepSize = M_PI / numVertSteps;
     float horStepSize = 2 * M_PI / numHorSteps;
 
-    int vertexCounter = 0;
     for (int i=0; i<=numVertSteps; i++) {
         float verticalAngle = (M_PI / 2) - vertStepSize * i;
         float z = sizeZ * sinf(verticalAngle);
@@ -22,8 +21,7 @@ void Sphere::initVertices(QVector3D centerPosition, QVector3D scale) {
             float horizontalAngle = horStepSize * j;
             float x = sizeX * cosf(verticalAngle) * cosf(horizontalAngle);
             float y = sizeY * cosf(verticalAngle) * sinf(horizontalAngle);
-            vertices.push_back({.index = vertexCounter, .position = QVector3D(x,  y,  z)});
-            vertexCounter += 1;
+            vertices.push_back({.index = (int) vertices.size(), .position = QVector3D(x,  y,  z)});
         }
     }
 }

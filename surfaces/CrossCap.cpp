@@ -13,7 +13,6 @@ void CrossCap::initVertices(QVector3D centerPosition, QVector3D scale) {
     float sizeZ = scale.z();
     float horStepSize = 2 * M_PI / numHorSteps;
     float vertStepSize = M_PI / (2 * numVertSteps);
-    int vertexCounter = 0;
     for (int i=0; i<numVertSteps; i++) {
         float verticalAngle = vertStepSize * i;
         int tempNumHorSteps = (i == 0) ? 1 : numHorSteps;
@@ -25,8 +24,7 @@ void CrossCap::initVertices(QVector3D centerPosition, QVector3D scale) {
             float y = centerPosition.y() + sizeY * sinf(horizontalAngle) * sinf(2 * verticalAngle);
             float z = centerPosition.z() + sizeZ * (pow(cosf(verticalAngle), 2) - pow(cosf(horizontalAngle), 2) * pow(sinf(verticalAngle), 2));
 
-            vertices.push_back({.index = vertexCounter, .position = QVector3D(x,  y,  z)});
-            vertexCounter += 1;
+            vertices.push_back({.index = (int) vertices.size(), .position = QVector3D(x,  y,  z)});
         }
     }
 }

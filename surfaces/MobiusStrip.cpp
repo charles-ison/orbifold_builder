@@ -11,7 +11,6 @@ void MobiusStrip::initVertices(QVector3D centerPosition, QVector3D scale) {
     float horStepSize = 2 * M_PI / numHorSteps;
     float vertStepSize = 1.0 / numVertSteps;
 
-    int vertexCounter = 0;
     for (int i=0; i<numHorSteps; i++) {
         float horizontalAngle = -M_PI + horStepSize * i;
         for (int j=0; j<numVertSteps; j++) {
@@ -20,8 +19,7 @@ void MobiusStrip::initVertices(QVector3D centerPosition, QVector3D scale) {
             float y = sinf(horizontalAngle) * (radius + verticalStep * cosf(horizontalAngle/2));
             float z = verticalStep * sinf(horizontalAngle/2);
 
-            vertices.push_back({.index = vertexCounter, .position = QVector3D(x,  y,  z)});
-            vertexCounter += 1;
+            vertices.push_back({.index = (int) vertices.size(), .position = QVector3D(x,  y,  z)});
         }
     }
 }
