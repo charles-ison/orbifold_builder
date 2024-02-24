@@ -91,7 +91,7 @@ Vertex* CrossCap::getVertices() {
 }
 
 int CrossCap::getNumVertices() {
-    return numVertices;
+    return vertices.size();
 }
 
 int CrossCap::getNumTriangles() {

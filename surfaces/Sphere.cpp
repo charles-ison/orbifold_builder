@@ -89,7 +89,7 @@ Vertex* Sphere::getVertices() {
 }
 
 int Sphere::getNumVertices() {
-    return numVertices;
+    return vertices.size();
 }
 
 int Sphere::getNumTriangles() {

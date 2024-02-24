@@ -77,7 +77,7 @@ Vertex* MobiusStrip::getVertices() {
 }
 
 int MobiusStrip::getNumVertices() {
-    return numVertices;
+    return vertices.size();
 }
 
 int MobiusStrip::getNumTriangles() {
