@@ -25,7 +25,7 @@ void CrossCap::initVertices(QVector3D centerPosition, QVector3D scale) {
             float y = centerPosition.y() + sizeY * sinf(horizontalAngle) * sinf(2 * verticalAngle);
             float z = centerPosition.z() + sizeZ * (pow(cosf(verticalAngle), 2) - pow(cosf(horizontalAngle), 2) * pow(sinf(verticalAngle), 2));
 
-            vertices[vertexCounter] = {.index = vertexCounter, .position = QVector3D(x,  y,  z)};
+            vertices.push_back({.index = vertexCounter, .position = QVector3D(x,  y,  z)});
             vertexCounter += 1;
         }
     }
@@ -42,7 +42,6 @@ int CrossCap::getCrossCapFoldIndex(int oldIndex) {
 
 void CrossCap::initTriangles() {
     int faceCounter = 0;
-    int triangleCounter = 0;
     for (int i=0; i<numVertSteps-1; i++) {
         for (int j=0; j<numHorSteps; j++) {
             if (i == 0) {
@@ -55,32 +54,29 @@ void CrossCap::initTriangles() {
                 } else {
                     index3 = faceCounter + 2;
                 }
-                triangles[triangleCounter] = {{index1, index2, index3}};
-                triangleCounter += 1;
+                triangles.push_back({{index1, index2, index3}});
             }
             else if (j == numHorSteps - 1) {
                 int index1 = getCrossCapFoldIndex((faceCounter + 1 - numVertSteps));
                 int index2 = getCrossCapFoldIndex(faceCounter);
                 int index3 = getCrossCapFoldIndex((faceCounter + 1));
-                triangles[triangleCounter] = {{index1, index2, index3}};
+                triangles.push_back({{index1, index2, index3}});
 
                 int index4 = getCrossCapFoldIndex((faceCounter + numVertSteps));
                 int index5 = getCrossCapFoldIndex((faceCounter + 1));
                 int index6 = getCrossCapFoldIndex(faceCounter);
-                triangles[triangleCounter+1] = {{index4, index5, index6}};
-                triangleCounter += 2;
+                triangles.push_back({{index4, index5, index6}});
             }
             else {
                 int index1 = getCrossCapFoldIndex((faceCounter + 1));
                 int index2 = getCrossCapFoldIndex(faceCounter);
                 int index3 = getCrossCapFoldIndex((faceCounter + 1 + numHorSteps));
-                triangles[triangleCounter] = {{index1, index2, index3}};
+                triangles.push_back({{index1, index2, index3}});
 
                 int index4 = getCrossCapFoldIndex((faceCounter + numHorSteps));
                 int index5 = getCrossCapFoldIndex((faceCounter + 1 + numHorSteps));
                 int index6 = getCrossCapFoldIndex(faceCounter);
-                triangles[triangleCounter+1] = {{index4, index5, index6}};
-                triangleCounter += 2;
+                triangles.push_back({{index4, index5, index6}});
             }
 
             faceCounter += 1;
@@ -89,11 +85,11 @@ void CrossCap::initTriangles() {
 }
 
 Triangle* CrossCap::getTriangles() {
-    return triangles;
+    return &triangles[0];
 }
 
 Vertex* CrossCap::getVertices() {
-    return vertices;
+    return &vertices[0];
 }
 
 int CrossCap::getNumVertices() {
@@ -101,5 +97,5 @@ int CrossCap::getNumVertices() {
 }
 
 int CrossCap::getNumTriangles() {
-    return numTriangles;
+    return triangles.size();
 }

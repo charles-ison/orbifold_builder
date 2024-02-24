@@ -22,7 +22,7 @@ void Sphere::initVertices(QVector3D centerPosition, QVector3D scale) {
             float horizontalAngle = horStepSize * j;
             float x = sizeX * cosf(verticalAngle) * cosf(horizontalAngle);
             float y = sizeY * cosf(verticalAngle) * sinf(horizontalAngle);
-            vertices[vertexCounter] = {.index = vertexCounter, .position = QVector3D(x,  y,  z)};
+            vertices.push_back({.index = vertexCounter, .position = QVector3D(x,  y,  z)});
             vertexCounter += 1;
         }
     }
@@ -30,7 +30,6 @@ void Sphere::initVertices(QVector3D centerPosition, QVector3D scale) {
 
 void Sphere::initTriangles() {
     int faceCounter = 0;
-    int triangleCounter = 0;
     for (int i=0; i<numVertSteps; i++) {
         for (int j=0; j<numHorSteps; j++) {
             if (i == 0) {
@@ -43,8 +42,7 @@ void Sphere::initTriangles() {
                 } else {
                     index3 = faceCounter + 2;
                 }
-                triangles[triangleCounter] = {{index1, index2, index3}};
-                triangleCounter += 1;
+                triangles.push_back({{index1, index2, index3}});
             }
             else if (i == numVertSteps - 1) {
                 int index1 = numVertices - 1;
@@ -55,34 +53,29 @@ void Sphere::initTriangles() {
                 } else {
                     index3 = faceCounter + 1;
                 }
-                triangles[triangleCounter] = {{index3, index2, index1}};
-                triangleCounter += 1;
+                triangles.push_back({{index3, index2, index1}});
             }
             else if (j == numHorSteps-1) {
                 int index1 = faceCounter + 1 - numHorSteps;
                 int index2 = faceCounter;
                 int index3 = faceCounter + 1;
-                triangles[triangleCounter] = {{index1, index2, index3}};
+                triangles.push_back({{index1, index2, index3}});
 
                 int index4 = faceCounter + numHorSteps;
                 int index5 = faceCounter + 1;
                 int index6 = faceCounter;
-                triangles[triangleCounter+1] = {{index4, index5, index6}};
-
-                triangleCounter += 2;
+                triangles.push_back({{index4, index5, index6}});
             }
             else {
                 int index1 = faceCounter + 1;
                 int index2 = faceCounter;
                 int index3 = faceCounter + 1 + numHorSteps;
-                triangles[triangleCounter] = {{index1, index2, index3}};
+                triangles.push_back({{index1, index2, index3}});
 
                 int index4 = faceCounter + numHorSteps;
                 int index5 = faceCounter + 1 + numHorSteps;
                 int index6 = faceCounter;
-                triangles[triangleCounter+1] = {{index4, index5, index6}};
-
-                triangleCounter += 2;
+                triangles.push_back({{index4, index5, index6}});
             }
             faceCounter += 1;
         }
@@ -90,11 +83,11 @@ void Sphere::initTriangles() {
 }
 
 Triangle* Sphere::getTriangles() {
-    return triangles;
+    return &triangles[0];
 }
 
 Vertex* Sphere::getVertices() {
-    return vertices;
+    return &vertices[0];
 }
 
 int Sphere::getNumVertices() {
@@ -102,5 +95,5 @@ int Sphere::getNumVertices() {
 }
 
 int Sphere::getNumTriangles() {
-    return numTriangles;
+    return triangles.size();
 }

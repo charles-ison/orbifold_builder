@@ -20,7 +20,7 @@ void MobiusStrip::initVertices(QVector3D centerPosition, QVector3D scale) {
             float y = sinf(horizontalAngle) * (radius + verticalStep * cosf(horizontalAngle/2));
             float z = verticalStep * sinf(horizontalAngle/2);
 
-            vertices[vertexCounter] = {.index = vertexCounter, .position = QVector3D(x,  y,  z)};
+            vertices.push_back({.index = vertexCounter, .position = QVector3D(x,  y,  z)});
             vertexCounter += 1;
         }
     }
@@ -28,19 +28,18 @@ void MobiusStrip::initVertices(QVector3D centerPosition, QVector3D scale) {
 
 void MobiusStrip::initTriangles() {
     int indexCounter = 0;
-    int triangleCounter = 0;
     for (int i=0; i<numHorSteps; i++) {
         for (int j=0; j<numVertSteps-1; j++) {
             if (i < numHorSteps-1) {
                 int index1 = indexCounter % numVertices;
                 int index2 = (indexCounter + numVertSteps) % numVertices;
                 int index3 = (indexCounter + 1) % numVertices;
-                triangles[triangleCounter] = {{index1, index2, index3}};
+                triangles.push_back({{index1, index2, index3}});
 
                 int index4 = (indexCounter + 1) % numVertices;
                 int index5 = (indexCounter + numVertSteps) % numVertices;
                 int index6 = (indexCounter + numVertSteps + 1) % numVertices;
-                triangles[triangleCounter + 1] = {{index4, index5, index6}};
+                triangles.push_back({{index4, index5, index6}});
             } else {
                 int index1 = indexCounter % numVertices;
                 int index2 = (indexCounter + numVertSteps) % numVertices;
@@ -48,7 +47,7 @@ void MobiusStrip::initTriangles() {
                     index2 = numVertSteps - index2 - 1;
                 }
                 int index3 = (indexCounter + 1) % numVertices;
-                triangles[triangleCounter] = {{index1, index2, index3}};
+                triangles.push_back({{index1, index2, index3}});
 
                 int index4 = (indexCounter + 1) % numVertices;
                 int index5 = (indexCounter + numVertSteps) % numVertices;
@@ -59,7 +58,7 @@ void MobiusStrip::initTriangles() {
                 if (index6 < numVertSteps) {
                     index6 = numVertSteps - index6 - 1;
                 }
-                triangles[triangleCounter + 1] = {{index4, index5, index6}};
+                triangles.push_back({{index4, index5, index6}});
             }
 
             if (indexCounter % numVertSteps == numVertSteps-2 && indexCounter != 0) {
@@ -67,17 +66,16 @@ void MobiusStrip::initTriangles() {
             } else {
                 indexCounter += 1;
             }
-            triangleCounter += 2;
         }
     }
 }
 
 Triangle* MobiusStrip::getTriangles() {
-    return triangles;
+    return &triangles[0];
 }
 
 Vertex* MobiusStrip::getVertices() {
-    return vertices;
+    return &vertices[0];
 }
 
 int MobiusStrip::getNumVertices() {
@@ -85,5 +83,5 @@ int MobiusStrip::getNumVertices() {
 }
 
 int MobiusStrip::getNumTriangles() {
-    return numTriangles;
+    return triangles.size();
 }

@@ -19,9 +19,8 @@ private:
     static const int numVertSteps = 200;
     static const int numHorSteps = 200;
     static const int numVertices = numVertSteps * numHorSteps;
-    static const int numTriangles= 2 * numVertices;
-    Vertex vertices[numVertices];
-    Triangle triangles[numTriangles];
+    std::vector<Vertex> vertices;
+    std::vector<Triangle> triangles;
 };
 
 #endif

@@ -22,7 +22,7 @@ void KleinBottle::initVertices(QVector3D centerPosition, QVector3D scale) {
             float x = (sizeX * (1 + sinf(horizontalAngle)) + r * cosf(verticalAngle)) * cosf(horizontalAngle);
             float y = (sizeY + r * cosf(verticalAngle)) * sinf(horizontalAngle);
             float z = r * sinf(verticalAngle);
-            vertices[vertexCounter] = {.index = vertexCounter, .position = QVector3D(x,  y,  z)};
+            vertices.push_back({.index = vertexCounter, .position = QVector3D(x,  y,  z)});
             vertexCounter += 1;
         }
     }
@@ -35,7 +35,7 @@ void KleinBottle::initVertices(QVector3D centerPosition, QVector3D scale) {
             float x = sizeX * (1 + sinf(horizontalAngle)) * cosf(horizontalAngle) - r * cosf(verticalAngle);
             float y = sizeY * sinf(horizontalAngle);
             float z = r * sinf(verticalAngle);
-            vertices[vertexCounter] = {.index = vertexCounter, .position = QVector3D(x,  y,  z)};
+            vertices.push_back({.index = vertexCounter, .position = QVector3D(x,  y,  z)});
             vertexCounter += 1;
         }
     }
@@ -43,7 +43,6 @@ void KleinBottle::initVertices(QVector3D centerPosition, QVector3D scale) {
 
 void KleinBottle::initTriangles() {
     int faceCounter = 0;
-    int triangleCounter = 0;
     for (int i=0; i<2*numHorSteps; i++) {
         for (int j=0; j<numVertSteps; j++) {
             if (i == 2 * numHorSteps - 1 and j == numVertSteps - 1) {
@@ -51,55 +50,54 @@ void KleinBottle::initTriangles() {
                 int index2 = faceCounter % numVertices;
                 int halfRotation = floor(numVertSteps / 2);
                 int index3 = floorMod((faceCounter + halfRotation + numVertSteps) % numVertices - 2 * j, numVertSteps);
-                triangles[triangleCounter] = {{index1, index2, index3}};
+                triangles.push_back({{index1, index2, index3}});
 
                 int index4 = floorMod((faceCounter + halfRotation + numVertSteps) % numVertices - 2 * j, numVertSteps);
                 int index5 = floorMod((faceCounter + halfRotation + 1 + numVertSteps) % numVertices - 2 * j, numVertSteps);
                 int index6 = faceCounter % numVertices;
-                triangles[triangleCounter+1] = {{index4, index5, index6}};
+                triangles.push_back({{index4, index5, index6}});
             }
             else if (i == 2 * numHorSteps - 1) {
                 int index1 = (faceCounter + 1) % numVertices;
                 int index2 = faceCounter % numVertices;
                 int halfRotation = floor(numVertSteps / 2);
                 int index3 = floorMod((faceCounter + halfRotation + numVertSteps) % numVertices - 2 * j, numVertSteps);
-                triangles[triangleCounter] = {{index1, index2, index3}};
+                triangles.push_back({{index1, index2, index3}});
 
                 int index4 = floorMod((faceCounter + halfRotation + numVertSteps) % numVertices - 2 * j, numVertSteps);
                 int index5 = floorMod((faceCounter + halfRotation + 1 + numVertSteps) % numVertices - 2 * j, numVertSteps);
                 int index6 = faceCounter % numVertices;
-                triangles[triangleCounter+1] = {{index4, index5, index6}};
+                triangles.push_back({{index4, index5, index6}});
             }
             else if (j == numVertSteps - 1) {
                 int index1 = faceCounter + 1 - numHorSteps;
                 int index2 = faceCounter;
                 int index3 = faceCounter + 1;
-                triangles[triangleCounter] = {{index1, index2, index3}};
+                triangles.push_back({{index1, index2, index3}});
 
                 int index4 = faceCounter + numHorSteps;
                 int index5 = faceCounter + 1;
                 int index6 = faceCounter;
-                triangles[triangleCounter+1] = {{index4, index5, index6}};
+                triangles.push_back({{index4, index5, index6}});
             }
             else {
                 int index1  = faceCounter + 1;
                 int index2 = faceCounter;
                 int index3 = faceCounter + 1 + numVertSteps;
-                triangles[triangleCounter] = {{index1, index2, index3}};
+                triangles.push_back({{index1, index2, index3}});
 
                 int index4 = faceCounter + numVertSteps;
                 int index5 = faceCounter + 1 + numVertSteps;
                 int index6 = faceCounter;
-                triangles[triangleCounter+1] = {{index4, index5, index6}};
+                triangles.push_back({{index4, index5, index6}});
             }
             faceCounter += 1;
-            triangleCounter += 2;
         }
     }
 }
 
 Triangle* KleinBottle::getTriangles() {
-    return triangles;
+    return &triangles[0];
 }
 
 int KleinBottle::floorMod(int a, int n) {
@@ -108,13 +106,13 @@ int KleinBottle::floorMod(int a, int n) {
 }
 
 Vertex* KleinBottle::getVertices() {
-    return vertices;
+    return &vertices[0];
 }
 
 int KleinBottle::getNumVertices() {
-    return numVertices;
+    return vertices.size();
 }
 
 int KleinBottle::getNumTriangles() {
-    return numTriangles;
+    return triangles.size();
 }

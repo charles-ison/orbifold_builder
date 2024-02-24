@@ -18,8 +18,8 @@ private:
     void initTriangles();
     static const int numVertices = 8;
     static const int numTriangles = 12;
-    Vertex vertices[numVertices];
-    Triangle triangles[numTriangles];
+    std::vector<Vertex> vertices;
+    std::vector<Triangle> triangles;
 };
 
 #endif
