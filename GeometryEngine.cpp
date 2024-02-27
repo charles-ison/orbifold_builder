@@ -117,10 +117,14 @@ void GeometryEngine::initMesh(Mesh* mesh) {
         uniqueFaces.insert({index0, index1, index2});
     }
 
-    std::cout << "Number of vertices: " << uniqueVertices.size() << std::endl;
-    std::cout << "Number of edges: " << uniqueEdges.size() << std::endl;
-    std::cout << "Number of faces: " << uniqueFaces.size() << std::endl;
-    std::cout << "Euler characteristic: " << uniqueVertices.size() - uniqueEdges.size() + uniqueFaces.size() << std::endl;
+    int numUniqueVertices = uniqueVertices.size();
+    int numUniqueEdges = uniqueEdges.size();
+    int numUniqueFaces = uniqueFaces.size();
+    int eulerCharacteristic = numUniqueVertices - numUniqueEdges + numUniqueFaces;
+    std::cout << "Number of vertices: " << numUniqueVertices << std::endl;
+    std::cout << "Number of edges: " << numUniqueEdges << std::endl;
+    std::cout << "Number of faces: " << numUniqueFaces << std::endl;
+    std::cout << "Euler characteristic: " << eulerCharacteristic << std::endl;
 
     // Transfer index data to VBO 1
     indexBuf.bind();
