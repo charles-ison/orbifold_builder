@@ -1,5 +1,6 @@
 #include <QtGui/qcolor.h>
 #include "GeometryEngine.h"
+#include <iostream>
 
 GeometryEngine::GeometryEngine() : indexBuf(QOpenGLBuffer::IndexBuffer) {
     initializeOpenGLFunctions();
@@ -69,6 +70,10 @@ void GeometryEngine::initAnimation(Mesh* mesh) {
 }
 
 void GeometryEngine::initMesh(Mesh* mesh) {
+    std::set<int> uniqueVertices;
+    std::set<std::set<int>> uniqueEdges;
+    std::set<std::set<int>> uniqueFaces;
+
     std::vector<QVector3D> positions;
     std::vector<QVector3D> colors;
     std::vector<Vertex*> meshVertices = mesh->getVertices();
@@ -93,10 +98,29 @@ void GeometryEngine::initMesh(Mesh* mesh) {
     numIndices = 3*numTriangles;
 
     for (int i=0; i<numTriangles; i++) {
-        indices.push_back(triangles[i]->vertexIndices[0]);
-        indices.push_back(triangles[i]->vertexIndices[1]);
-        indices.push_back(triangles[i]->vertexIndices[2]);
+        int index0 = triangles[i]->vertexIndices[0];
+        int index1 = triangles[i]->vertexIndices[1];
+        int index2 = triangles[i]->vertexIndices[2];
+
+        indices.push_back(index0);
+        indices.push_back(index1);
+        indices.push_back(index2);
+
+        uniqueVertices.insert(index0);
+        uniqueVertices.insert(index1);
+        uniqueVertices.insert(index2);
+
+        uniqueEdges.insert({index0, index1});
+        uniqueEdges.insert({index1, index2});
+        uniqueEdges.insert({index2, index0});
+
+        uniqueFaces.insert({index0, index1, index2});
     }
+
+    std::cout << "Number of vertices: " << uniqueVertices.size() << std::endl;
+    std::cout << "Number of edges: " << uniqueEdges.size() << std::endl;
+    std::cout << "Number of faces: " << uniqueFaces.size() << std::endl;
+    std::cout << "Euler characteristic: " << uniqueVertices.size() - uniqueEdges.size() + uniqueFaces.size() << std::endl;
 
     // Transfer index data to VBO 1
     indexBuf.bind();
