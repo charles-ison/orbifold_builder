@@ -151,6 +151,8 @@ void ResultsWidget::cutSurface() {
     // Required for loops
     if (drawnVertices.front() == drawnVertices.back()) {
         drawnVertices.push_back(drawnVertices[1]);
+        isBoundary1Loop = true;
+        isBoundary2Loop = true;
         loopDetected = true;
     }
 
@@ -231,19 +233,7 @@ void ResultsWidget::cutSurface() {
         boundaryVertices2 = tempBoundaryVertices2;
         boundary1DisplaySize = boundaryVertices1.size();
         boundary2DisplaySize = boundaryVertices2.size();
-
-        if (loopDetected) {
-            isBoundary1Loop = true;
-            isBoundary2Loop = true;
-            boundariesAreCombinedLoop = false;
-        }
     } else {
-        if (loopDetected) {
-            isBoundary1Loop = true;
-            isBoundary2Loop = true;
-            boundariesAreCombinedLoop = false;
-        }
-
         if (!boundariesReversed) {
             std::reverse(boundaryVertices2.begin(), boundaryVertices2.end());
         }
@@ -262,6 +252,7 @@ void ResultsWidget::cutSurface() {
 
     numOpenings += 1;
     drawnVertices.clear();
+    boundariesAreCombinedLoop = false;
     geometryEngine->initLine(drawnVertices, drawingColor);
     geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed);
     geometryEngine->initMesh(mesh);
@@ -622,7 +613,7 @@ void ResultsWidget::glue() {
         return;
     }
 
-    glueTraditional();
+    connectVertices();
 
     if (numOpenings == 1) {
         numOpenings -= 1;
@@ -649,7 +640,7 @@ void ResultsWidget::glue() {
     update();
 }
 
-void ResultsWidget::glueTraditional() {
+void ResultsWidget::connectVertices() {
     std::vector<Vertex*> smallerBoundaryVertices;
     std::vector<Vertex*> largerBoundaryVertices;
 
@@ -682,7 +673,7 @@ void ResultsWidget::glueTraditional() {
         }
     }
 
-    if (!isBoundary1Loop && !isBoundary2Loop && boundariesReversed) {
+    if (boundariesReversed) {
         for (Triangle *triangle: smallerBoundaryVertices.back()->triangles) {
             std::vector<int> boundaryTriangleVertices = triangle->vertexIndices;
             for (int j = 0; j < 3; j++) {

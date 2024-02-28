@@ -60,8 +60,7 @@ private:
     bool rotationDirectionAligns(Triangle* triangle, Vertex* vertex1, Vertex* vertex2, std::vector<Vertex*> vertices);
     float euclideanDistance(Vertex* vertex1, Vertex* vertex2);
     std::vector<Vertex*> findVerticesToSmooth();
-    void glueCrossCap();
-    void glueTraditional();
+    void connectVertices();
 
     Mesh* mesh;
     Cube* cubeSurface;
