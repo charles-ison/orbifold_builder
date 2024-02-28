@@ -673,7 +673,7 @@ void ResultsWidget::connectVertices() {
         }
     }
 
-    if (boundariesReversed) {
+    if (boundariesReversed && !isBoundary1Loop && !isBoundary2Loop && !boundariesAreCombinedLoop) {
         for (Triangle *triangle: smallerBoundaryVertices.back()->triangles) {
             std::vector<int> boundaryTriangleVertices = triangle->vertexIndices;
             for (int j = 0; j < 3; j++) {
