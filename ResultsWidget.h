@@ -40,7 +40,7 @@ public:
     void reverseBoundaries();
     void glueAnimation();
     void setDrawingMode(DrawingMode newDrawingMode);
-    std::string getCalculationLabelText();
+    std::string getResultsAttributesLabelText();
 
 protected:
     void mousePressEvent(QMouseEvent *e) override;

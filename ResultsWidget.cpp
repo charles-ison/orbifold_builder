@@ -799,7 +799,7 @@ void ResultsWidget::smooth(SmoothingAmount smoothingAmount) {
     update();
 }
 
-std::string ResultsWidget::getCalculationLabelText() {
+std::string ResultsWidget::getResultsAttributesLabelText() {
     std::set<int> uniqueVertices;
     std::set<std::set<int>> uniqueEdges;
     std::set<std::set<int>> uniqueFaces;
