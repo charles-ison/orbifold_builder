@@ -30,11 +30,21 @@ MainWindow::MainWindow() {
     resultsToolBox->addItem(resultsWidget, tr("Resulting Surface/Orbifold"));
     resultsToolBox->setMinimumSize(panelWidth, panelWidth);
 
+    calculationsLabel = new QLabel;
+    calculationsLabel->setMaximumSize(calculationsPanelWidth, calculationsLabelHeight);
+    calculationsLabel->setText(" Vertices: 0 \n Edges: 0 \n Faces: 0: \n Euler Characteristic: 0");
+
+    calculationsToolBox = new QToolBox;
+    calculationsToolBox->setMinimumSize(calculationsPanelWidth, panelHeight);
+    calculationsToolBox->setMaximumWidth(calculationsPanelWidth);
+    calculationsToolBox->addItem(calculationsLabel, "Calculations: ");
+
     centralLayout = new QGridLayout;
     centralLayout->addWidget(fundamentalPolygonToolBar, 0, 0);
     centralLayout->addWidget(resultsToolBar, 0, 1);
     centralLayout->addWidget(fundamentalPolygonToolBox, 1, 0);
     centralLayout->addWidget(resultsToolBox, 1, 1);
+    centralLayout->addWidget(calculationsToolBox, 1, 2);
 
     hideFundamentalPolygon = true;
     fundamentalPolygonToolBox->setHidden(hideFundamentalPolygon);
@@ -52,10 +62,18 @@ MainWindow::MainWindow() {
 
 void MainWindow::initStyle() {
     resultsToolBox->setStyleSheet("background-color:rgb(96,96,96); border:none;");
+    calculationsToolBox->setStyleSheet("background-color:rgb(96,96,96); border:none;");
+    calculationsLabel->setStyleSheet("background-color:rgb(96,96,96); border:none;");
     fundamentalPolygonToolBox->setStyleSheet("background-color:rgb(96,96,96); border:none;");
     resultsToolBar->setStyleSheet("border-color:rgb(96,96,96);");
     fundamentalPolygonToolBar->setStyleSheet("border-color:rgb(96,96,96);");
     setStyleSheet("background-color:rgb(169,169,169);");
+}
+
+void MainWindow::updateCalculationsLabelText() {
+    std::string calculationsLabelText = resultsWidget->getCalculationLabelText();
+    QString calculationsLabelQString = QString::fromStdString(calculationsLabelText);
+    calculationsLabel->setText(calculationsLabelQString);
 }
 
 void MainWindow::buttonGroupClicked(QAbstractButton *button) {
@@ -99,10 +117,12 @@ void MainWindow::addSurface() {
     addSurfaceButton->menu()->setDefaultAction(addSurfaceAction);
     ResultsWidget::Surface surface  = qvariant_cast<ResultsWidget::Surface>(addSurfaceAction->data());
     resultsWidget->addSurface(surface);
+    updateCalculationsLabelText();
 }
 
 void MainWindow::cutSurface() {
     resultsWidget->cutSurface();
+    updateCalculationsLabelText();
 }
 
 void MainWindow::toggleShouldDeleteSurface() {
@@ -111,6 +131,7 @@ void MainWindow::toggleShouldDeleteSurface() {
 
 void MainWindow::glue() {
     resultsWidget->glue();
+    updateCalculationsLabelText();
 }
 
 void MainWindow::smooth() {

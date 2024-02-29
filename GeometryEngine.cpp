@@ -1,6 +1,5 @@
 #include <QtGui/qcolor.h>
 #include "GeometryEngine.h"
-#include <iostream>
 
 GeometryEngine::GeometryEngine() : indexBuf(QOpenGLBuffer::IndexBuffer) {
     initializeOpenGLFunctions();
@@ -70,10 +69,6 @@ void GeometryEngine::initAnimation(Mesh* mesh) {
 }
 
 void GeometryEngine::initMesh(Mesh* mesh) {
-    std::set<int> uniqueVertices;
-    std::set<std::set<int>> uniqueEdges;
-    std::set<std::set<int>> uniqueFaces;
-
     std::vector<QVector3D> positions;
     std::vector<QVector3D> colors;
     std::vector<Vertex*> meshVertices = mesh->getVertices();
@@ -105,26 +100,7 @@ void GeometryEngine::initMesh(Mesh* mesh) {
         indices.push_back(index0);
         indices.push_back(index1);
         indices.push_back(index2);
-
-        uniqueVertices.insert(index0);
-        uniqueVertices.insert(index1);
-        uniqueVertices.insert(index2);
-
-        uniqueEdges.insert({index0, index1});
-        uniqueEdges.insert({index1, index2});
-        uniqueEdges.insert({index2, index0});
-
-        uniqueFaces.insert({index0, index1, index2});
     }
-
-    int numUniqueVertices = uniqueVertices.size();
-    int numUniqueEdges = uniqueEdges.size();
-    int numUniqueFaces = uniqueFaces.size();
-    int eulerCharacteristic = numUniqueVertices - numUniqueEdges + numUniqueFaces;
-    std::cout << "Number of vertices: " << numUniqueVertices << std::endl;
-    std::cout << "Number of edges: " << numUniqueEdges << std::endl;
-    std::cout << "Number of faces: " << numUniqueFaces << std::endl;
-    std::cout << "Euler characteristic: " << eulerCharacteristic << std::endl;
 
     // Transfer index data to VBO 1
     indexBuf.bind();

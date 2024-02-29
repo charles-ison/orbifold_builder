@@ -56,6 +56,7 @@ private:
     void createMenus();
     void createToolbars();
     void initStyle();
+    void updateCalculationsLabelText();
     QToolButton *createButton(const QString &text, DiagramItem::DiagramType type);
 
     template<typename PointerToMemberFunction> QMenu *createColorMenu(const PointerToMemberFunction &slot, QColor defaultColor);
@@ -70,6 +71,8 @@ private:
     QGraphicsView *fundamentalPolygonView;
     QToolBox *fundamentalPolygonToolBox;
 
+    int calculationsPanelWidth = 150;
+    int calculationsLabelHeight = 65;
     int panelWidth = 500;
     int panelHeight = 500;
     double zoomScale = 1.0;
@@ -112,6 +115,9 @@ private:
     QAction *textAction;
     QAction *fillAction;
     QAction *lineAction;
+
+    QToolBox *calculationsToolBox;
+    QLabel *calculationsLabel;
 
     QWidget *centralWidget;
     QGridLayout *centralLayout;

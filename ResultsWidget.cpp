@@ -799,7 +799,35 @@ void ResultsWidget::smooth(SmoothingAmount smoothingAmount) {
     update();
 }
 
+std::string ResultsWidget::getCalculationLabelText() {
+    std::set<int> uniqueVertices;
+    std::set<std::set<int>> uniqueEdges;
+    std::set<std::set<int>> uniqueFaces;
 
+    std::vector<Triangle*> triangles = mesh->getTriangles();
+    int numTriangles = triangles.size();
+    for (int i=0; i<numTriangles; i++) {
+        int index0 = triangles[i]->vertexIndices[0];
+        int index1 = triangles[i]->vertexIndices[1];
+        int index2 = triangles[i]->vertexIndices[2];
+
+        uniqueVertices.insert(index0);
+        uniqueVertices.insert(index1);
+        uniqueVertices.insert(index2);
+
+        uniqueEdges.insert({index0, index1});
+        uniqueEdges.insert({index1, index2});
+        uniqueEdges.insert({index2, index0});
+
+        uniqueFaces.insert({index0, index1, index2});
+    }
+
+    int numUniqueVertices = uniqueVertices.size();
+    int numUniqueEdges = uniqueEdges.size();
+    int numUniqueFaces = uniqueFaces.size();
+    int eulerCharacteristic = numUniqueVertices - numUniqueEdges + numUniqueFaces;
+    return " Vertices: " + std::to_string(numUniqueVertices) + "\n Edges: " + std::to_string(numUniqueEdges) + "\n Faces: " + std::to_string(numUniqueFaces) + "\n Euler Characteristic: " + std::to_string(eulerCharacteristic);
+}
 
 void ResultsWidget::glueAnimation() {
     //shouldAnimate = !shouldAnimate;
