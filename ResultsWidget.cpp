@@ -541,7 +541,7 @@ void ResultsWidget::initializeGL() {
     isBoundary1Loop = false;
     isBoundary2Loop = false;
     boundariesAreCombinedLoop = false;
-    drawingMode = DrawingMode::click;
+    drawingMode = DrawingMode::drag;
     numOpenings = 0;
     boundary1DisplaySize = 0;
     boundary2DisplaySize = 0;

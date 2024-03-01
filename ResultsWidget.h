@@ -29,7 +29,7 @@ public:
     ~ResultsWidget();
     enum Surface {sphere, cube, torus, mobiusStrip, crossCap, kleinBottle, plyFile};
     enum SmoothingAmount {constrained, unconstrained};
-    enum DrawingMode {click, drag};
+    enum DrawingMode {drag, click};
     void addSurface(Surface newSurface);
     void cutSurface();
     void setDrawingColor(QColor newColor);

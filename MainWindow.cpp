@@ -479,9 +479,9 @@ template<typename PointerToMemberFunction> QMenu *MainWindow::createSmoothingMen
 
 template<typename PointerToMemberFunction> QMenu *MainWindow::createDrawingModeMenu(const PointerToMemberFunction &slot) {
     QList<ResultsWidget::DrawingMode> drawingModes;
-    drawingModes << ResultsWidget::DrawingMode::click << ResultsWidget::DrawingMode::drag;
+    drawingModes << ResultsWidget::DrawingMode::drag << ResultsWidget::DrawingMode::click;
     QStringList drawingModeNames;
-    drawingModeNames << tr("Click") << tr("Drag");
+    drawingModeNames << tr("Drag") << tr("Click");
 
     QMenu *drawingModeMenu = new QMenu(this);
     for (int i = 0; i < drawingModes.count(); ++i) {
