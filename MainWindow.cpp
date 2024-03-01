@@ -125,8 +125,8 @@ void MainWindow::cutSurface() {
     updateResultsAttributesLabel();
 }
 
-void MainWindow::toggleShouldDeleteSurface() {
-    resultsWidget->toggleShouldDeleteSurface();
+void MainWindow::toggleDeleteSurface() {
+    resultsWidget->toggleDeleteSurface();
     updateResultsAttributesLabel();
 }
 
@@ -342,7 +342,7 @@ void MainWindow::createToolbars() {
     deleteSurfaceButton->setText(tr("Delete"));
     deleteSurfaceButton->setCheckable(true);
     deleteSurfaceButton->setMinimumHeight(fundamentalPolygonToolBarHeight);
-    connect(deleteSurfaceButton, &QAbstractButton::clicked, this, &MainWindow::toggleShouldDeleteSurface);
+    connect(deleteSurfaceButton, &QAbstractButton::clicked, this, &MainWindow::toggleDeleteSurface);
 
     glueButton = new QToolButton;
     glueButton->setText(tr("Glue"));

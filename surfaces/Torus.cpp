@@ -1,5 +1,4 @@
 #include "Torus.h"
-#include <iostream>
 
 Torus::Torus(QVector3D centerPosition, QVector3D scale) {
     initVertices(centerPosition, scale);

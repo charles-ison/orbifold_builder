@@ -34,6 +34,7 @@ void ResultsWidget::addSurface(Surface newSurface) {
     boundaryVertices1.clear();
     boundaryVertices2.clear();
     oldBoundaries.clear();
+    potentialVerticesToDelete.clear();
     QVector3D centerPosition = {0, 0, 0};
     if (newSurface == Surface::cube) {
         QVector3D scale = {1.0, 0.0, 0.0};
@@ -76,13 +77,34 @@ void ResultsWidget::addSurface(Surface newSurface) {
     update();
 }
 
-void ResultsWidget::toggleShouldDeleteSurface() {
-    shouldDeleteSurface = !shouldDeleteSurface;
+void ResultsWidget::toggleDeleteSurface() {
+    if (!findVertexToDelete) {
+        isDrawingEnabled = false;
+        drawnVertices.clear();
+        geometryEngine->initLine(drawnVertices, drawingColor);
+        update();
+    } else {
+        if(!potentialVerticesToDelete.empty()) {
+            deleteSurface();
+        }
+        isDrawingEnabled = true;
+        potentialVerticesToDelete.clear();
+    }
+
+    findVertexToDelete = !findVertexToDelete;
+    update();
 }
 
 void ResultsWidget::mousePressEvent(QMouseEvent *e) {
-    if (shouldDeleteSurface) {
-        deleteSurface(e);
+    if (findVertexToDelete) {
+        Vertex *vertexToDelete = getVertexFromMouseEvent(e);
+        if (vertexToDelete != nullptr) {
+            potentialVerticesToDelete = {vertexToDelete};
+            geometryEngine->initPointToDelete(potentialVerticesToDelete);
+            update();
+        } else {
+            potentialVerticesToDelete.clear();
+        }
     } else {
         if (drawingMode == DrawingMode::click) {
             mouseMoveEvent(e);
@@ -259,17 +281,12 @@ void ResultsWidget::cutSurface() {
     update();
 }
 
-void ResultsWidget::deleteSurface(QMouseEvent *e) {
-    Vertex *startingVertex = getVertexFromMouseEvent(e);
-    if (startingVertex == nullptr) {
-        return;
-    }
-
+void ResultsWidget::deleteSurface() {
     std::unordered_set<Vertex*> verticesToDeleteSet;
-    verticesToDeleteSet.insert(startingVertex);
+    verticesToDeleteSet.insert(potentialVerticesToDelete[0]);
 
     std::queue<Vertex*> verticesToDelete;
-    verticesToDelete.push(startingVertex);
+    verticesToDelete.push(potentialVerticesToDelete[0]);
 
     while (!verticesToDelete.empty()) {
         std::vector<Vertex*> meshVertices = mesh->getVertices();
@@ -330,8 +347,10 @@ void ResultsWidget::deleteSurface(QMouseEvent *e) {
     }
 
     boundariesReversed = false;
+    potentialVerticesToDelete.clear();
     mesh->deleteVertices(verticesToDeleteSet);
     geometryEngine->initMesh(mesh);
+    geometryEngine->initPointToDelete(potentialVerticesToDelete);
     geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed);
     update();
 }
@@ -517,7 +536,7 @@ void ResultsWidget::initializeGL() {
 
     isDrawingEnabled = true;
     shouldPaintGL = false;
-    shouldDeleteSurface = false;
+    findVertexToDelete = false;
     boundariesReversed = false;
     isBoundary1Loop = false;
     isBoundary2Loop = false;
@@ -592,6 +611,7 @@ void ResultsWidget::paintGL() {
         geometryEngine->drawMesh(&program);
         geometryEngine->drawLine(&program);
         geometryEngine->drawBoundary(&program);
+        geometryEngine->drawPointToDelete(&program);
     }
 }
 

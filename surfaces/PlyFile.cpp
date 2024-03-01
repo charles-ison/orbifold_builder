@@ -1,6 +1,5 @@
 #include "PlyFile.h"
 #include <fstream>
-#include <iostream>
 
 PlyFile::PlyFile(QString fileName, QVector3D centerPosition, QVector3D scale) {
     std::ifstream plyFile(fileName.toStdString(), std::ifstream::binary);

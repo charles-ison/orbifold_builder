@@ -14,6 +14,8 @@ GeometryEngine::GeometryEngine() : indexBuf(QOpenGLBuffer::IndexBuffer) {
     boundaryColorBuf1.create();
     boundaryArrayBuf2.create();
     boundaryColorBuf2.create();
+    pointToDeleteColorBuf.create();
+    pointToDeleteArrayBuf.create();
 }
 
 GeometryEngine::~GeometryEngine() {
@@ -26,6 +28,8 @@ GeometryEngine::~GeometryEngine() {
     boundaryColorBuf1.destroy();
     boundaryArrayBuf2.destroy();
     boundaryColorBuf2.destroy();
+    pointToDeleteColorBuf.destroy();
+    pointToDeleteArrayBuf.destroy();
 }
 
 void GeometryEngine::initAnimation(Mesh* mesh) {
@@ -83,7 +87,7 @@ void GeometryEngine::initMesh(Mesh* mesh) {
     arrayBuf.bind();
     arrayBuf.allocate(&positions[0], numVertices * sizeof(QVector3D));
 
-    // Transfer position data to VBO 0
+    // Transfer color data to VBO 0
     colorBuf.bind();
     colorBuf.allocate(&colors[0], numVertices * sizeof(QVector3D));
 
@@ -124,9 +128,28 @@ void GeometryEngine::initLine(std::vector<Vertex*> lineVerticesVector, QColor co
     lineArrayBuf.bind();
     lineArrayBuf.allocate(&positions[0], numLineVertices * sizeof(QVector3D));
 
-    // Transfer position data to VBO 0
+    // Transfer color data to VBO 0
     lineColorBuf.bind();
     lineColorBuf.allocate(&colors[0], numLineVertices * sizeof(QVector3D));
+}
+
+void GeometryEngine::initPointToDelete(std::vector<Vertex*> verticesToDelete) {
+    std::vector<QVector3D> positions;
+    std::vector<QVector3D> colors;
+    numPointsToDeleteVertices = verticesToDelete.size();
+
+    for (Vertex* vertexToDelete : verticesToDelete) {
+        positions.push_back(vertexToDelete->position);
+        colors.push_back({1.0, 1.0, 1.0});
+    }
+
+    // Transfer position data to VBO 0
+    pointToDeleteArrayBuf.bind();
+    pointToDeleteArrayBuf.allocate(&positions[0], sizeof(QVector3D));
+
+    // Transfer color data to VBO 0
+    pointToDeleteColorBuf.bind();
+    lineColorBuf.allocate(&colors[0], sizeof(QVector3D));
 }
 
 std::vector<QVector3D> GeometryEngine::initBoundaryColors(int numVertices, int displaySize) {
@@ -283,4 +306,26 @@ void GeometryEngine::drawBoundary(QOpenGLShaderProgram *program) {
     // Draw geometry using indices from VBO 1
     glLineWidth(10.0);
     glDrawArrays(GL_LINE_STRIP, 0, numBoundaryVertices1);
+}
+
+void GeometryEngine::drawPointToDelete(QOpenGLShaderProgram *program) {
+    // Tell OpenGL which VBOs to use
+    pointToDeleteArrayBuf.bind();
+
+    // Tell OpenGL programmable pipeline how to locate position data
+    int positionLocation = program->attributeLocation("a_position");
+    program->enableAttributeArray(positionLocation);
+    program->setAttributeBuffer(positionLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
+
+    // Tell OpenGL which VBOs to use
+    pointToDeleteColorBuf.bind();
+
+    // Tell OpenGL programmable pipeline how to locate color data
+    int inputBoundaryColorLocation = program->attributeLocation("input_color");
+    program->enableAttributeArray(inputBoundaryColorLocation);
+    program->setAttributeBuffer(inputBoundaryColorLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
+
+    // Draw geometry using indices from VBO 1
+    glPointSize(10.0);
+    glDrawArrays(GL_POINTS, 0, numPointsToDeleteVertices);
 }

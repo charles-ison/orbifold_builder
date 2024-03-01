@@ -34,7 +34,7 @@ public:
     void cutSurface();
     void setDrawingColor(QColor newColor);
     void resizeGL(int w, int h) override;
-    void toggleShouldDeleteSurface();
+    void toggleDeleteSurface();
     void glue();
     void smooth(SmoothingAmount smoothingAmount);
     void reverseBoundaries();
@@ -52,7 +52,7 @@ protected:
     void initShaders();
 
 private:
-    void deleteSurface(QMouseEvent *e);
+    void deleteSurface();
     void addDrawnVertices(Vertex *newVertex);
     std::tuple<float, std::vector<Vertex*>> getVerticesPathAndDistance(Vertex *startVertex, Vertex *endVertex);
     bool drawnVerticesContainLoop(Vertex *newVertex);
@@ -83,12 +83,14 @@ private:
     std::vector<Vertex*> boundaryVertices1;
     std::vector<Vertex*> boundaryVertices2;
     std::vector<Vertex*> oldBoundaries;
+    std::vector<Vertex*> potentialVerticesToDelete;
+
     QColor drawingColor;
     DrawingMode drawingMode;
     bool isDrawingEnabled;
     bool shouldPaintGL;
     bool shouldAnimate;
-    bool shouldDeleteSurface;
+    bool findVertexToDelete;
     bool boundariesReversed;
     bool isBoundary1Loop;
     bool isBoundary2Loop;

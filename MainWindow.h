@@ -35,7 +35,7 @@ private slots:
     void smooth();
     void drawingModeChanged();
     void reverseBoundaries();
-    void toggleShouldDeleteSurface();
+    void toggleDeleteSurface();
     void toggleFundamentalPolygon();
     void drawingColorChanged();
     void pointerGroupClicked();
