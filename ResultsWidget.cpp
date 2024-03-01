@@ -320,7 +320,7 @@ void ResultsWidget::deleteSurface() {
             }
         }
         boundaryVertices2 = newBoundaryVertices2;
-    } else {
+    } else if (!boundaryVertices1.empty() && !boundaryVertices2.empty()){
         std::vector<Vertex*> remainingVertices;
         if (verticesToDeleteSet.find(boundaryVertices1.back()) == verticesToDeleteSet.end()) {
             remainingVertices = boundaryVertices1;

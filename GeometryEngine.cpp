@@ -326,6 +326,6 @@ void GeometryEngine::drawPointToDelete(QOpenGLShaderProgram *program) {
     program->setAttributeBuffer(inputBoundaryColorLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
 
     // Draw geometry using indices from VBO 1
-    glPointSize(10.0);
+    glPointSize(15.0);
     glDrawArrays(GL_POINTS, 0, numPointsToDeleteVertices);
 }
