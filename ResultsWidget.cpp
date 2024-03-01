@@ -545,7 +545,7 @@ void ResultsWidget::initializeGL() {
     numOpenings = 0;
     boundary1DisplaySize = 0;
     boundary2DisplaySize = 0;
-    xyThreshold = xyThresholdClick;
+    xyThreshold = xyThresholdDrag;
     drawingColor = Qt::white;
 
     // Use QBasicTimer because it's faster than QTimer
