@@ -36,6 +36,7 @@ public:
     void resizeGL(int w, int h) override;
     void toggleDeleteSurface();
     void glue();
+    void reset();
     void smooth(SmoothingAmount smoothingAmount);
     void reverseBoundaries();
     void glueAnimation();

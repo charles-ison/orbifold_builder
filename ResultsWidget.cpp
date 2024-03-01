@@ -849,6 +849,24 @@ std::string ResultsWidget::getResultsAttributesLabelText() {
     return " Vertices: " + std::to_string(numUniqueVertices) + "\n Edges: " + std::to_string(numUniqueEdges) + "\n Faces: " + std::to_string(numUniqueFaces) + "\n Euler Characteristic: " + std::to_string(eulerCharacteristic);
 }
 
+
+void ResultsWidget::reset() {
+    drawnVertices.clear();
+    boundaryVertices1.clear();
+    boundaryVertices2.clear();
+    potentialVerticesToDelete.clear();
+    boundariesReversed = false;
+    isBoundary1Loop = false;
+    isBoundary2Loop = false;
+    boundariesAreCombinedLoop = false;
+    numOpenings = 0;
+
+    geometryEngine->initPointToDelete(potentialVerticesToDelete);
+    geometryEngine->initLine(drawnVertices, drawingColor);
+    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed);
+    update();
+}
+
 void ResultsWidget::glueAnimation() {
     //shouldAnimate = !shouldAnimate;
 
