@@ -1,5 +1,6 @@
 #include <QtGui/qcolor.h>
 #include "GeometryEngine.h"
+#include <iostream>
 
 GeometryEngine::GeometryEngine() : indexBuf(QOpenGLBuffer::IndexBuffer) {
     initializeOpenGLFunctions();
@@ -14,6 +15,9 @@ GeometryEngine::GeometryEngine() : indexBuf(QOpenGLBuffer::IndexBuffer) {
     boundaryColorBuf1.create();
     boundaryArrayBuf2.create();
     boundaryColorBuf2.create();
+    arrowArrayBuf.create();
+    arrowColorBuf.create();
+    arrowIndexBuf.create();
     pointToDeleteColorBuf.create();
     pointToDeleteArrayBuf.create();
 }
@@ -28,6 +32,9 @@ GeometryEngine::~GeometryEngine() {
     boundaryColorBuf1.destroy();
     boundaryArrayBuf2.destroy();
     boundaryColorBuf2.destroy();
+    arrowArrayBuf.destroy();
+    arrowColorBuf.destroy();
+    arrowIndexBuf.destroy();
     pointToDeleteColorBuf.destroy();
     pointToDeleteArrayBuf.destroy();
 }
@@ -161,48 +168,96 @@ std::vector<QVector3D> GeometryEngine::initBoundaryColors(int numVertices, int d
     return colors;
 }
 
-void GeometryEngine::initBoundary(std::vector<Vertex*> boundaryVerticesVector1, std::vector<Vertex*> boundaryVerticesVector2, int displaySize1, int displaySize2, bool isBoundary1Loop, bool isBoundary2Loop, bool boundariesAreCombinedLoop, bool boundariesReversed) {
+void GeometryEngine::initBoundary(std::vector<Vertex*> boundaryVertices1, std::vector<Vertex*> boundaryVertices2, int displaySize1, int displaySize2, bool isBoundary1Loop, bool isBoundary2Loop, bool boundariesAreCombinedLoop, bool boundariesReversed) {
     std::vector<QVector3D> positions1;
     std::vector<QVector3D> positions2;
-
-    std::vector<Vertex*> newBoundaryVerticesVector1 = boundaryVerticesVector1;
-    std::vector<Vertex*> newBoundaryVerticesVector2 = boundaryVerticesVector2;
+    std::vector<Vertex*> newBoundaryVertices1 = boundaryVertices1;
+    std::vector<Vertex*> newBoundaryVertices2 = boundaryVertices2;
     int newDisplaySize1 = displaySize1;
     int newDisplaySize2 = displaySize2;
 
     if (isBoundary1Loop) {
-        newBoundaryVerticesVector1.push_back(newBoundaryVerticesVector1.front());
+        newBoundaryVertices1.push_back(newBoundaryVertices1.front());
         newDisplaySize1 += 1;
     }
     if (isBoundary2Loop) {
-        newBoundaryVerticesVector2.push_back(newBoundaryVerticesVector2.front());
+        newBoundaryVertices2.push_back(newBoundaryVertices2.front());
         newDisplaySize2 += 1;
     }
     if (boundariesAreCombinedLoop) {
         if (boundariesReversed) {
-            newBoundaryVerticesVector1.push_back(newBoundaryVerticesVector2.front());
-            newBoundaryVerticesVector2.push_back(newBoundaryVerticesVector1.front());
+            newBoundaryVertices1.push_back(newBoundaryVertices2.front());
+            newBoundaryVertices2.push_back(newBoundaryVertices1.front());
         } else {
-            newBoundaryVerticesVector1.push_back(newBoundaryVerticesVector2.back());
-            newBoundaryVerticesVector2.insert(newBoundaryVerticesVector2.begin(), newBoundaryVerticesVector1.front());
+            newBoundaryVertices1.push_back(newBoundaryVertices2.back());
+            newBoundaryVertices2.insert(newBoundaryVertices2.begin(), newBoundaryVertices1.front());
         }
         newDisplaySize1 += 1;
         newDisplaySize2 += 1;
     }
 
-    numBoundaryVertices1 = newBoundaryVerticesVector1.size();
-    numBoundaryVertices2 = newBoundaryVerticesVector2.size();
+    numBoundaryVertices1 = newBoundaryVertices1.size();
+    numBoundaryVertices2 = newBoundaryVertices2.size();
 
-    for (Vertex* boundaryVertex : newBoundaryVerticesVector1) {
+    for (Vertex* boundaryVertex : newBoundaryVertices1) {
         positions1.push_back(boundaryVertex->position);
     }
 
-    for (Vertex* boundaryVertex : newBoundaryVerticesVector2) {
+    for (Vertex* boundaryVertex : newBoundaryVertices2) {
         positions2.push_back(boundaryVertex->position);
     }
 
     std::vector<QVector3D> colors1 = initBoundaryColors(numBoundaryVertices1, newDisplaySize1);
     std::vector<QVector3D> colors2 = initBoundaryColors(numBoundaryVertices2, newDisplaySize2);
+
+    std::vector<QVector3D> arrowPositions;
+    std::vector<QVector3D> arrowColors;
+    std::vector<GLushort> arrowIndices;
+
+    if (!newBoundaryVertices2.empty()) {
+        float arrowDelta = 0.2;
+        QVector3D positions2Mid = positions2[numBoundaryVertices2 / 2];
+        QVector3D positions2PreviousMid = positions2[(numBoundaryVertices2 / 2) - 1];
+        std::cout << "positions2Mid: x: " << positions2Mid.x()  << ", y: " << positions2Mid.y() << ", z: " << positions2Mid.z() << std::endl;
+        std::cout << "positions2PreviousMid: x: " << positions2PreviousMid.x()  << ", y: " << positions2PreviousMid.y() << ", z: " << positions2PreviousMid.z() << std::endl;
+
+        QVector3D midVector2 = (positions2PreviousMid - positions2Mid).normalized();
+        std::cout << "midVector2: x: " << midVector2.x()  << ", y: " << midVector2.y() << ", z: " << midVector2.z() << std::endl;
+
+        QVector3D arrowBase = positions2Mid + arrowDelta * midVector2;
+        QVector3D arrowBaseNormal = QVector3D::crossProduct(arrowBase, {1, 0, 0}).normalized();
+        QVector3D arrowCorner = arrowBase + arrowDelta * arrowBaseNormal;
+
+        std::cout << "arrowBase: x: " << arrowBase.x()  << ", y: " << arrowBase.y() << ", z: " << arrowBase.z() << std::endl;
+        std::cout << "arrowCorner: x: " << arrowCorner.x()  << ", y: " << arrowCorner.y() << ", z: " << arrowCorner.z() << std::endl;
+
+        arrowPositions.push_back(positions2Mid);
+        arrowPositions.push_back(arrowBase);
+        arrowPositions.push_back(arrowCorner);
+
+        arrowColors.push_back(colors2[0]);
+        arrowColors.push_back(colors2[0]);
+        arrowColors.push_back(colors2[0]);
+
+        arrowIndices.push_back(0);
+        arrowIndices.push_back(1);
+        arrowIndices.push_back(2);
+    }
+
+    numArrowIndices = arrowIndices.size();
+
+    // Transfer position data to VBO 0
+    arrowArrayBuf.bind();
+    arrowArrayBuf.allocate(&arrowPositions[0], arrowPositions.size() * sizeof(QVector3D));
+
+    // Transfer color data to VBO 0
+    arrowColorBuf.bind();
+    arrowColorBuf.allocate(&arrowColors[0], arrowColors.size() * sizeof(QVector3D));
+
+    // Transfer index data to VBO 1
+    arrowIndexBuf.bind();
+    arrowIndexBuf.allocate(&arrowIndices[0], numArrowIndices * sizeof(GLushort));
+
 
     // Transfer position data to VBO 0
     boundaryArrayBuf1.bind();
@@ -235,9 +290,9 @@ void GeometryEngine::drawMesh(QOpenGLShaderProgram *program) {
     colorBuf.bind();
 
     // Tell OpenGL programmable pipeline how to locate color data
-    int inputBoundaryColorLocation = program->attributeLocation("input_color");
-    program->enableAttributeArray(inputBoundaryColorLocation);
-    program->setAttributeBuffer(inputBoundaryColorLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
+    int inputColorLocation = program->attributeLocation("input_color");
+    program->enableAttributeArray(inputColorLocation);
+    program->setAttributeBuffer(inputColorLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
 
     // Draw geometry using indices from VBO 1
     glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_SHORT, nullptr);
@@ -256,9 +311,9 @@ void GeometryEngine::drawLine(QOpenGLShaderProgram *program) {
     lineColorBuf.bind();
 
     // Tell OpenGL programmable pipeline how to locate color data
-    int inputBoundaryColorLocation = program->attributeLocation("input_color");
-    program->enableAttributeArray(inputBoundaryColorLocation);
-    program->setAttributeBuffer(inputBoundaryColorLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
+    int inputColorLocation = program->attributeLocation("input_color");
+    program->enableAttributeArray(inputColorLocation);
+    program->setAttributeBuffer(inputColorLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
 
     // Draw geometry using indices from VBO 1
     glLineWidth(10.0);
@@ -279,9 +334,9 @@ void GeometryEngine::drawBoundary(QOpenGLShaderProgram *program) {
     boundaryColorBuf2.bind();
 
     // Tell OpenGL programmable pipeline how to locate color data
-    int inputBoundaryColorLocation2 = program->attributeLocation("input_color");
-    program->enableAttributeArray(inputBoundaryColorLocation2);
-    program->setAttributeBuffer(inputBoundaryColorLocation2, GL_FLOAT, 0, 3, sizeof(QVector3D));
+    int inputColorLocation2 = program->attributeLocation("input_color");
+    program->enableAttributeArray(inputColorLocation2);
+    program->setAttributeBuffer(inputColorLocation2, GL_FLOAT, 0, 3, sizeof(QVector3D));
 
     // Draw geometry using indices from VBO 1
     glLineWidth(10.0);
@@ -299,13 +354,35 @@ void GeometryEngine::drawBoundary(QOpenGLShaderProgram *program) {
     boundaryColorBuf1.bind();
 
     // Tell OpenGL programmable pipeline how to locate color data
-    int inputBoundaryColorLocation1 = program->attributeLocation("input_color");
-    program->enableAttributeArray(inputBoundaryColorLocation1);
-    program->setAttributeBuffer(inputBoundaryColorLocation1, GL_FLOAT, 0, 3, sizeof(QVector3D));
+    int inputColorLocation1 = program->attributeLocation("input_color");
+    program->enableAttributeArray(inputColorLocation1);
+    program->setAttributeBuffer(inputColorLocation1, GL_FLOAT, 0, 3, sizeof(QVector3D));
 
     // Draw geometry using indices from VBO 1
     glLineWidth(10.0);
     glDrawArrays(GL_LINE_STRIP, 0, numBoundaryVertices1);
+
+
+
+    // Tell OpenGL which VBOs to use
+    arrowArrayBuf.bind();
+    arrowIndexBuf.bind();
+
+    // Tell OpenGL programmable pipeline how to locate position data
+    int positionLocation = program->attributeLocation("a_position");
+    program->enableAttributeArray(positionLocation);
+    program->setAttributeBuffer(positionLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
+
+    // Tell OpenGL which VBOs to use
+    arrowColorBuf.bind();
+
+    // Tell OpenGL programmable pipeline how to locate color data
+    int inputColorLocation = program->attributeLocation("input_color");
+    program->enableAttributeArray(inputColorLocation);
+    program->setAttributeBuffer(inputColorLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
+
+    // Draw geometry using indices from VBO 1
+    glDrawElements(GL_TRIANGLES, numArrowIndices, GL_UNSIGNED_SHORT, nullptr);
 }
 
 void GeometryEngine::drawPointToDelete(QOpenGLShaderProgram *program) {

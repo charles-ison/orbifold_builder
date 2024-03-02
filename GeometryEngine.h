@@ -15,7 +15,7 @@ public:
     void drawBoundary(QOpenGLShaderProgram *program);
     void drawPointToDelete(QOpenGLShaderProgram *program);
     void initLine(std::vector<Vertex*> lineVerticesVector, QColor color);
-    void initBoundary(std::vector<Vertex*> boundaryVerticesVector1, std::vector<Vertex*> boundaryVerticesVector2, int displaySize1, int displaySize2, bool isBoundary1Loop, bool isBoundary2Loop, bool boundariesAreCombinedLoop, bool boundariesReversed);
+    void initBoundary(std::vector<Vertex*> boundaryVertices1, std::vector<Vertex*> boundaryVertices2, int displaySize1, int displaySize2, bool isBoundary1Loop, bool isBoundary2Loop, bool boundariesAreCombinedLoop, bool boundariesReversed);
     void initMesh(Mesh* mesh);
     void initPointToDelete(std::vector<Vertex*> verticesToDelete);
     void initAnimation(Mesh* mesh);
@@ -43,6 +43,11 @@ private:
     int numBoundaryVertices2;
     QOpenGLBuffer boundaryColorBuf2;
     QOpenGLBuffer boundaryArrayBuf2;
+
+    int numArrowIndices;
+    QOpenGLBuffer arrowColorBuf;
+    QOpenGLBuffer arrowIndexBuf;
+    QOpenGLBuffer arrowArrayBuf;
 
     static const int animationSpeed = 100;
     int originalIndexToEndAnimation = 0;
