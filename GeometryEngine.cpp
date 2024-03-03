@@ -226,62 +226,51 @@ void GeometryEngine::initBoundary(std::vector<Vertex*> boundaryVertices1, std::v
     boundaryColorBuf2.bind();
     boundaryColorBuf2.allocate(&colors2[0], numBoundaryVertices2 * sizeof(QVector3D));
 
+    initArrows(positions2, colors2);
+}
 
-    /*
+std::vector<QVector3D> GeometryEngine::buildArrow(int numBoundaryVertices, std::vector<QVector3D> positions) {
     std::vector<QVector3D> arrowPositions;
-    std::vector<QVector3D> arrowColors;
-    std::vector<GLushort> arrowIndices;
+    float arrowDelta = 0.1;
+    QVector3D positionsStartMid = positions[numBoundaryVertices / 2];
+    QVector3D positionsPreviousMid = positions[(numBoundaryVertices / 2) - 1];
+    QVector3D positionsMid = (positionsStartMid + positionsPreviousMid)/2;
+    QVector3D midVector = (positionsPreviousMid - positionsStartMid).normalized();
+    QVector3D midVectorForCross = {midVector.x()+1, midVector.y()-1, midVector.z()+1};
+    QVector3D arrowBase = positionsMid + arrowDelta * midVector;
+    QVector3D arrowBaseNormal = QVector3D::crossProduct(midVector, midVectorForCross).normalized();
+    QVector3D arrowCorner = arrowBase + 0.4 * arrowDelta * arrowBaseNormal;
 
-    if (!newBoundaryVertices2.empty()) {
-        float arrowDelta = 0.5;
-        QVector3D positions2Mid = positions2[numBoundaryVertices2 / 2];
-        QVector3D positions2PreviousMid = positions2[(numBoundaryVertices2 / 2) - 1];
-        QVector3D midVector2 = (positions2PreviousMid - positions2Mid).normalized();
-        QVector3D arrowBase = positions2Mid + arrowDelta * midVector2;
-        QVector3D arrowBaseNormal1 = QVector3D::crossProduct(midVector2, {1, 0, 0}).normalized();
-        QVector3D arrowCorner1 = arrowBase + arrowDelta * arrowBaseNormal1;
+    arrowPositions.push_back(positionsMid);
+    arrowPositions.push_back(arrowCorner);
 
-        //QMatrix4x4 matrix;
-        //matrix.translate(arrowBase);
-        //matrix.rotate(180.0, arrowBaseNormal);
-        //matrix.translate(-arrowBase);
-        //QVector3D arrowCorner2 = matrix * arrowCorner1;
-        QVector3D arrowBaseNormal2 = QVector3D::crossProduct(midVector2, {-1, 0, 0}).normalized();
-        QVector3D arrowCorner2 = arrowBase + arrowDelta * arrowBaseNormal2;
-
-        std::cout << "positions2Mid: x: " << positions2Mid.x()  << ", y: " << positions2Mid.y() << ", z: " << positions2Mid.z() << std::endl;
-        std::cout << "positions2PreviousMid: x: " << positions2PreviousMid.x()  << ", y: " << positions2PreviousMid.y() << ", z: " << positions2PreviousMid.z() << std::endl;
-        std::cout << "midVector2: x: " << midVector2.x()  << ", y: " << midVector2.y() << ", z: " << midVector2.z() << std::endl;
-        std::cout << "arrowBase: x: " << arrowBase.x()  << ", y: " << arrowBase.y() << ", z: " << arrowBase.z() << std::endl;
-        std::cout << "arrowCorner1: x: " << arrowCorner1.x()  << ", y: " << arrowCorner1.y() << ", z: " << arrowCorner1.z() << std::endl;
-        std::cout << "arrowCorner2: x: " << arrowCorner2.x()  << ", y: " << arrowCorner2.y() << ", z: " << arrowCorner2.z() << std::endl;
-
-        //arrowPositions.push_back(positions2Mid);
-        //arrowPositions.push_back(arrowBase);
-        //arrowPositions.push_back(arrowCorner1);
-        //arrowPositions.push_back(arrowCorner2);
-
-        arrowPositions.push_back({1.5, 1.5, 1.5});
-        arrowPositions.push_back({-1.5, 1.5, 1.5});
-        arrowPositions.push_back({-1.5, 1.5, -1.5});
-        arrowPositions.push_back({1.5, 1.5, -1.5});
-
-        arrowColors.push_back(colors2[numBoundaryVertices2 / 2]);
-        arrowColors.push_back(colors2[numBoundaryVertices2 / 2]);
-        arrowColors.push_back(colors2[numBoundaryVertices2 / 2]);
-        arrowColors.push_back(colors2[numBoundaryVertices2 / 2]);
-
-        arrowIndices.push_back(0);
-        arrowIndices.push_back(1);
-        arrowIndices.push_back(2);
-        arrowIndices.push_back(0);
-        arrowIndices.push_back(1);
-        arrowIndices.push_back(3);
+    int numArrowCorners = 4;
+    for (int i=1; i<numArrowCorners + 1; i++) {
+        QMatrix4x4 matrix;
+        matrix.translate(arrowBase);
+        matrix.rotate(i*(360.0/numArrowCorners), midVector);
+        matrix.translate(-arrowBase);
+        QVector3D newArrowCorner = matrix * arrowCorner;
+        arrowPositions.push_back(positionsMid);
+        arrowPositions.push_back(newArrowCorner);
     }
 
-    numArrowIndices = arrowIndices.size();
-    int numArrowVertices = arrowPositions.size();
-    int numArrowColors = arrowColors.size();
+    return arrowPositions;
+}
+
+void GeometryEngine::initArrows(std::vector<QVector3D> positions2, std::vector<QVector3D> colors2) {
+    std::vector<QVector3D> arrowPositions;
+    std::vector<QVector3D> arrowColors;
+
+    if (!positions2.empty()) {
+        arrowPositions = buildArrow(numBoundaryVertices2, positions2);
+        QVector3D arrowColor2 = colors2[numBoundaryVertices2 / 2];
+        for (int i = 0; i < arrowPositions.size(); i++) {
+            arrowColors.push_back(arrowColor2);
+        }
+    }
+
+    numArrowVertices = arrowPositions.size();
 
     // Transfer position data to VBO 0
     arrowArrayBuf.bind();
@@ -289,12 +278,7 @@ void GeometryEngine::initBoundary(std::vector<Vertex*> boundaryVertices1, std::v
 
     // Transfer color data to VBO 0
     arrowColorBuf.bind();
-    arrowColorBuf.allocate(&arrowColors[0], numArrowColors * sizeof(QVector3D));
-
-    // Transfer index data to VBO 1
-    arrowIndexBuf.bind();
-    arrowIndexBuf.allocate(&arrowIndices[0], numArrowIndices * sizeof(GLushort));
-     */
+    arrowColorBuf.allocate(&arrowColors[0], numArrowVertices * sizeof(QVector3D));
 }
 
 void GeometryEngine::drawMesh(QOpenGLShaderProgram *program) {
@@ -341,7 +325,6 @@ void GeometryEngine::drawLine(QOpenGLShaderProgram *program) {
     glDrawArrays(GL_LINE_STRIP, 0, numLineVertices);
 }
 
-// Actually drawLine
 void GeometryEngine::drawBoundary(QOpenGLShaderProgram *program) {
     // Tell OpenGL which VBOs to use
     boundaryArrayBuf2.bind();
@@ -383,27 +366,29 @@ void GeometryEngine::drawBoundary(QOpenGLShaderProgram *program) {
     glLineWidth(10.0);
     glDrawArrays(GL_LINE_STRIP, 0, numBoundaryVertices1);
 
+    drawArrows(program);
+}
 
-
+void GeometryEngine::drawArrows(QOpenGLShaderProgram *program) {
     // Tell OpenGL which VBOs to use
     arrowArrayBuf.bind();
-    arrowIndexBuf.bind();
 
     // Tell OpenGL programmable pipeline how to locate position data
-    //int arrowPositionLocation = program->attributeLocation("a_position");
-    //program->enableAttributeArray(arrowPositionLocation);
-    //program->setAttributeBuffer(arrowPositionLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
+    int positionLocation = program->attributeLocation("a_position");
+    program->enableAttributeArray(positionLocation);
+    program->setAttributeBuffer(positionLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
 
     // Tell OpenGL which VBOs to use
-    //arrowColorBuf.bind();
+    arrowColorBuf.bind();
 
     // Tell OpenGL programmable pipeline how to locate color data
-    //int arrowInputColorLocation = program->attributeLocation("input_color");
-    //program->enableAttributeArray(arrowInputColorLocation);
-    //program->setAttributeBuffer(arrowInputColorLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
+    int inputColorLocation = program->attributeLocation("input_color");
+    program->enableAttributeArray(inputColorLocation);
+    program->setAttributeBuffer(inputColorLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
 
     // Draw geometry using indices from VBO 1
-    //glDrawElements(GL_TRIANGLES, numArrowIndices, GL_UNSIGNED_SHORT, nullptr);
+    glLineWidth(5.0);
+    glDrawArrays(GL_LINES, 0, numArrowVertices);
 }
 
 void GeometryEngine::drawPointToDelete(QOpenGLShaderProgram *program) {

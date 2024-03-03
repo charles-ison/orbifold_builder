@@ -666,7 +666,7 @@ void ResultsWidget::glue() {
     boundariesReversed = false;
     boundariesAreCombinedLoop = false;
 
-    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed);
+    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2,boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed);
     geometryEngine->initMesh(mesh);
     update();
 }
