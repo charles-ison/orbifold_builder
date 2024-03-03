@@ -210,55 +210,6 @@ void GeometryEngine::initBoundary(std::vector<Vertex*> boundaryVertices1, std::v
     std::vector<QVector3D> colors1 = initBoundaryColors(numBoundaryVertices1, newDisplaySize1);
     std::vector<QVector3D> colors2 = initBoundaryColors(numBoundaryVertices2, newDisplaySize2);
 
-    std::vector<QVector3D> arrowPositions;
-    std::vector<QVector3D> arrowColors;
-    std::vector<GLushort> arrowIndices;
-
-    if (!newBoundaryVertices2.empty()) {
-        float arrowDelta = 0.2;
-        QVector3D positions2Mid = positions2[numBoundaryVertices2 / 2];
-        QVector3D positions2PreviousMid = positions2[(numBoundaryVertices2 / 2) - 1];
-        std::cout << "positions2Mid: x: " << positions2Mid.x()  << ", y: " << positions2Mid.y() << ", z: " << positions2Mid.z() << std::endl;
-        std::cout << "positions2PreviousMid: x: " << positions2PreviousMid.x()  << ", y: " << positions2PreviousMid.y() << ", z: " << positions2PreviousMid.z() << std::endl;
-
-        QVector3D midVector2 = (positions2PreviousMid - positions2Mid).normalized();
-        std::cout << "midVector2: x: " << midVector2.x()  << ", y: " << midVector2.y() << ", z: " << midVector2.z() << std::endl;
-
-        QVector3D arrowBase = positions2Mid + arrowDelta * midVector2;
-        QVector3D arrowBaseNormal = QVector3D::crossProduct(arrowBase, {1, 0, 0}).normalized();
-        QVector3D arrowCorner = arrowBase + arrowDelta * arrowBaseNormal;
-
-        std::cout << "arrowBase: x: " << arrowBase.x()  << ", y: " << arrowBase.y() << ", z: " << arrowBase.z() << std::endl;
-        std::cout << "arrowCorner: x: " << arrowCorner.x()  << ", y: " << arrowCorner.y() << ", z: " << arrowCorner.z() << std::endl;
-
-        arrowPositions.push_back(positions2Mid);
-        arrowPositions.push_back(arrowBase);
-        arrowPositions.push_back(arrowCorner);
-
-        arrowColors.push_back(colors2[0]);
-        arrowColors.push_back(colors2[0]);
-        arrowColors.push_back(colors2[0]);
-
-        arrowIndices.push_back(0);
-        arrowIndices.push_back(1);
-        arrowIndices.push_back(2);
-    }
-
-    numArrowIndices = arrowIndices.size();
-
-    // Transfer position data to VBO 0
-    arrowArrayBuf.bind();
-    arrowArrayBuf.allocate(&arrowPositions[0], arrowPositions.size() * sizeof(QVector3D));
-
-    // Transfer color data to VBO 0
-    arrowColorBuf.bind();
-    arrowColorBuf.allocate(&arrowColors[0], arrowColors.size() * sizeof(QVector3D));
-
-    // Transfer index data to VBO 1
-    arrowIndexBuf.bind();
-    arrowIndexBuf.allocate(&arrowIndices[0], numArrowIndices * sizeof(GLushort));
-
-
     // Transfer position data to VBO 0
     boundaryArrayBuf1.bind();
     boundaryArrayBuf1.allocate(&positions1[0], numBoundaryVertices1 * sizeof(QVector3D));
@@ -274,6 +225,76 @@ void GeometryEngine::initBoundary(std::vector<Vertex*> boundaryVertices1, std::v
     // Transfer color scale data to VBO 0
     boundaryColorBuf2.bind();
     boundaryColorBuf2.allocate(&colors2[0], numBoundaryVertices2 * sizeof(QVector3D));
+
+
+    /*
+    std::vector<QVector3D> arrowPositions;
+    std::vector<QVector3D> arrowColors;
+    std::vector<GLushort> arrowIndices;
+
+    if (!newBoundaryVertices2.empty()) {
+        float arrowDelta = 0.5;
+        QVector3D positions2Mid = positions2[numBoundaryVertices2 / 2];
+        QVector3D positions2PreviousMid = positions2[(numBoundaryVertices2 / 2) - 1];
+        QVector3D midVector2 = (positions2PreviousMid - positions2Mid).normalized();
+        QVector3D arrowBase = positions2Mid + arrowDelta * midVector2;
+        QVector3D arrowBaseNormal1 = QVector3D::crossProduct(midVector2, {1, 0, 0}).normalized();
+        QVector3D arrowCorner1 = arrowBase + arrowDelta * arrowBaseNormal1;
+
+        //QMatrix4x4 matrix;
+        //matrix.translate(arrowBase);
+        //matrix.rotate(180.0, arrowBaseNormal);
+        //matrix.translate(-arrowBase);
+        //QVector3D arrowCorner2 = matrix * arrowCorner1;
+        QVector3D arrowBaseNormal2 = QVector3D::crossProduct(midVector2, {-1, 0, 0}).normalized();
+        QVector3D arrowCorner2 = arrowBase + arrowDelta * arrowBaseNormal2;
+
+        std::cout << "positions2Mid: x: " << positions2Mid.x()  << ", y: " << positions2Mid.y() << ", z: " << positions2Mid.z() << std::endl;
+        std::cout << "positions2PreviousMid: x: " << positions2PreviousMid.x()  << ", y: " << positions2PreviousMid.y() << ", z: " << positions2PreviousMid.z() << std::endl;
+        std::cout << "midVector2: x: " << midVector2.x()  << ", y: " << midVector2.y() << ", z: " << midVector2.z() << std::endl;
+        std::cout << "arrowBase: x: " << arrowBase.x()  << ", y: " << arrowBase.y() << ", z: " << arrowBase.z() << std::endl;
+        std::cout << "arrowCorner1: x: " << arrowCorner1.x()  << ", y: " << arrowCorner1.y() << ", z: " << arrowCorner1.z() << std::endl;
+        std::cout << "arrowCorner2: x: " << arrowCorner2.x()  << ", y: " << arrowCorner2.y() << ", z: " << arrowCorner2.z() << std::endl;
+
+        //arrowPositions.push_back(positions2Mid);
+        //arrowPositions.push_back(arrowBase);
+        //arrowPositions.push_back(arrowCorner1);
+        //arrowPositions.push_back(arrowCorner2);
+
+        arrowPositions.push_back({1.5, 1.5, 1.5});
+        arrowPositions.push_back({-1.5, 1.5, 1.5});
+        arrowPositions.push_back({-1.5, 1.5, -1.5});
+        arrowPositions.push_back({1.5, 1.5, -1.5});
+
+        arrowColors.push_back(colors2[numBoundaryVertices2 / 2]);
+        arrowColors.push_back(colors2[numBoundaryVertices2 / 2]);
+        arrowColors.push_back(colors2[numBoundaryVertices2 / 2]);
+        arrowColors.push_back(colors2[numBoundaryVertices2 / 2]);
+
+        arrowIndices.push_back(0);
+        arrowIndices.push_back(1);
+        arrowIndices.push_back(2);
+        arrowIndices.push_back(0);
+        arrowIndices.push_back(1);
+        arrowIndices.push_back(3);
+    }
+
+    numArrowIndices = arrowIndices.size();
+    int numArrowVertices = arrowPositions.size();
+    int numArrowColors = arrowColors.size();
+
+    // Transfer position data to VBO 0
+    arrowArrayBuf.bind();
+    arrowArrayBuf.allocate(&arrowPositions[0], numArrowVertices * sizeof(QVector3D));
+
+    // Transfer color data to VBO 0
+    arrowColorBuf.bind();
+    arrowColorBuf.allocate(&arrowColors[0], numArrowColors * sizeof(QVector3D));
+
+    // Transfer index data to VBO 1
+    arrowIndexBuf.bind();
+    arrowIndexBuf.allocate(&arrowIndices[0], numArrowIndices * sizeof(GLushort));
+     */
 }
 
 void GeometryEngine::drawMesh(QOpenGLShaderProgram *program) {
@@ -369,20 +390,20 @@ void GeometryEngine::drawBoundary(QOpenGLShaderProgram *program) {
     arrowIndexBuf.bind();
 
     // Tell OpenGL programmable pipeline how to locate position data
-    int positionLocation = program->attributeLocation("a_position");
-    program->enableAttributeArray(positionLocation);
-    program->setAttributeBuffer(positionLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
+    //int arrowPositionLocation = program->attributeLocation("a_position");
+    //program->enableAttributeArray(arrowPositionLocation);
+    //program->setAttributeBuffer(arrowPositionLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
 
     // Tell OpenGL which VBOs to use
-    arrowColorBuf.bind();
+    //arrowColorBuf.bind();
 
     // Tell OpenGL programmable pipeline how to locate color data
-    int inputColorLocation = program->attributeLocation("input_color");
-    program->enableAttributeArray(inputColorLocation);
-    program->setAttributeBuffer(inputColorLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
+    //int arrowInputColorLocation = program->attributeLocation("input_color");
+    //program->enableAttributeArray(arrowInputColorLocation);
+    //program->setAttributeBuffer(arrowInputColorLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
 
     // Draw geometry using indices from VBO 1
-    glDrawElements(GL_TRIANGLES, numArrowIndices, GL_UNSIGNED_SHORT, nullptr);
+    //glDrawElements(GL_TRIANGLES, numArrowIndices, GL_UNSIGNED_SHORT, nullptr);
 }
 
 void GeometryEngine::drawPointToDelete(QOpenGLShaderProgram *program) {
