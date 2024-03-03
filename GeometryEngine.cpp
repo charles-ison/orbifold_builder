@@ -167,7 +167,7 @@ std::vector<QVector3D> GeometryEngine::initBoundaryColors(int numVertices, int d
     return colors;
 }
 
-void GeometryEngine::initBoundary(std::vector<Vertex*> boundaryVertices1, std::vector<Vertex*> boundaryVertices2, int displaySize1, int displaySize2, bool isBoundary1Loop, bool isBoundary2Loop, bool boundariesAreCombinedLoop, bool boundariesReversed) {
+void GeometryEngine::initBoundary(std::vector<Vertex*> boundaryVertices1, std::vector<Vertex*> boundaryVertices2, int displaySize1, int displaySize2, bool isBoundary1Loop, bool isBoundary2Loop, bool boundariesAreCombinedLoop, bool boundariesReversed, bool boundariesOverlapping) {
     std::vector<QVector3D> positions1;
     std::vector<QVector3D> positions2;
     std::vector<Vertex*> newBoundaryVertices1 = boundaryVertices1;
@@ -225,31 +225,31 @@ void GeometryEngine::initBoundary(std::vector<Vertex*> boundaryVertices1, std::v
     boundaryColorBuf2.bind();
     boundaryColorBuf2.allocate(&colors2[0], numBoundaryVertices2 * sizeof(QVector3D));
 
-    initArrows(positions1, colors1, positions2, colors2);
+    initArrows(positions1, colors1, positions2, colors2, boundariesOverlapping, boundariesReversed);
 }
 
-std::vector<QVector3D> GeometryEngine::buildArrow(int numBoundaryVertices, std::vector<QVector3D> positions) {
+std::vector<QVector3D> GeometryEngine::buildArrow(std::vector<QVector3D> positions, int startIndex) {
     std::vector<QVector3D> arrowPositions;
-    float arrowDelta = 0.1;
-    QVector3D positionsStartMid = positions[numBoundaryVertices / 2];
-    QVector3D positionsPreviousMid = positions[(numBoundaryVertices / 2) - 1];
-    QVector3D positionsMid = (positionsStartMid + positionsPreviousMid)/2;
-    QVector3D midVector = (positionsPreviousMid - positionsStartMid).normalized();
+    float arrowDelta = 0.08;
+    QVector3D positionsStart = positions[startIndex];
+    QVector3D positionsPrevious = positions[startIndex - 1];
+    QVector3D positionsMid = (positionsStart + positionsPrevious)/2;
+    QVector3D midVector = (positionsPrevious - positionsStart).normalized();
     QVector3D midVectorForCross = {midVector.x()+1, midVector.y()-1, midVector.z()+1};
     QVector3D arrowBase = positionsMid + arrowDelta * midVector;
     QVector3D arrowBaseNormal = QVector3D::crossProduct(midVector, midVectorForCross).normalized();
-    QVector3D arrowCorner = arrowBase + 0.4 * arrowDelta * arrowBaseNormal;
+    QVector3D arrowCorner = arrowBase + 0.3 * arrowDelta * arrowBaseNormal;
 
     arrowPositions.push_back(positionsMid);
     arrowPositions.push_back(arrowCorner);
 
-    int numArrowCorners = 4;
+    int numArrowCorners = 64;
     for (int i=1; i<numArrowCorners + 1; i++) {
         QMatrix4x4 matrix;
         matrix.translate(arrowBase);
         matrix.rotate(i*(360.0/numArrowCorners), midVector);
         matrix.translate(-arrowBase);
-        QVector3D newArrowCorner = matrix * arrowCorner;
+        QVector3D newArrowCorner = matrix.map(arrowCorner);
         arrowPositions.push_back(positionsMid);
         arrowPositions.push_back(newArrowCorner);
     }
@@ -257,13 +257,19 @@ std::vector<QVector3D> GeometryEngine::buildArrow(int numBoundaryVertices, std::
     return arrowPositions;
 }
 
-void GeometryEngine::initArrows(std::vector<QVector3D> positions1, std::vector<QVector3D> colors1, std::vector<QVector3D> positions2, std::vector<QVector3D> colors2) {
+void GeometryEngine::initArrows(std::vector<QVector3D> positions1, std::vector<QVector3D> colors1, std::vector<QVector3D> positions2, std::vector<QVector3D> colors2, bool boundariesOverlapping, bool boundariesReversed) {
     std::vector<QVector3D> arrowPositions;
     std::vector<QVector3D> arrowColors;
 
     if (!positions1.empty()) {
-        std::vector<QVector3D> arrowPositions1 = buildArrow(numBoundaryVertices1, positions1);
-        QVector3D arrowColor1 = colors1[numBoundaryVertices1 / 2];
+        int startIndex1;
+        if (boundariesOverlapping && boundariesReversed) {
+            startIndex1 = (1.0 / 3.0) * positions1.size();
+        } else {
+            startIndex1 = (2.0 / 3.0) * positions1.size();
+        }
+        QVector3D arrowColor1 = colors1[(2.0 / 3.0) * positions1.size()];
+        std::vector<QVector3D> arrowPositions1 = buildArrow(positions1, startIndex1);
         for (QVector3D arrowPosition : arrowPositions1) {
             arrowPositions.push_back(arrowPosition);
             arrowColors.push_back(arrowColor1);
@@ -271,8 +277,9 @@ void GeometryEngine::initArrows(std::vector<QVector3D> positions1, std::vector<Q
     }
 
     if (!positions2.empty()) {
-        std::vector<QVector3D> arrowPositions2 = buildArrow(numBoundaryVertices2, positions2);
-        QVector3D arrowColor2 = colors2[numBoundaryVertices2 / 2];
+        float startIndex2 = (1.0/3.0) * positions2.size();
+        QVector3D arrowColor2 = colors2[startIndex2];
+        std::vector<QVector3D> arrowPositions2 = buildArrow(positions2, startIndex2);
         for (QVector3D arrowPosition : arrowPositions2) {
             arrowPositions.push_back(arrowPosition);
             arrowColors.push_back(arrowColor2);

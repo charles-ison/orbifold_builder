@@ -93,6 +93,7 @@ private:
     bool shouldAnimate;
     bool findVertexToDelete;
     bool boundariesReversed;
+    bool boundariesOverlapping;
     bool isBoundary1Loop;
     bool isBoundary2Loop;
     bool boundariesAreCombinedLoop;

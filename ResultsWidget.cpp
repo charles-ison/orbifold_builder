@@ -27,6 +27,7 @@ void ResultsWidget::addSurface(Surface newSurface) {
     isBoundary1Loop = false;
     isBoundary2Loop = false;
     boundariesAreCombinedLoop = false;
+    boundariesOverlapping = false;
     numOpenings = 0;
     boundary1DisplaySize = 0;
     boundary2DisplaySize = 0;
@@ -73,7 +74,7 @@ void ResultsWidget::addSurface(Surface newSurface) {
         geometryEngine->initMesh(mesh);
     }
     geometryEngine->initLine(drawnVertices, drawingColor);
-    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed);
+    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed, boundariesOverlapping);
     update();
 }
 
@@ -262,6 +263,7 @@ void ResultsWidget::cutSurface() {
     }
 
     if (numOpenings == 0) {
+        boundariesOverlapping = true;
         boundaryVertices1 = tempBoundaryVertices1;
         boundaryVertices2 = tempBoundaryVertices2;
         boundary1DisplaySize = boundaryVertices1.size();
@@ -281,13 +283,14 @@ void ResultsWidget::cutSurface() {
         boundaryVertices2.insert(boundaryVertices2.end(), tempBoundaryVertices1.begin(), tempBoundaryVertices1.end());
         boundaryVertices2.insert(boundaryVertices2.end(), tempBoundaryVertices2.begin(), tempBoundaryVertices2.end());
         boundary2DisplaySize = tempBoundaryVertices2.size();
+        boundariesOverlapping = false;
     }
 
     numOpenings += 1;
     drawnVertices.clear();
     boundariesAreCombinedLoop = false;
     geometryEngine->initLine(drawnVertices, drawingColor);
-    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed);
+    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed, boundariesOverlapping);
     geometryEngine->initMesh(mesh);
     update();
 }
@@ -357,12 +360,13 @@ void ResultsWidget::deleteSurface() {
         boundary2DisplaySize = boundaryVertices2.size();
     }
 
+    boundariesOverlapping = false;
     boundariesReversed = false;
     potentialVerticesToDelete.clear();
     mesh->deleteVertices(verticesToDeleteSet);
     geometryEngine->initMesh(mesh);
     geometryEngine->initPointToDelete(potentialVerticesToDelete);
-    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed);
+    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed, boundariesOverlapping);
     update();
 }
 
@@ -552,6 +556,7 @@ void ResultsWidget::initializeGL() {
     isBoundary1Loop = false;
     isBoundary2Loop = false;
     boundariesAreCombinedLoop = false;
+    boundariesOverlapping = false;
     drawingMode = DrawingMode::drag;
     numOpenings = 0;
     boundary1DisplaySize = 0;
@@ -665,8 +670,9 @@ void ResultsWidget::glue() {
     isBoundary2Loop = false;
     boundariesReversed = false;
     boundariesAreCombinedLoop = false;
+    boundariesOverlapping = false;
 
-    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2,boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed);
+    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2,boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed, boundariesOverlapping);
     geometryEngine->initMesh(mesh);
     update();
 }
@@ -720,7 +726,7 @@ void ResultsWidget::connectVertices() {
 void ResultsWidget::reverseBoundaries() {
     boundariesReversed = !boundariesReversed;
     std::reverse(boundaryVertices2.begin(), boundaryVertices2.end());
-    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed);
+    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed, boundariesOverlapping);
     update();
 }
 
@@ -826,7 +832,7 @@ void ResultsWidget::smooth(SmoothingAmount smoothingAmount) {
 
     geometryEngine->initMesh(mesh);
     geometryEngine->initLine(drawnVertices, drawingColor);
-    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed);
+    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed, boundariesOverlapping);
     update();
 }
 
@@ -870,11 +876,12 @@ void ResultsWidget::reset() {
     isBoundary1Loop = false;
     isBoundary2Loop = false;
     boundariesAreCombinedLoop = false;
+    boundariesOverlapping = false;
     numOpenings = 0;
 
     geometryEngine->initPointToDelete(potentialVerticesToDelete);
     geometryEngine->initLine(drawnVertices, drawingColor);
-    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed);
+    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed, boundariesOverlapping);
     update();
 }
 
