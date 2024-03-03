@@ -1,6 +1,5 @@
 #include <QtGui/qcolor.h>
 #include "GeometryEngine.h"
-#include <iostream>
 
 GeometryEngine::GeometryEngine() : indexBuf(QOpenGLBuffer::IndexBuffer) {
     initializeOpenGLFunctions();
@@ -226,7 +225,7 @@ void GeometryEngine::initBoundary(std::vector<Vertex*> boundaryVertices1, std::v
     boundaryColorBuf2.bind();
     boundaryColorBuf2.allocate(&colors2[0], numBoundaryVertices2 * sizeof(QVector3D));
 
-    initArrows(positions2, colors2);
+    initArrows(positions1, colors1, positions2, colors2);
 }
 
 std::vector<QVector3D> GeometryEngine::buildArrow(int numBoundaryVertices, std::vector<QVector3D> positions) {
@@ -258,14 +257,24 @@ std::vector<QVector3D> GeometryEngine::buildArrow(int numBoundaryVertices, std::
     return arrowPositions;
 }
 
-void GeometryEngine::initArrows(std::vector<QVector3D> positions2, std::vector<QVector3D> colors2) {
+void GeometryEngine::initArrows(std::vector<QVector3D> positions1, std::vector<QVector3D> colors1, std::vector<QVector3D> positions2, std::vector<QVector3D> colors2) {
     std::vector<QVector3D> arrowPositions;
     std::vector<QVector3D> arrowColors;
 
+    if (!positions1.empty()) {
+        std::vector<QVector3D> arrowPositions1 = buildArrow(numBoundaryVertices1, positions1);
+        QVector3D arrowColor1 = colors1[numBoundaryVertices1 / 2];
+        for (QVector3D arrowPosition : arrowPositions1) {
+            arrowPositions.push_back(arrowPosition);
+            arrowColors.push_back(arrowColor1);
+        }
+    }
+
     if (!positions2.empty()) {
-        arrowPositions = buildArrow(numBoundaryVertices2, positions2);
+        std::vector<QVector3D> arrowPositions2 = buildArrow(numBoundaryVertices2, positions2);
         QVector3D arrowColor2 = colors2[numBoundaryVertices2 / 2];
-        for (int i = 0; i < arrowPositions.size(); i++) {
+        for (QVector3D arrowPosition : arrowPositions2) {
+            arrowPositions.push_back(arrowPosition);
             arrowColors.push_back(arrowColor2);
         }
     }
