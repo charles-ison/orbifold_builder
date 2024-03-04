@@ -148,6 +148,10 @@ void ResultsWidget::cutSurface() {
         return;
     }
 
+    if (numOpenings == 1 && !boundariesAreCombinedLoop) {
+        return;
+    }
+
     bool loopDetected = false;
     Triangle* startingTriangle;
     Triangle* stepStartingTriangle;
