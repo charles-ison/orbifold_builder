@@ -28,7 +28,7 @@ public:
     using QOpenGLWidget::QOpenGLWidget;
     ~ResultsWidget();
     enum Surface {sphere, cube, torus, mobiusStrip, crossCap, kleinBottle, plyFile};
-    enum SmoothingAmount {constrained, unconstrained};
+    enum SmoothingType {constrained, unconstrained};
     enum DrawingMode {drag, click};
     void addSurface(Surface newSurface);
     void cutSurface();
@@ -37,9 +37,8 @@ public:
     void toggleDeleteSurface();
     void glue();
     void reset();
-    void smooth(SmoothingAmount smoothingAmount);
+    void startSmoothing(SmoothingType newSmoothingType);
     void reverseBoundaries();
-    void glueAnimation();
     void setDrawingMode(DrawingMode newDrawingMode);
     std::string getResultsAttributesLabelText();
 
@@ -63,6 +62,7 @@ private:
     float euclideanDistance(Vertex* vertex1, Vertex* vertex2);
     std::vector<Vertex*> findVerticesToSmooth();
     void connectVertices();
+    void smooth();
 
     Mesh* mesh;
     Cube* cubeSurface;
@@ -88,9 +88,9 @@ private:
 
     QColor drawingColor;
     DrawingMode drawingMode;
+    SmoothingType smoothingType;
     bool isDrawingEnabled;
     bool shouldPaintGL;
-    bool shouldAnimate;
     bool findVertexToDelete;
     bool boundariesReversed;
     bool boundariesOverlapping;
@@ -100,6 +100,8 @@ private:
     int numOpenings;
     int boundary1DisplaySize;
     int boundary2DisplaySize;
+    int numSmoothingSteps;
+    int numSmoothingStepsSoFar;
     float xyThreshold;
     const float xyThresholdClick = 0.05;
     const float xyThresholdDrag = 0.015;

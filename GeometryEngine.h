@@ -18,7 +18,6 @@ public:
     void initBoundary(std::vector<Vertex*> boundaryVertices1, std::vector<Vertex*> boundaryVertices2, int displaySize1, int displaySize2, bool isBoundary1Loop, bool isBoundary2Loop, bool boundariesAreCombinedLoop, bool boundariesReversed, bool boundariesOverlapping);
     void initMesh(Mesh* mesh);
     void initPointToDelete(std::vector<Vertex*> verticesToDelete);
-    void initAnimation(Mesh* mesh);
 
 private:
     std::vector<QVector3D> initBoundaryColors(int numVertices, int displaySize);
@@ -51,12 +50,6 @@ private:
     QOpenGLBuffer arrowColorBuf;
     QOpenGLBuffer arrowIndexBuf;
     QOpenGLBuffer arrowArrayBuf;
-
-    static const int animationSpeed = 100;
-    int originalIndexToEndAnimation = 0;
-    int indexToStartAnimation = 0;
-    int indexToEndAnimation = originalIndexToEndAnimation;
-    std::vector<QVector3D> animationPositions;
 };
 
 #endif

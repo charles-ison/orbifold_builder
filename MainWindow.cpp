@@ -138,8 +138,8 @@ void MainWindow::glue() {
 void MainWindow::smooth() {
     smoothAction = qobject_cast<QAction *>(sender());
     smoothButton->menu()->setDefaultAction(smoothAction);
-    ResultsWidget::SmoothingAmount smoothingAmount  = qvariant_cast<ResultsWidget::SmoothingAmount>(smoothAction->data());
-    resultsWidget->smooth(smoothingAmount);
+    ResultsWidget::SmoothingType smoothingType  = qvariant_cast<ResultsWidget::SmoothingType>(smoothAction->data());
+    resultsWidget->startSmoothing(smoothingType);
 }
 
 void MainWindow::drawingModeChanged() {
@@ -460,18 +460,18 @@ template<typename PointerToMemberFunction> QMenu *MainWindow::createAddSurfaceMe
 }
 
 template<typename PointerToMemberFunction> QMenu *MainWindow::createSmoothingMenu(const PointerToMemberFunction &slot) {
-    QList<ResultsWidget::SmoothingAmount> smoothingAmounts;
-    smoothingAmounts << ResultsWidget::SmoothingAmount::constrained << ResultsWidget::SmoothingAmount::unconstrained;
-    QStringList smoothingAmountNames;
-    smoothingAmountNames << tr("Constrained") << tr("Unconstrained");
+    QList<ResultsWidget::SmoothingType> smoothingTypes;
+    smoothingTypes << ResultsWidget::SmoothingType::constrained << ResultsWidget::SmoothingType::unconstrained;
+    QStringList smoothingTypeNames;
+    smoothingTypeNames << tr("Constrained") << tr("Unconstrained");
 
     QMenu *smoothingMenu = new QMenu(this);
-    for (int i = 0; i < smoothingAmounts.count(); ++i) {
-        QAction *action = new QAction(smoothingAmountNames.at(i), this);
-        action->setData(smoothingAmounts.at(i));
+    for (int i = 0; i < smoothingTypes.count(); ++i) {
+        QAction *action = new QAction(smoothingTypeNames.at(i), this);
+        action->setData(smoothingTypes.at(i));
         connect(action, &QAction::triggered, this, slot);
         smoothingMenu->addAction(action);
-        if (smoothingAmounts.at(i) == 0.0)
+        if (smoothingTypes.at(i) == 0.0)
             smoothingMenu->setDefaultAction(action);
     }
     return smoothingMenu;

@@ -31,6 +31,9 @@ void ResultsWidget::addSurface(Surface newSurface) {
     numOpenings = 0;
     boundary1DisplaySize = 0;
     boundary2DisplaySize = 0;
+    numSmoothingSteps = 0;
+    numSmoothingStepsSoFar = 0;
+    smoothingType = SmoothingType::constrained;
     drawnVertices.clear();
     boundaryVertices1.clear();
     boundaryVertices2.clear();
@@ -68,11 +71,7 @@ void ResultsWidget::addSurface(Surface newSurface) {
         mesh->resetSurface(plyFileSurface);
     }
 
-    if (shouldAnimate) {
-        geometryEngine->initAnimation(mesh);
-    } else {
-        geometryEngine->initMesh(mesh);
-    }
+    geometryEngine->initMesh(mesh);
     geometryEngine->initLine(drawnVertices, drawingColor);
     geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed, boundariesOverlapping);
     update();
@@ -531,9 +530,14 @@ void ResultsWidget::timerEvent(QTimerEvent *) {
         shouldUpdate = true;
     }
 
-    if (shouldPaintGL and shouldAnimate) {
-        geometryEngine->initAnimation(mesh);
+    if (shouldPaintGL and numSmoothingStepsSoFar < numSmoothingSteps) {
+        smooth();
+        geometryEngine->initMesh(mesh);
         shouldUpdate = true;
+        numSmoothingStepsSoFar += 1;
+    } else if (numSmoothingStepsSoFar == numSmoothingSteps){
+        numSmoothingStepsSoFar = 0;
+        numSmoothingSteps = 0;
     }
 
     if (shouldUpdate) {
@@ -561,6 +565,9 @@ void ResultsWidget::initializeGL() {
     numOpenings = 0;
     boundary1DisplaySize = 0;
     boundary2DisplaySize = 0;
+    numSmoothingSteps = 0;
+    numSmoothingStepsSoFar = 0;
+    smoothingType = SmoothingType::constrained;
     xyThreshold = xyThresholdDrag;
     drawingColor = Qt::white;
 
@@ -769,65 +776,67 @@ std::vector<Vertex*> ResultsWidget::findVerticesToSmooth() {
     return verticesToSmooth;
 }
 
-void ResultsWidget::smooth(SmoothingAmount smoothingAmount) {
+void ResultsWidget::startSmoothing(ResultsWidget::SmoothingType newSmoothingType) {
+    smoothingType = newSmoothingType;
+    numSmoothingSteps = 10;
+    numSmoothingStepsSoFar = 0;
+}
 
-    int numSmoothingSteps = 5;
-    for (int i=0; i<numSmoothingSteps; i++) {
-        float stepSize = 1.0;
-        std::vector<QVector3D> newPositions;
-        std::vector<Vertex *> vertices = mesh->getVertices();
-        std::vector<Vertex *> verticesToSmooth;
+void ResultsWidget::smooth() {
+    float stepSize = 1.0;
+    std::vector<QVector3D> newPositions;
+    std::vector<Vertex *> vertices = mesh->getVertices();
+    std::vector<Vertex *> verticesToSmooth;
 
-        if (smoothingAmount == SmoothingAmount::constrained) {
-            verticesToSmooth = findVerticesToSmooth();
-        } else {
-            verticesToSmooth = vertices;
-        }
+    if (smoothingType == SmoothingType::constrained) {
+        verticesToSmooth = findVerticesToSmooth();
+    } else {
+        verticesToSmooth = vertices;
+    }
 
-        for (Vertex *vertex: verticesToSmooth) {
-            float xDiff = 0.0;
-            float yDiff = 0.0;
-            float zDiff = 0.0;
-            float weightDenominator = 0.0;
-            std::unordered_set<Vertex *> visitedNeighbors;
+    for (Vertex *vertex: verticesToSmooth) {
+        float xDiff = 0.0;
+        float yDiff = 0.0;
+        float zDiff = 0.0;
+        float weightDenominator = 0.0;
+        std::unordered_set<Vertex *> visitedNeighbors;
 
-            // Initializing cord weights
-            for (Triangle *triangle: vertex->triangles) {
-                std::vector<int> triangleIndices = triangle->vertexIndices;
-                for (int index: triangleIndices) {
-                    Vertex *neighbor = vertices[index];
-                    if (neighbor != vertex && visitedNeighbors.find(neighbor) == visitedNeighbors.end()) {
-                        weightDenominator += (1.0 / euclideanDistance(vertex, neighbor));
-                        visitedNeighbors.insert(neighbor);
-                    }
+        // Initializing cord weights
+        for (Triangle *triangle: vertex->triangles) {
+            std::vector<int> triangleIndices = triangle->vertexIndices;
+            for (int index: triangleIndices) {
+                Vertex *neighbor = vertices[index];
+                if (neighbor != vertex && visitedNeighbors.find(neighbor) == visitedNeighbors.end()) {
+                    weightDenominator += (1.0 / euclideanDistance(vertex, neighbor));
+                    visitedNeighbors.insert(neighbor);
                 }
             }
+        }
 
-            visitedNeighbors.clear();
-            for (Triangle *triangle: vertex->triangles) {
-                std::vector<int> triangleIndices = triangle->vertexIndices;
-                for (int index: triangleIndices) {
-                    Vertex *neighbor = vertices[index];
-                    if (neighbor != vertex && visitedNeighbors.find(neighbor) == visitedNeighbors.end()) {
-                        float distance = euclideanDistance(vertex, neighbor);
-                        float weight = (1.0 / distance) / weightDenominator;
-                        xDiff += weight * (neighbor->position.x() - vertex->position.x());
-                        yDiff += weight * (neighbor->position.y() - vertex->position.y());
-                        zDiff += weight * (neighbor->position.z() - vertex->position.z());
-                        visitedNeighbors.insert(neighbor);
-                    }
+        visitedNeighbors.clear();
+        for (Triangle *triangle: vertex->triangles) {
+            std::vector<int> triangleIndices = triangle->vertexIndices;
+            for (int index: triangleIndices) {
+                Vertex *neighbor = vertices[index];
+                if (neighbor != vertex && visitedNeighbors.find(neighbor) == visitedNeighbors.end()) {
+                    float distance = euclideanDistance(vertex, neighbor);
+                    float weight = (1.0 / distance) / weightDenominator;
+                    xDiff += weight * (neighbor->position.x() - vertex->position.x());
+                    yDiff += weight * (neighbor->position.y() - vertex->position.y());
+                    zDiff += weight * (neighbor->position.z() - vertex->position.z());
+                    visitedNeighbors.insert(neighbor);
                 }
             }
-
-            float newX = vertex->position.x() + stepSize * xDiff;
-            float newY = vertex->position.y() + stepSize * yDiff;
-            float newZ = vertex->position.z() + stepSize * zDiff;
-            newPositions.push_back({newX, newY, newZ});
         }
 
-        for (int j = 0; j < verticesToSmooth.size(); j++) {
-            verticesToSmooth[j]->position = newPositions[j];
-        }
+        float newX = vertex->position.x() + stepSize * xDiff;
+        float newY = vertex->position.y() + stepSize * yDiff;
+        float newZ = vertex->position.z() + stepSize * zDiff;
+        newPositions.push_back({newX, newY, newZ});
+    }
+
+    for (int j = 0; j < verticesToSmooth.size(); j++) {
+        verticesToSmooth[j]->position = newPositions[j];
     }
 
     geometryEngine->initMesh(mesh);
@@ -878,17 +887,12 @@ void ResultsWidget::reset() {
     boundariesAreCombinedLoop = false;
     boundariesOverlapping = false;
     numOpenings = 0;
+    numSmoothingSteps = 0;
+    numSmoothingStepsSoFar = 0;
+    smoothingType = SmoothingType::constrained;
 
     geometryEngine->initPointToDelete(potentialVerticesToDelete);
     geometryEngine->initLine(drawnVertices, drawingColor);
     geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed, boundariesOverlapping);
     update();
-}
-
-void ResultsWidget::glueAnimation() {
-    //shouldAnimate = !shouldAnimate;
-
-    //mesh->addSurface(new CrossCap(centerPosition, scale));
-    //geometryEngine->initMesh(mesh);
-    //update();
 }

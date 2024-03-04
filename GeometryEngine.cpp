@@ -38,46 +38,6 @@ GeometryEngine::~GeometryEngine() {
     pointToDeleteArrayBuf.destroy();
 }
 
-void GeometryEngine::initAnimation(Mesh* mesh) {
-    std::vector<Vertex*> meshVertices = mesh->getVertices();
-    for (int i=indexToStartAnimation; i<indexToEndAnimation; i++) {
-        animationPositions.push_back(meshVertices[i]->position);
-    }
-
-    // Transfer vertex data to VBO 0
-    arrayBuf.bind();
-    arrayBuf.allocate(&animationPositions[0], indexToEndAnimation * sizeof(QVector3D));
-
-    std::vector<GLushort> indices;
-    std::vector<Triangle*> triangles = mesh->getTriangles();
-    numIndices = 0;
-    for (int i=0; i<triangles.size(); i++) {
-        int index1 = triangles[i]->vertexIndices[0];
-        int index2 = triangles[i]->vertexIndices[1];
-        int index3 = triangles[i]->vertexIndices[2];
-
-        if (index1 < indexToEndAnimation && index2 < indexToEndAnimation && index3 < indexToEndAnimation) {
-            indices.push_back(index1);
-            indices.push_back(index2);
-            indices.push_back(index3);
-            numIndices += 3;
-        }
-    }
-
-    // Transfer index data to VBO 1
-    indexBuf.bind();
-    indexBuf.allocate(&indices[0], numIndices * sizeof(GLushort));
-
-    if (indexToEndAnimation + animationSpeed > meshVertices.size()) {
-        indexToStartAnimation = 0;
-        indexToEndAnimation = originalIndexToEndAnimation;
-        animationPositions.clear();
-    } else {
-        indexToStartAnimation = indexToEndAnimation;
-        indexToEndAnimation += animationSpeed;
-    }
-}
-
 void GeometryEngine::initMesh(Mesh* mesh) {
     std::vector<QVector3D> positions;
     std::vector<QVector3D> colors;
