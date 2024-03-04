@@ -173,20 +173,18 @@ void ResultsWidget::cutSurface() {
     // Required for loops
     if (drawnVertices.front() == drawnVertices.back()) {
         drawnVertices.push_back(drawnVertices[1]);
-        if (numOpenings == 0) {
+        if (numOpenings == 0 || boundariesAreCombinedLoop) {
             isBoundary1Loop = true;
-            isBoundary2Loop = true;
-        } else {
-            isBoundary2Loop = true;
         }
+        isBoundary2Loop = true;
         loopDetected = true;
     } else {
         if (numOpenings == 0) {
             isBoundary1Loop = false;
-            isBoundary2Loop = false;
-        } else {
-            isBoundary2Loop = false;
+        } else if (boundariesAreCombinedLoop) {
+            isBoundary1Loop = true;
         }
+        isBoundary2Loop = false;
     }
 
     // Find all triangles that need to be cut
