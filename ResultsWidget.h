@@ -103,7 +103,7 @@ private:
     int numSmoothingSteps;
     int numSmoothingStepsSoFar;
     float xyThreshold;
-    const float xyThresholdClick = 0.05;
+    const float xyThresholdClick = 0.03;
     const float xyThresholdDrag = 0.015;
 };
 
