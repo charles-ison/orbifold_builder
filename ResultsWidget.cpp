@@ -778,12 +778,12 @@ std::vector<Vertex*> ResultsWidget::findVerticesToSmooth() {
 
 void ResultsWidget::startSmoothing(ResultsWidget::SmoothingType newSmoothingType) {
     smoothingType = newSmoothingType;
-    numSmoothingSteps = 10;
+    numSmoothingSteps = 50;
     numSmoothingStepsSoFar = 0;
 }
 
 void ResultsWidget::smooth() {
-    float stepSize = 1.0;
+    float stepSize = 0.8;
     std::vector<QVector3D> newPositions;
     std::vector<Vertex *> vertices = mesh->getVertices();
     std::vector<Vertex *> verticesToSmooth;
@@ -798,7 +798,7 @@ void ResultsWidget::smooth() {
         float xDiff = 0.0;
         float yDiff = 0.0;
         float zDiff = 0.0;
-        float weightDenominator = 0.0;
+        float neighborDistanceSum = 0.0;
         std::unordered_set<Vertex *> visitedNeighbors;
 
         // Initializing cord weights
@@ -807,7 +807,7 @@ void ResultsWidget::smooth() {
             for (int index: triangleIndices) {
                 Vertex *neighbor = vertices[index];
                 if (neighbor != vertex && visitedNeighbors.find(neighbor) == visitedNeighbors.end()) {
-                    weightDenominator += (1.0 / euclideanDistance(vertex, neighbor));
+                    neighborDistanceSum += euclideanDistance(vertex, neighbor);
                     visitedNeighbors.insert(neighbor);
                 }
             }
@@ -819,8 +819,7 @@ void ResultsWidget::smooth() {
             for (int index: triangleIndices) {
                 Vertex *neighbor = vertices[index];
                 if (neighbor != vertex && visitedNeighbors.find(neighbor) == visitedNeighbors.end()) {
-                    float distance = euclideanDistance(vertex, neighbor);
-                    float weight = (1.0 / distance) / weightDenominator;
+                    float weight = euclideanDistance(vertex, neighbor) / neighborDistanceSum;
                     xDiff += weight * (neighbor->position.x() - vertex->position.x());
                     yDiff += weight * (neighbor->position.y() - vertex->position.y());
                     zDiff += weight * (neighbor->position.z() - vertex->position.z());
