@@ -190,7 +190,7 @@ void GeometryEngine::initBoundary(std::vector<Vertex*> boundaryVertices1, std::v
 
 std::vector<QVector3D> GeometryEngine::buildArrow(std::vector<QVector3D> positions, int startIndex) {
     std::vector<QVector3D> arrowPositions;
-    float arrowDelta = 0.08;
+    float arrowDelta = 0.05;
     QVector3D positionsStart = positions[startIndex];
     QVector3D positionsPrevious = positions[startIndex - 1];
     QVector3D positionsMid = (positionsStart + positionsPrevious)/2;
@@ -198,7 +198,7 @@ std::vector<QVector3D> GeometryEngine::buildArrow(std::vector<QVector3D> positio
     QVector3D midVectorForCross = {midVector.x()+1, midVector.y()-1, midVector.z()+1};
     QVector3D arrowBase = positionsMid + arrowDelta * midVector;
     QVector3D arrowBaseNormal = QVector3D::crossProduct(midVector, midVectorForCross).normalized();
-    QVector3D arrowCorner = arrowBase + 0.3 * arrowDelta * arrowBaseNormal;
+    QVector3D arrowCorner = arrowBase + 0.35 * arrowDelta * arrowBaseNormal;
 
     arrowPositions.push_back(positionsMid);
     arrowPositions.push_back(arrowCorner);
