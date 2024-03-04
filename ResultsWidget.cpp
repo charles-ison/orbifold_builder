@@ -143,11 +143,9 @@ void ResultsWidget::cutSurface() {
     if (drawnVertices.size() < 2) {
         return;
     }
-
     if (numOpenings >= 2) {
         return;
     }
-
     if (numOpenings == 1 && !boundariesAreCombinedLoop) {
         return;
     }
