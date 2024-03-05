@@ -99,12 +99,12 @@ void GeometryEngine::initLine(std::vector<Vertex*> lineVerticesVector, QColor co
     lineColorBuf.allocate(&colors[0], numLineVertices * sizeof(QVector3D));
 }
 
-void GeometryEngine::initPointToDelete(std::vector<Vertex*> verticesToDelete) {
+void GeometryEngine::initPoints(std::vector<Vertex*> vertices) {
     std::vector<QVector3D> positions;
     std::vector<QVector3D> colors;
-    numPointsToDeleteVertices = verticesToDelete.size();
+    numPointsToDeleteVertices = vertices.size();
 
-    for (Vertex* vertexToDelete : verticesToDelete) {
+    for (Vertex* vertexToDelete : vertices) {
         positions.push_back(vertexToDelete->position);
         colors.push_back({1.0, 1.0, 1.0});
     }
@@ -367,7 +367,7 @@ void GeometryEngine::drawArrows(QOpenGLShaderProgram *program) {
     glDrawArrays(GL_LINES, 0, numArrowVertices);
 }
 
-void GeometryEngine::drawPointToDelete(QOpenGLShaderProgram *program) {
+void GeometryEngine::drawPoints(QOpenGLShaderProgram *program) {
     // Tell OpenGL which VBOs to use
     pointToDeleteArrayBuf.bind();
 

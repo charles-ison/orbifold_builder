@@ -135,11 +135,8 @@ void MainWindow::glue() {
     updateResultsAttributesLabel();
 }
 
-void MainWindow::smooth() {
-    smoothAction = qobject_cast<QAction *>(sender());
-    smoothButton->menu()->setDefaultAction(smoothAction);
-    ResultsWidget::SmoothingType smoothingType  = qvariant_cast<ResultsWidget::SmoothingType>(smoothAction->data());
-    resultsWidget->startSmoothing(smoothingType);
+void MainWindow::toggleSmoothSurface() {
+    resultsWidget->toggleSmoothSurface();
 }
 
 void MainWindow::drawingModeChanged() {
@@ -354,11 +351,10 @@ void MainWindow::createToolbars() {
     connect(glueButton, &QAbstractButton::clicked, this, &MainWindow::glue);
 
     smoothButton = new QToolButton;
-    smoothButton->setPopupMode(QToolButton::MenuButtonPopup);
-    smoothButton->setMenu(createSmoothingMenu(&MainWindow::smooth));
-    smoothAction = addSurfaceButton->menu()->defaultAction();
-    smoothButton->setText("Smooth");
+    smoothButton->setText(tr("Smooth"));
+    smoothButton->setCheckable(true);
     smoothButton->setMinimumHeight(fundamentalPolygonToolBarHeight);
+    connect(smoothButton, &QAbstractButton::clicked, this, &MainWindow::toggleSmoothSurface);
 
     reverseButton = new QToolButton;
     reverseButton->setText(tr("Reverse"));
@@ -457,24 +453,6 @@ template<typename PointerToMemberFunction> QMenu *MainWindow::createAddSurfaceMe
             surfaceMenu->setDefaultAction(action);
     }
     return surfaceMenu;
-}
-
-template<typename PointerToMemberFunction> QMenu *MainWindow::createSmoothingMenu(const PointerToMemberFunction &slot) {
-    QList<ResultsWidget::SmoothingType> smoothingTypes;
-    smoothingTypes << ResultsWidget::SmoothingType::constrained << ResultsWidget::SmoothingType::unconstrained;
-    QStringList smoothingTypeNames;
-    smoothingTypeNames << tr("Constrained") << tr("Unconstrained");
-
-    QMenu *smoothingMenu = new QMenu(this);
-    for (int i = 0; i < smoothingTypes.count(); ++i) {
-        QAction *action = new QAction(smoothingTypeNames.at(i), this);
-        action->setData(smoothingTypes.at(i));
-        connect(action, &QAction::triggered, this, slot);
-        smoothingMenu->addAction(action);
-        if (smoothingTypes.at(i) == 0.0)
-            smoothingMenu->setDefaultAction(action);
-    }
-    return smoothingMenu;
 }
 
 template<typename PointerToMemberFunction> QMenu *MainWindow::createDrawingModeMenu(const PointerToMemberFunction &slot) {

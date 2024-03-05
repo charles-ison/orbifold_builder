@@ -33,11 +33,10 @@ void ResultsWidget::addSurface(Surface newSurface) {
     boundary2DisplaySize = 0;
     numSmoothingSteps = 0;
     numSmoothingStepsSoFar = 0;
-    smoothingType = SmoothingType::constrained;
     drawnVertices.clear();
+    verticesToSmooth.clear();
     boundaryVertices1.clear();
     boundaryVertices2.clear();
-    oldBoundaries.clear();
     potentialVerticesToDelete.clear();
     QVector3D centerPosition = {0, 0, 0};
     if (newSurface == Surface::cube) {
@@ -82,7 +81,6 @@ void ResultsWidget::toggleDeleteSurface() {
         isDrawingEnabled = false;
         drawnVertices.clear();
         geometryEngine->initLine(drawnVertices, drawingColor);
-        update();
     } else {
         if(!potentialVerticesToDelete.empty()) {
             deleteSurface();
@@ -98,20 +96,28 @@ void ResultsWidget::toggleDeleteSurface() {
 void ResultsWidget::mousePressEvent(QMouseEvent *e) {
     if (findVertexToDelete) {
         Vertex *vertexToDelete = getVertexFromMouseEvent(e);
-        if (vertexToDelete != nullptr) {
-            potentialVerticesToDelete = {vertexToDelete};
-            geometryEngine->initPointToDelete(potentialVerticesToDelete);
-            update();
-        } else {
-            potentialVerticesToDelete.clear();
-        }
-    } else {
+        setVerticesToDelete(vertexToDelete);
+    } else if (findVerticesToSmooth) {
+        Vertex *vertexToSmooth = getVertexFromMouseEvent(e);
+        setVerticesToSmooth(vertexToSmooth);
+    }
+    else {
         if (drawingMode == DrawingMode::click) {
             mouseMoveEvent(e);
         } else {
             drawnVertices.clear();
         }
         isDrawingEnabled = true;
+    }
+}
+
+void ResultsWidget::setVerticesToDelete(Vertex *vertexToDelete) {
+    if (vertexToDelete != nullptr) {
+        potentialVerticesToDelete = {vertexToDelete};
+        geometryEngine->initPoints(potentialVerticesToDelete);
+        update();
+    } else {
+        potentialVerticesToDelete.clear();
     }
 }
 
@@ -364,7 +370,7 @@ void ResultsWidget::deleteSurface() {
     potentialVerticesToDelete.clear();
     mesh->deleteVertices(verticesToDeleteSet);
     geometryEngine->initMesh(mesh);
-    geometryEngine->initPointToDelete(potentialVerticesToDelete);
+    geometryEngine->initPoints(potentialVerticesToDelete);
     geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed, boundariesOverlapping);
     update();
 }
@@ -556,6 +562,7 @@ void ResultsWidget::initializeGL() {
     isDrawingEnabled = true;
     shouldPaintGL = false;
     findVertexToDelete = false;
+    findVerticesToSmooth = false;
     boundariesReversed = false;
     isBoundary1Loop = false;
     isBoundary2Loop = false;
@@ -567,7 +574,6 @@ void ResultsWidget::initializeGL() {
     boundary2DisplaySize = 0;
     numSmoothingSteps = 0;
     numSmoothingStepsSoFar = 0;
-    smoothingType = SmoothingType::constrained;
     xyThreshold = xyThresholdDrag;
     drawingColor = Qt::white;
 
@@ -634,7 +640,7 @@ void ResultsWidget::paintGL() {
         geometryEngine->drawMesh(&program);
         geometryEngine->drawLine(&program);
         geometryEngine->drawBoundary(&program);
-        geometryEngine->drawPointToDelete(&program);
+        geometryEngine->drawPoints(&program);
     }
 }
 
@@ -662,13 +668,6 @@ void ResultsWidget::glue() {
         numOpenings -= 1;
     } else {
         numOpenings -= 2;
-    }
-
-    for (Vertex* vertex : boundaryVertices1) {
-        oldBoundaries.push_back(vertex);
-    }
-    for (Vertex* vertex : boundaryVertices2) {
-        oldBoundaries.push_back(vertex);
     }
 
     boundaryVertices1.clear();
@@ -737,62 +736,57 @@ void ResultsWidget::reverseBoundaries() {
     update();
 }
 
-std::vector<Vertex*> ResultsWidget::findVerticesToSmooth() {
-    float distanceThreshold = 0.2;
-    std::vector<Vertex*> vertices = mesh->getVertices();
-    std::vector<Vertex*> verticesToSmooth;
+void ResultsWidget::setVerticesToSmooth(Vertex *vertexToSmooth) {
     std::unordered_set<Vertex*> verticesToSmoothSet;
+    verticesToSmoothSet.insert(vertexToSmooth);
 
-    for (Vertex* vertex : oldBoundaries) {
-        std::queue<std::tuple<float, Vertex*>> potentialVerticesToSmooth;
-        std::unordered_set<Vertex*> potentialVerticesToSmoothSet;
-        potentialVerticesToSmooth.push({0.0, vertex});
-        potentialVerticesToSmoothSet.insert(vertex);
+    for (Vertex* vertex : drawnVertices) {
+        verticesToSmoothSet.insert(vertex);
+    }
 
-        while (!potentialVerticesToSmooth.empty()) {
-            std::tuple<float, Vertex*> nextVertexAndDistance = potentialVerticesToSmooth.front();
-            float distance = std::get<0>(nextVertexAndDistance);
-            Vertex* nextVertex = std::get<1>(nextVertexAndDistance);
+    std::queue<Vertex*> verticesToSmoothQueue;
+    verticesToSmoothQueue.push(vertexToSmooth);
 
-            potentialVerticesToSmooth.pop();
-            verticesToSmooth.push_back(nextVertex);
-            verticesToSmoothSet.insert(nextVertex);
+    while (!verticesToSmoothQueue.empty()) {
+        std::vector<Vertex*> meshVertices = mesh->getVertices();
+        Vertex* nextVertexToSmooth = verticesToSmoothQueue.front();
+        verticesToSmoothQueue.pop();
 
-            for (Triangle *triangle: nextVertex->triangles) {
-                for (int triangleIndex: triangle->vertexIndices) {
-                    Vertex *neighbor = vertices[triangleIndex];
-                    float newDistance = distance + euclideanDistance(nextVertex, neighbor);
-                    if (potentialVerticesToSmoothSet.find(neighbor) == potentialVerticesToSmoothSet.end()
-                        && verticesToSmoothSet.find(neighbor) == verticesToSmoothSet.end()
-                        && newDistance < distanceThreshold ) {
-
-                        potentialVerticesToSmooth.push({newDistance, neighbor});
-                        potentialVerticesToSmoothSet.insert({vertex, neighbor});
-                    }
+        for (Triangle* triangle : nextVertexToSmooth->triangles) {
+            for (int vertexIndex : triangle->vertexIndices) {
+                Vertex* neighbor = meshVertices[vertexIndex];
+                if (verticesToSmoothSet.find(neighbor) == verticesToSmoothSet.end()) {
+                    verticesToSmoothQueue.push(neighbor);
+                    verticesToSmoothSet.insert(neighbor);
+                    verticesToSmooth.push_back(neighbor);
                 }
             }
         }
     }
-    return verticesToSmooth;
+
+    geometryEngine->initPoints({vertexToSmooth});
+    update();
 }
 
-void ResultsWidget::startSmoothing(ResultsWidget::SmoothingType newSmoothingType) {
-    smoothingType = newSmoothingType;
-    numSmoothingSteps = 50;
-    numSmoothingStepsSoFar = 0;
+void ResultsWidget::toggleSmoothSurface() {
+    if (!findVerticesToSmooth) {
+        isDrawingEnabled = false;
+        verticesToSmooth.clear();
+    } else {
+        numSmoothingSteps = 50;
+        numSmoothingStepsSoFar = 0;
+        isDrawingEnabled = true;
+        geometryEngine->initPoints({});
+    }
+
+    findVerticesToSmooth = !findVerticesToSmooth;
+    update();
 }
 
 void ResultsWidget::smooth() {
     float stepSize = 0.8;
     std::vector<QVector3D> newPositions;
     std::vector<Vertex *> vertices = mesh->getVertices();
-    std::vector<Vertex *> verticesToSmooth;
-
-    if (smoothingType == SmoothingType::constrained) {
-        verticesToSmooth = findVerticesToSmooth();
-    } else {
-        verticesToSmooth = vertices;
-    }
 
     for (Vertex *vertex: verticesToSmooth) {
         float xDiff = 0.0;
@@ -877,6 +871,7 @@ std::string ResultsWidget::getResultsAttributesLabelText() {
 
 void ResultsWidget::reset() {
     drawnVertices.clear();
+    verticesToSmooth.clear();
     boundaryVertices1.clear();
     boundaryVertices2.clear();
     potentialVerticesToDelete.clear();
@@ -888,9 +883,8 @@ void ResultsWidget::reset() {
     numOpenings = 0;
     numSmoothingSteps = 0;
     numSmoothingStepsSoFar = 0;
-    smoothingType = SmoothingType::constrained;
 
-    geometryEngine->initPointToDelete(potentialVerticesToDelete);
+    geometryEngine->initPoints(potentialVerticesToDelete);
     geometryEngine->initLine(drawnVertices, drawingColor);
     geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed, boundariesOverlapping);
     update();

@@ -13,11 +13,11 @@ public:
     void drawMesh(QOpenGLShaderProgram *program);
     void drawLine(QOpenGLShaderProgram *program);
     void drawBoundary(QOpenGLShaderProgram *program);
-    void drawPointToDelete(QOpenGLShaderProgram *program);
+    void drawPoints(QOpenGLShaderProgram *program);
     void initLine(std::vector<Vertex*> lineVerticesVector, QColor color);
     void initBoundary(std::vector<Vertex*> boundaryVertices1, std::vector<Vertex*> boundaryVertices2, int displaySize1, int displaySize2, bool isBoundary1Loop, bool isBoundary2Loop, bool boundariesAreCombinedLoop, bool boundariesReversed, bool boundariesOverlapping);
     void initMesh(Mesh* mesh);
-    void initPointToDelete(std::vector<Vertex*> verticesToDelete);
+    void initPoints(std::vector<Vertex*> vertices);
 
 private:
     std::vector<QVector3D> initBoundaryColors(int numVertices, int displaySize);

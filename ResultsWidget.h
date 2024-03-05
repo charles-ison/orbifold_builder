@@ -28,16 +28,15 @@ public:
     using QOpenGLWidget::QOpenGLWidget;
     ~ResultsWidget();
     enum Surface {sphere, cube, torus, mobiusStrip, crossCap, kleinBottle, plyFile};
-    enum SmoothingType {constrained, unconstrained};
     enum DrawingMode {drag, click};
     void addSurface(Surface newSurface);
     void cutSurface();
     void setDrawingColor(QColor newColor);
     void resizeGL(int w, int h) override;
     void toggleDeleteSurface();
+    void toggleSmoothSurface();
     void glue();
     void reset();
-    void startSmoothing(SmoothingType newSmoothingType);
     void reverseBoundaries();
     void setDrawingMode(DrawingMode newDrawingMode);
     std::string getResultsAttributesLabelText();
@@ -60,9 +59,10 @@ private:
     bool triangleContainsVertex(Vertex *vertex, Triangle *triangle, std::vector<Vertex*> vertices);
     bool rotationDirectionAligns(Triangle* triangle, Vertex* vertex1, Vertex* vertex2, std::vector<Vertex*> vertices);
     float euclideanDistance(Vertex* vertex1, Vertex* vertex2);
-    std::vector<Vertex*> findVerticesToSmooth();
     void connectVertices();
     void smooth();
+    void setVerticesToSmooth(Vertex *vertexToSmooth);
+    void setVerticesToDelete(Vertex *vertexToDelete);
 
     Mesh* mesh;
     Cube* cubeSurface;
@@ -83,15 +83,15 @@ private:
     std::vector<Vertex*> drawnVertices;
     std::vector<Vertex*> boundaryVertices1;
     std::vector<Vertex*> boundaryVertices2;
-    std::vector<Vertex*> oldBoundaries;
     std::vector<Vertex*> potentialVerticesToDelete;
+    std::vector<Vertex*> verticesToSmooth;
 
     QColor drawingColor;
     DrawingMode drawingMode;
-    SmoothingType smoothingType;
     bool isDrawingEnabled;
     bool shouldPaintGL;
     bool findVertexToDelete;
+    bool findVerticesToSmooth;
     bool boundariesReversed;
     bool boundariesOverlapping;
     bool isBoundary1Loop;
