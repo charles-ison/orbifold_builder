@@ -792,7 +792,8 @@ void ResultsWidget::smooth() {
         float xDiff = 0.0;
         float yDiff = 0.0;
         float zDiff = 0.0;
-        float neighborDistanceSum = 0.0;
+        int numNeighbors = 1;
+        //float neighborDistanceSum = 0.0;
         std::unordered_set<Vertex *> visitedNeighbors;
 
         // Initializing cord weights
@@ -801,7 +802,8 @@ void ResultsWidget::smooth() {
             for (int index: triangleIndices) {
                 Vertex *neighbor = vertices[index];
                 if (neighbor != vertex && visitedNeighbors.find(neighbor) == visitedNeighbors.end()) {
-                    neighborDistanceSum += euclideanDistance(vertex, neighbor);
+                    //neighborDistanceSum += euclideanDistance(vertex, neighbor);
+                    numNeighbors += 1;
                     visitedNeighbors.insert(neighbor);
                 }
             }
@@ -813,7 +815,8 @@ void ResultsWidget::smooth() {
             for (int index: triangleIndices) {
                 Vertex *neighbor = vertices[index];
                 if (neighbor != vertex && visitedNeighbors.find(neighbor) == visitedNeighbors.end()) {
-                    float weight = euclideanDistance(vertex, neighbor) / neighborDistanceSum;
+                    //float weight = euclideanDistance(vertex, neighbor) / neighborDistanceSum;
+                    float weight = 1.0 / numNeighbors;
                     xDiff += weight * (neighbor->position.x() - vertex->position.x());
                     yDiff += weight * (neighbor->position.y() - vertex->position.y());
                     zDiff += weight * (neighbor->position.z() - vertex->position.z());
