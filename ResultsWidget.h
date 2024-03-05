@@ -51,7 +51,7 @@ protected:
     void initShaders();
 
 private:
-    void deleteSurface();
+    void deleteSurface(Vertex *vertexToDelete);
     void addDrawnVertices(Vertex *newVertex);
     std::tuple<float, std::vector<Vertex*>> getVerticesPathAndDistance(Vertex *startVertex, Vertex *endVertex);
     bool drawnVerticesContainLoop(Vertex *newVertex);
@@ -61,8 +61,8 @@ private:
     float euclideanDistance(Vertex* vertex1, Vertex* vertex2);
     void connectVertices();
     void smooth();
-    void setVerticesToSmooth(Vertex *vertexToSmooth);
-    void setVerticesToDelete(Vertex *vertexToDelete);
+    void findVerticesToSmooth(Vertex *vertexToSmooth);
+    void setSelectedPoints(Vertex *vertex);
 
     Mesh* mesh;
     Cube* cubeSurface;
@@ -83,7 +83,7 @@ private:
     std::vector<Vertex*> drawnVertices;
     std::vector<Vertex*> boundaryVertices1;
     std::vector<Vertex*> boundaryVertices2;
-    std::vector<Vertex*> potentialVerticesToDelete;
+    std::vector<Vertex*> selectedPoints;
     std::vector<Vertex*> verticesToSmooth;
 
     QColor drawingColor;
@@ -91,7 +91,7 @@ private:
     bool isDrawingEnabled;
     bool shouldPaintGL;
     bool findVertexToDelete;
-    bool findVerticesToSmooth;
+    bool findVertexToSmooth;
     bool boundariesReversed;
     bool boundariesOverlapping;
     bool isBoundary1Loop;

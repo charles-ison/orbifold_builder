@@ -37,7 +37,7 @@ void ResultsWidget::addSurface(Surface newSurface) {
     verticesToSmooth.clear();
     boundaryVertices1.clear();
     boundaryVertices2.clear();
-    potentialVerticesToDelete.clear();
+    selectedPoints.clear();
     QVector3D centerPosition = {0, 0, 0};
     if (newSurface == Surface::cube) {
         QVector3D scale = {1.0, 0.0, 0.0};
@@ -82,11 +82,10 @@ void ResultsWidget::toggleDeleteSurface() {
         drawnVertices.clear();
         geometryEngine->initLine(drawnVertices, drawingColor);
     } else {
-        if(!potentialVerticesToDelete.empty()) {
-            deleteSurface();
+        if(!selectedPoints.empty()) {
+            deleteSurface(selectedPoints.front());
         }
         isDrawingEnabled = true;
-        potentialVerticesToDelete.clear();
     }
 
     findVertexToDelete = !findVertexToDelete;
@@ -94,12 +93,9 @@ void ResultsWidget::toggleDeleteSurface() {
 }
 
 void ResultsWidget::mousePressEvent(QMouseEvent *e) {
-    if (findVertexToDelete) {
-        Vertex *vertexToDelete = getVertexFromMouseEvent(e);
-        setVerticesToDelete(vertexToDelete);
-    } else if (findVerticesToSmooth) {
-        Vertex *vertexToSmooth = getVertexFromMouseEvent(e);
-        setVerticesToSmooth(vertexToSmooth);
+    if (findVertexToDelete || findVertexToSmooth) {
+        Vertex *vertex = getVertexFromMouseEvent(e);
+        setSelectedPoints(vertex);
     }
     else {
         if (drawingMode == DrawingMode::click) {
@@ -111,13 +107,13 @@ void ResultsWidget::mousePressEvent(QMouseEvent *e) {
     }
 }
 
-void ResultsWidget::setVerticesToDelete(Vertex *vertexToDelete) {
-    if (vertexToDelete != nullptr) {
-        potentialVerticesToDelete = {vertexToDelete};
-        geometryEngine->initPoints(potentialVerticesToDelete);
+void ResultsWidget::setSelectedPoints(Vertex *vertex) {
+    if (vertex != nullptr) {
+        selectedPoints = {vertex};
+        geometryEngine->initPoints(selectedPoints);
         update();
     } else {
-        potentialVerticesToDelete.clear();
+        selectedPoints.clear();
     }
 }
 
@@ -300,19 +296,19 @@ void ResultsWidget::cutSurface() {
     update();
 }
 
-void ResultsWidget::deleteSurface() {
+void ResultsWidget::deleteSurface(Vertex* vertexToDelete) {
     std::unordered_set<Vertex*> verticesToDeleteSet;
-    verticesToDeleteSet.insert(potentialVerticesToDelete[0]);
+    verticesToDeleteSet.insert(vertexToDelete);
 
     std::queue<Vertex*> verticesToDelete;
-    verticesToDelete.push(potentialVerticesToDelete[0]);
+    verticesToDelete.push(vertexToDelete);
 
     while (!verticesToDelete.empty()) {
         std::vector<Vertex*> meshVertices = mesh->getVertices();
-        Vertex* vertexToDelete = verticesToDelete.front();
+        Vertex* nextVertexToDelete = verticesToDelete.front();
         verticesToDelete.pop();
 
-        for (Triangle* triangle : vertexToDelete->triangles) {
+        for (Triangle* triangle : nextVertexToDelete->triangles) {
             for (int vertexIndex : triangle->vertexIndices) {
                 Vertex* neighbor = meshVertices[vertexIndex];
                 if (verticesToDeleteSet.find(neighbor) == verticesToDeleteSet.end()) {
@@ -367,10 +363,10 @@ void ResultsWidget::deleteSurface() {
 
     boundariesOverlapping = false;
     boundariesReversed = false;
-    potentialVerticesToDelete.clear();
+    selectedPoints.clear();
     mesh->deleteVertices(verticesToDeleteSet);
     geometryEngine->initMesh(mesh);
-    geometryEngine->initPoints(potentialVerticesToDelete);
+    geometryEngine->initPoints(selectedPoints);
     geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed, boundariesOverlapping);
     update();
 }
@@ -538,7 +534,6 @@ void ResultsWidget::timerEvent(QTimerEvent *) {
 
     if (shouldPaintGL and numSmoothingStepsSoFar < numSmoothingSteps) {
         smooth();
-        geometryEngine->initMesh(mesh);
         shouldUpdate = true;
         numSmoothingStepsSoFar += 1;
     } else if (numSmoothingStepsSoFar == numSmoothingSteps){
@@ -562,7 +557,7 @@ void ResultsWidget::initializeGL() {
     isDrawingEnabled = true;
     shouldPaintGL = false;
     findVertexToDelete = false;
-    findVerticesToSmooth = false;
+    findVertexToSmooth = false;
     boundariesReversed = false;
     isBoundary1Loop = false;
     isBoundary2Loop = false;
@@ -736,16 +731,17 @@ void ResultsWidget::reverseBoundaries() {
     update();
 }
 
-void ResultsWidget::setVerticesToSmooth(Vertex *vertexToSmooth) {
+void ResultsWidget::findVerticesToSmooth(Vertex *vertexToSmooth) {
     std::unordered_set<Vertex*> verticesToSmoothSet;
     verticesToSmoothSet.insert(vertexToSmooth);
+    verticesToSmooth.push_back(vertexToSmooth);
+
+    std::queue<Vertex*> verticesToSmoothQueue;
+    verticesToSmoothQueue.push(vertexToSmooth);
 
     for (Vertex* vertex : drawnVertices) {
         verticesToSmoothSet.insert(vertex);
     }
-
-    std::queue<Vertex*> verticesToSmoothQueue;
-    verticesToSmoothQueue.push(vertexToSmooth);
 
     while (!verticesToSmoothQueue.empty()) {
         std::vector<Vertex*> meshVertices = mesh->getVertices();
@@ -763,23 +759,22 @@ void ResultsWidget::setVerticesToSmooth(Vertex *vertexToSmooth) {
             }
         }
     }
-
-    geometryEngine->initPoints({vertexToSmooth});
-    update();
 }
 
 void ResultsWidget::toggleSmoothSurface() {
-    if (!findVerticesToSmooth) {
+    if (!findVertexToSmooth) {
         isDrawingEnabled = false;
         verticesToSmooth.clear();
     } else {
+        findVerticesToSmooth(selectedPoints.front());
         numSmoothingSteps = 50;
         numSmoothingStepsSoFar = 0;
         isDrawingEnabled = true;
-        geometryEngine->initPoints({});
+        selectedPoints.clear();
+        geometryEngine->initPoints(selectedPoints);
     }
 
-    findVerticesToSmooth = !findVerticesToSmooth;
+    findVertexToSmooth = !findVertexToSmooth;
     update();
 }
 
@@ -877,7 +872,7 @@ void ResultsWidget::reset() {
     verticesToSmooth.clear();
     boundaryVertices1.clear();
     boundaryVertices2.clear();
-    potentialVerticesToDelete.clear();
+    selectedPoints.clear();
     boundariesReversed = false;
     isBoundary1Loop = false;
     isBoundary2Loop = false;
@@ -887,7 +882,7 @@ void ResultsWidget::reset() {
     numSmoothingSteps = 0;
     numSmoothingStepsSoFar = 0;
 
-    geometryEngine->initPoints(potentialVerticesToDelete);
+    geometryEngine->initPoints(selectedPoints);
     geometryEngine->initLine(drawnVertices, drawingColor);
     geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed, boundariesOverlapping);
     update();
