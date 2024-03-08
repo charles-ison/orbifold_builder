@@ -40,7 +40,7 @@ void Sphere::initTriangles() {
                 } else {
                     index3 = faceCounter + 2;
                 }
-                triangles.push_back({{index1, index2, index3}});
+                triangles.push_back({{&vertices[index1], &vertices[index2], &vertices[index3]}});
             }
             else if (i == numVertSteps - 1) {
                 int index1 = numVertices - 1;
@@ -51,29 +51,29 @@ void Sphere::initTriangles() {
                 } else {
                     index3 = faceCounter + 1;
                 }
-                triangles.push_back({{index3, index2, index1}});
+                triangles.push_back({{&vertices[index3], &vertices[index2], &vertices[index1]}});
             }
             else if (j == numHorSteps-1) {
                 int index1 = faceCounter + 1 - numHorSteps;
                 int index2 = faceCounter;
                 int index3 = faceCounter + 1;
-                triangles.push_back({{index1, index2, index3}});
+                triangles.push_back({{&vertices[index1], &vertices[index2], &vertices[index3]}});
 
                 int index4 = faceCounter + numHorSteps;
                 int index5 = faceCounter + 1;
                 int index6 = faceCounter;
-                triangles.push_back({{index4, index5, index6}});
+                triangles.push_back({{&vertices[index4], &vertices[index5], &vertices[index6]}});
             }
             else {
                 int index1 = faceCounter + 1;
                 int index2 = faceCounter;
                 int index3 = faceCounter + 1 + numHorSteps;
-                triangles.push_back({{index1, index2, index3}});
+                triangles.push_back({{&vertices[index1], &vertices[index2], &vertices[index3]}});
 
                 int index4 = faceCounter + numHorSteps;
                 int index5 = faceCounter + 1 + numHorSteps;
                 int index6 = faceCounter;
-                triangles.push_back({{index4, index5, index6}});
+                triangles.push_back({{&vertices[index4], &vertices[index5], &vertices[index6]}});
             }
             faceCounter += 1;
         }

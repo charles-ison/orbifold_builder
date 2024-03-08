@@ -32,12 +32,12 @@ void MobiusStrip::initTriangles() {
                 int index1 = indexCounter % numVertices;
                 int index2 = (indexCounter + numVertSteps) % numVertices;
                 int index3 = (indexCounter + 1) % numVertices;
-                triangles.push_back({{index1, index2, index3}});
+                triangles.push_back({{&vertices[index1], &vertices[index2], &vertices[index3]}});
 
                 int index4 = (indexCounter + 1) % numVertices;
                 int index5 = (indexCounter + numVertSteps) % numVertices;
                 int index6 = (indexCounter + numVertSteps + 1) % numVertices;
-                triangles.push_back({{index4, index5, index6}});
+                triangles.push_back({{&vertices[index4], &vertices[index5], &vertices[index6]}});
             } else {
                 int index1 = indexCounter % numVertices;
                 int index2 = (indexCounter + numVertSteps) % numVertices;
@@ -45,7 +45,7 @@ void MobiusStrip::initTriangles() {
                     index2 = numVertSteps - index2 - 1;
                 }
                 int index3 = (indexCounter + 1) % numVertices;
-                triangles.push_back({{index1, index2, index3}});
+                triangles.push_back({{&vertices[index1], &vertices[index2], &vertices[index3]}});
 
                 int index4 = (indexCounter + 1) % numVertices;
                 int index5 = (indexCounter + numVertSteps) % numVertices;
@@ -56,7 +56,7 @@ void MobiusStrip::initTriangles() {
                 if (index6 < numVertSteps) {
                     index6 = numVertSteps - index6 - 1;
                 }
-                triangles.push_back({{index4, index5, index6}});
+                triangles.push_back({{&vertices[index4], &vertices[index5], &vertices[index6]}});
             }
 
             if (indexCounter % numVertSteps == numVertSteps-2 && indexCounter != 0) {

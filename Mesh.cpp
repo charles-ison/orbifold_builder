@@ -7,7 +7,6 @@ void Mesh::resetSurface(Surface *surface) {
 }
 
 void Mesh::addSurface(Surface *surface) {
-    int oldVerticesSize = vertices.size();
     int numSurfaceVertices = surface->getNumVertices();
     Vertex* surfaceVertices = surface->getVertices();
     for (int i=0; i<numSurfaceVertices; i++) {
@@ -17,9 +16,6 @@ void Mesh::addSurface(Surface *surface) {
     int numSurfaceTriangles = surface->getNumTriangles();
     Triangle* surfaceTriangles = surface->getTriangles();
     for (int i=0; i<numSurfaceTriangles; i++) {
-        surfaceTriangles[i].vertexIndices[0] += oldVerticesSize;
-        surfaceTriangles[i].vertexIndices[1] += oldVerticesSize;
-        surfaceTriangles[i].vertexIndices[2] += oldVerticesSize;
         triangles.push_back(&surfaceTriangles[i]);
     }
 }
@@ -37,8 +33,7 @@ void Mesh::addVertex(Vertex *vertexToAdd) {
 }
 
 void Mesh::deleteTriangleReferences(Triangle* triangleToDelete) {
-    for (int vertexIndex : triangleToDelete->vertexIndices) {
-        Vertex *vertex = vertices[vertexIndex];
+    for (Vertex* vertex : triangleToDelete->vertices) {
         std::set<Triangle *> newTriangles;
         for (Triangle *vertexTriangle: vertex->triangles) {
             if (vertexTriangle != triangleToDelete) {
@@ -52,9 +47,9 @@ void Mesh::deleteTriangleReferences(Triangle* triangleToDelete) {
 void Mesh::deleteVertices(std::unordered_set<Vertex*> verticesToDelete) {
     std::vector<Triangle*> newTriangles;
     for (Triangle* triangle : triangles) {
-        Vertex* vertex1 = vertices[triangle->vertexIndices[0]];
-        Vertex* vertex2 = vertices[triangle->vertexIndices[1]];
-        Vertex* vertex3 = vertices[triangle->vertexIndices[2]];
+        Vertex* vertex1 = triangle->vertices[0];
+        Vertex* vertex2 = triangle->vertices[1];
+        Vertex* vertex3 = triangle->vertices[2];
 
         if (verticesToDelete.find(vertex1) != verticesToDelete.end() || verticesToDelete.find(vertex2) != verticesToDelete.end() || verticesToDelete.find(vertex3) != verticesToDelete.end()) {
             deleteTriangleReferences(triangle);

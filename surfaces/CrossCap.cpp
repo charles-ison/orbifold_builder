@@ -52,29 +52,29 @@ void CrossCap::initTriangles() {
                 } else {
                     index3 = faceCounter + 2;
                 }
-                triangles.push_back({{index1, index2, index3}});
+                triangles.push_back({{&vertices[index1], &vertices[index2], &vertices[index3]}});
             }
             else if (j == numHorSteps - 1) {
                 int index1 = getCrossCapFoldIndex((faceCounter + 1 - numVertSteps));
                 int index2 = getCrossCapFoldIndex(faceCounter);
                 int index3 = getCrossCapFoldIndex((faceCounter + 1));
-                triangles.push_back({{index1, index2, index3}});
+                triangles.push_back({{&vertices[index1], &vertices[index2], &vertices[index3]}});
 
                 int index4 = getCrossCapFoldIndex((faceCounter + numVertSteps));
                 int index5 = getCrossCapFoldIndex((faceCounter + 1));
                 int index6 = getCrossCapFoldIndex(faceCounter);
-                triangles.push_back({{index4, index5, index6}});
+                triangles.push_back({{&vertices[index4], &vertices[index5], &vertices[index6]}});
             }
             else {
                 int index1 = getCrossCapFoldIndex((faceCounter + 1));
                 int index2 = getCrossCapFoldIndex(faceCounter);
                 int index3 = getCrossCapFoldIndex((faceCounter + 1 + numHorSteps));
-                triangles.push_back({{index1, index2, index3}});
+                triangles.push_back({{&vertices[index1], &vertices[index2], &vertices[index3]}});
 
                 int index4 = getCrossCapFoldIndex((faceCounter + numHorSteps));
                 int index5 = getCrossCapFoldIndex((faceCounter + 1 + numHorSteps));
                 int index6 = getCrossCapFoldIndex(faceCounter);
-                triangles.push_back({{index4, index5, index6}});
+                triangles.push_back({{&vertices[index4], &vertices[index5], &vertices[index6]}});
             }
 
             faceCounter += 1;

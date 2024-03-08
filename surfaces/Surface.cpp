@@ -2,16 +2,15 @@
 
 void Surface::initNeighbors() {
     int numTriangles = getNumTriangles();
-    Vertex* vertices = getVertices();
     Triangle* triangles = getTriangles();
 
     for (int i=0; i<numTriangles; i++) {
-        int index0 = triangles[i].vertexIndices[0];
-        int index1 = triangles[i].vertexIndices[1];
-        int index2 = triangles[i].vertexIndices[2];
+        Vertex* vertex0 = triangles[i].vertices[0];
+        Vertex* vertex1 = triangles[i].vertices[1];
+        Vertex* vertex2 = triangles[i].vertices[2];
 
-        vertices[index0].triangles.insert(&triangles[i]);
-        vertices[index1].triangles.insert(&triangles[i]);
-        vertices[index2].triangles.insert(&triangles[i]);
+        vertex0->triangles.insert(&triangles[i]);
+        vertex1->triangles.insert(&triangles[i]);
+        vertex2->triangles.insert(&triangles[i]);
     }
 }

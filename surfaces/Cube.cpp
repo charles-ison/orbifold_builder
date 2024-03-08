@@ -19,18 +19,18 @@ void Cube::initVertices(QVector3D centerPosition, QVector3D scale) {
 }
 
 void Cube::initTriangles() {
-    triangles.push_back({{0, 1, 2}});
-    triangles.push_back({{2, 3, 0}});
-    triangles.push_back({{3, 2, 6}});
-    triangles.push_back({{6, 7, 3}});
-    triangles.push_back({{3, 7, 4}});
-    triangles.push_back({{4, 0, 3}});
-    triangles.push_back({{4, 7, 6}});
-    triangles.push_back({{6, 5, 4}});
-    triangles.push_back({{0, 4, 5}});
-    triangles.push_back({{5, 1, 0}});
-    triangles.push_back({{1, 5, 6}});
-    triangles.push_back({{6, 2, 1}});
+    triangles.push_back({{&vertices[0], &vertices[1], &vertices[2]}});
+    triangles.push_back({{&vertices[2], &vertices[3], &vertices[0]}});
+    triangles.push_back({{&vertices[3], &vertices[2], &vertices[6]}});
+    triangles.push_back({{&vertices[6], &vertices[7], &vertices[3]}});
+    triangles.push_back({{&vertices[3], &vertices[7], &vertices[4]}});
+    triangles.push_back({{&vertices[4], &vertices[0], &vertices[3]}});
+    triangles.push_back({{&vertices[4], &vertices[7], &vertices[6]}});
+    triangles.push_back({{&vertices[6], &vertices[5], &vertices[4]}});
+    triangles.push_back({{&vertices[0], &vertices[4], &vertices[5]}});
+    triangles.push_back({{&vertices[5], &vertices[1], &vertices[0]}});
+    triangles.push_back({{&vertices[1], &vertices[5], &vertices[6]}});
+    triangles.push_back({{&vertices[6], &vertices[2], &vertices[1]}});
 }
 
 Triangle* Cube::getTriangles() {

@@ -63,9 +63,9 @@ void GeometryEngine::initMesh(Mesh* mesh) {
     numIndices = 3*numTriangles;
 
     for (int i=0; i<numTriangles; i++) {
-        int index0 = triangles[i]->vertexIndices[0];
-        int index1 = triangles[i]->vertexIndices[1];
-        int index2 = triangles[i]->vertexIndices[2];
+        int index0 = triangles[i]->vertices[0]->index;
+        int index1 = triangles[i]->vertices[1]->index;
+        int index2 = triangles[i]->vertices[2]->index;
 
         indices.push_back(index0);
         indices.push_back(index1);

@@ -117,10 +117,10 @@ void ResultsWidget::setSelectedPoints(Vertex *vertex) {
     }
 }
 
-bool ResultsWidget::triangleContainsVertex(Vertex *vertex, Triangle *triangle, std::vector<Vertex*> vertices) {
-    Vertex *vertex1 = vertices[triangle->vertexIndices[0]];
-    Vertex *vertex2 = vertices[triangle->vertexIndices[1]];
-    Vertex *vertex3 = vertices[triangle->vertexIndices[2]];
+bool ResultsWidget::triangleContainsVertex(Vertex *vertex, Triangle *triangle) {
+    Vertex *vertex1 = triangle->vertices[0];
+    Vertex *vertex2 = triangle->vertices[1];
+    Vertex *vertex3 = triangle->vertices[2];
 
     if (vertex1==vertex || vertex2==vertex || vertex3==vertex) {
         return true;
@@ -129,10 +129,10 @@ bool ResultsWidget::triangleContainsVertex(Vertex *vertex, Triangle *triangle, s
     }
 }
 
-bool ResultsWidget::rotationDirectionAligns(Triangle* triangle, Vertex* vertex1, Vertex* vertex2, std::vector<Vertex*> vertices) {
+bool ResultsWidget::rotationDirectionAligns(Triangle* triangle, Vertex* vertex1, Vertex* vertex2) {
     for (int i=0; i<3; i++) {
-        Vertex* triangleVertex1 = vertices[triangle->vertexIndices[i]];
-        Vertex* triangleVertex2 = vertices[triangle->vertexIndices[(i+1)%3]];
+        Vertex* triangleVertex1 = triangle->vertices[i];
+        Vertex* triangleVertex2 = triangle->vertices[(i+1)%3];
 
         if (vertex1 == triangleVertex1 && vertex2 == triangleVertex2) {
             return true;
@@ -161,8 +161,7 @@ void ResultsWidget::cutSurface() {
     std::vector<Vertex*> verticesToCut;
     std::vector<std::vector<Triangle*>> trianglePathsToCut;
     for (Triangle *triangle : drawnVertices[0]->triangles) {
-        if(triangleContainsVertex(drawnVertices[0], triangle, vertices)
-              && triangleContainsVertex(drawnVertices[1], triangle, vertices)) {
+        if(triangleContainsVertex(drawnVertices[0], triangle) && triangleContainsVertex(drawnVertices[1], triangle)) {
             startingTriangle = triangle;
             break;
         }
@@ -172,7 +171,7 @@ void ResultsWidget::cutSurface() {
     verticesToCut.push_back(drawnVertices[0]);
     verticesToCut.push_back(drawnVertices[1]);
     trianglePathsToCut.push_back({stepStartingTriangle});
-    bool startingRotationDirectionAligns = rotationDirectionAligns(startingTriangle, drawnVertices[0], drawnVertices[1], vertices);
+    bool startingRotationDirectionAligns = rotationDirectionAligns(startingTriangle, drawnVertices[0], drawnVertices[1]);
 
     // Setting loop configurations
     if (drawnVertices.front() == drawnVertices.back()) {
@@ -197,8 +196,8 @@ void ResultsWidget::cutSurface() {
         Vertex* startVertex = drawnVertices[i];
         Vertex* endVertex = drawnVertices[i+1];
 
-        std::unordered_set<std::string> checkedTriangles;
-        checkedTriangles.insert(stepStartingTriangle->toString());
+        std::unordered_set<Triangle*> checkedTriangles;
+        checkedTriangles.insert(stepStartingTriangle);
 
         std::queue<std::vector<Triangle*>> potentialPaths;
         potentialPaths.push({stepStartingTriangle});
@@ -208,8 +207,8 @@ void ResultsWidget::cutSurface() {
             potentialPaths.pop();
             Triangle* nextTriangle = nextPath.back();
 
-            bool nextTriangleContainsVertex = triangleContainsVertex(endVertex, nextTriangle, vertices);
-            bool nextRotationDirectionAligns = (startingRotationDirectionAligns == rotationDirectionAligns(nextTriangle, startVertex, endVertex, vertices));
+            bool nextTriangleContainsVertex = triangleContainsVertex(endVertex, nextTriangle);
+            bool nextRotationDirectionAligns = (startingRotationDirectionAligns == rotationDirectionAligns(nextTriangle, startVertex, endVertex));
             if (nextTriangleContainsVertex && nextRotationDirectionAligns) {
                 verticesToCut.push_back(endVertex);
                 trianglePathsToCut.push_back(nextPath);
@@ -218,23 +217,22 @@ void ResultsWidget::cutSurface() {
             }
 
             for (Triangle *triangle : startVertex->triangles) {
-                std::string triangleString = triangle->toString();
                 bool sharesEdge = nextTriangle->sharesEdge(triangle);
-                bool notChecked = checkedTriangles.find(triangleString) == checkedTriangles.end();
-                bool containsPrevStartingVertex = triangleContainsVertex(prevStartVertex, triangle, vertices);
-                bool directionAligns = (startingRotationDirectionAligns == rotationDirectionAligns(triangle, prevStartVertex, startVertex, vertices));
+                bool notChecked = checkedTriangles.find(triangle) == checkedTriangles.end();
+                bool containsPrevStartingVertex = triangleContainsVertex(prevStartVertex, triangle);
+                bool directionAligns = (startingRotationDirectionAligns == rotationDirectionAligns(triangle, prevStartVertex, startVertex));
                 bool doesNotCrossLine = !containsPrevStartingVertex || directionAligns;
                 if (sharesEdge && notChecked && doesNotCrossLine) {
                     std::vector<Triangle*> newPotentialPath = nextPath;
                     newPotentialPath.push_back(triangle);
                     potentialPaths.push(newPotentialPath);
-                    checkedTriangles.insert(triangleString);
+                    checkedTriangles.insert(triangle);
                 }
             }
         }
     }
 
-    std::unordered_map<int, int> oldIndexToNewIndexMap;
+    std::unordered_map<Vertex*, Vertex*> oldVertexToNewVertexMap;
     int numVerticesToCut = loopDetected ? verticesToCut.size()-2 : verticesToCut.size();
     for (int i=0; i<numVerticesToCut; i++) {
         Vertex* vertexToCut = verticesToCut[i];
@@ -245,19 +243,19 @@ void ResultsWidget::cutSurface() {
         tempBoundaryVertices1.push_back(vertexToCut);
         tempBoundaryVertices2.push_back(newVertex);
         vertices = mesh->getVertices();
-        oldIndexToNewIndexMap.insert({vertexToCut->index, newVertex->index});
+        oldVertexToNewVertexMap.insert({vertexToCut, newVertex});
     }
 
     // Updating vertices on triangles, adding new triangles, and removing out of date triangles
     for (std::vector<Triangle*> nextTrianglePath : trianglePathsToCut) {
         for (Triangle *triangle: nextTrianglePath) {
             for (int j = 0; j < 3; j++) {
-                int oldVertexIndex = triangle->vertexIndices[j];
-                if (oldIndexToNewIndexMap.find(oldVertexIndex) != oldIndexToNewIndexMap.end()) {
-                    int newVertexIndex = oldIndexToNewIndexMap.at(oldVertexIndex);
-                    triangle->vertexIndices[j] = newVertexIndex;
-                    vertices[newVertexIndex]->triangles.insert(triangle);
-                    vertices[oldVertexIndex]->triangles.erase(triangle);
+                Vertex* oldVertex = triangle->vertices[j];
+                if (oldVertexToNewVertexMap.find(oldVertex) != oldVertexToNewVertexMap.end()) {
+                    Vertex* newVertex = oldVertexToNewVertexMap.at(oldVertex);
+                    triangle->vertices[j] = newVertex;
+                    newVertex->triangles.insert(triangle);
+                    oldVertex->triangles.erase(triangle);
                 }
             }
         }
@@ -305,13 +303,11 @@ void ResultsWidget::deleteSurface(Vertex* vertexToDelete) {
     verticesToDelete.push(vertexToDelete);
 
     while (!verticesToDelete.empty()) {
-        std::vector<Vertex*> meshVertices = mesh->getVertices();
         Vertex* nextVertexToDelete = verticesToDelete.front();
         verticesToDelete.pop();
 
         for (Triangle* triangle : nextVertexToDelete->triangles) {
-            for (int vertexIndex : triangle->vertexIndices) {
-                Vertex* neighbor = meshVertices[vertexIndex];
+            for (Vertex* neighbor : triangle->vertices) {
                 if (verticesToDeleteSet.find(neighbor) == verticesToDeleteSet.end()) {
                     verticesToDelete.push(neighbor);
                     verticesToDeleteSet.insert(neighbor);
@@ -443,10 +439,8 @@ std::tuple<float, std::vector<Vertex*>> ResultsWidget::getVerticesPathAndDistanc
     std::vector<Vertex*> path = {startVertex};
     std::unordered_set<Vertex*> checkedVertices;
     std::priority_queue<std::tuple<float, std::vector<Vertex*>>, std::vector<std::tuple<float, std::vector<Vertex*>>>, std::greater<std::tuple<float, std::vector<Vertex*>>> > potentialPaths;
-
     potentialPaths.push({0.0, path});
     QVector3D endVertexPosition = endVertex->position;
-    std::vector<Vertex*> meshVertices = mesh->getVertices();
 
     while(!potentialPaths.empty()) {
         std::tuple<float, std::vector<Vertex*>> nextDistanceAndPath = potentialPaths.top();
@@ -456,8 +450,7 @@ std::tuple<float, std::vector<Vertex*>> ResultsWidget::getVerticesPathAndDistanc
         potentialPaths.pop();
 
         for (Triangle* triangle : nextVertex->triangles) {
-            for (int vertexIndex : triangle->vertexIndices) {
-                Vertex *neighbor = meshVertices[vertexIndex];
+            for (Vertex *neighbor : triangle->vertices) {
                 if (neighbor->position == endVertexPosition) {
                     float distance = oldDistance + euclideanDistance(neighbor, nextVertex);
                     return {distance, nextPath};
@@ -686,10 +679,9 @@ std::vector<Vertex*> ResultsWidget::connectFirstAndLastVertices(std::vector<Vert
     Vertex* firstVertex = boundary.front();
     Vertex* lastVertex = boundary.back();
     for (Triangle *triangle: lastVertex->triangles) {
-        std::vector<int> boundaryTriangleIndices = triangle->vertexIndices;
         for (int k = 0; k < 3; k++) {
-            if (boundaryTriangleIndices[k] == lastVertex->index) {
-                triangle->vertexIndices[k] = firstVertex->index;
+            if (triangle->vertices[k] == lastVertex) {
+                triangle->vertices[k] = firstVertex;
                 firstVertex->triangles.insert(triangle);
             }
         }
@@ -704,10 +696,9 @@ std::vector<Vertex*> ResultsWidget::connectMiddleVertices(std::vector<Vertex*> b
     Vertex* middleVertex = *midItr;
     Vertex* nextMiddleVertex = *(midItr + 1);
     for (Triangle *triangle: nextMiddleVertex->triangles) {
-        std::vector<int> boundaryTriangleIndices = triangle->vertexIndices;
         for (int k = 0; k < 3; k++) {
-            if (boundaryTriangleIndices[k] == nextMiddleVertex->index) {
-                triangle->vertexIndices[k] = middleVertex->index;
+            if (triangle->vertices[k] == nextMiddleVertex) {
+                triangle->vertices[k] = middleVertex;
                 middleVertex->triangles.insert(triangle);
             }
         }
@@ -744,10 +735,9 @@ void ResultsWidget::connectVertices() {
         while (largerBoundaryPercentageCompleted <= smallerBoundaryPercentageCompleted) {
             Vertex* largerBoundaryVertex = largerBoundaryVertices[i];
             for (Triangle* triangle : largerBoundaryVertex->triangles) {
-                std::vector<int> boundaryTriangleIndices = triangle->vertexIndices;
                 for (int k=0; k<3; k++) {
-                    if (boundaryTriangleIndices[k] == largerBoundaryVertex->index) {
-                        triangle->vertexIndices[k] = smallerBoundaryVertex->index;
+                    if (triangle->vertices[k] == largerBoundaryVertex) {
+                        triangle->vertices[k] = smallerBoundaryVertex;
                         smallerBoundaryVertex->triangles.insert(triangle);
                         deletedVertices.insert(largerBoundaryVertex);
                     }
@@ -783,13 +773,11 @@ void ResultsWidget::findVerticesToSmooth(Vertex *vertexToSmooth) {
     }
 
     while (!verticesToSmoothQueue.empty()) {
-        std::vector<Vertex*> meshVertices = mesh->getVertices();
         Vertex* nextVertexToSmooth = verticesToSmoothQueue.front();
         verticesToSmoothQueue.pop();
 
         for (Triangle* triangle : nextVertexToSmooth->triangles) {
-            for (int vertexIndex : triangle->vertexIndices) {
-                Vertex* neighbor = meshVertices[vertexIndex];
+            for (Vertex* neighbor : triangle->vertices) {
                 if (verticesToSmoothSet.find(neighbor) == verticesToSmoothSet.end()) {
                     verticesToSmoothQueue.push(neighbor);
                     verticesToSmoothSet.insert(neighbor);
@@ -833,10 +821,8 @@ void ResultsWidget::smooth() {
         std::unordered_set<Vertex *> visitedNeighbors;
 
         // Initializing cord weights
-        for (Triangle *triangle: vertex->triangles) {
-            std::vector<int> triangleIndices = triangle->vertexIndices;
-            for (int index: triangleIndices) {
-                Vertex *neighbor = vertices[index];
+        for (Triangle *triangle : vertex->triangles) {
+            for (Vertex *neighbor : triangle->vertices) {
                 if (neighbor != vertex && visitedNeighbors.find(neighbor) == visitedNeighbors.end()) {
                     //neighborDistanceSum += euclideanDistance(vertex, neighbor);
                     numNeighbors += 1;
@@ -847,9 +833,7 @@ void ResultsWidget::smooth() {
 
         visitedNeighbors.clear();
         for (Triangle *triangle: vertex->triangles) {
-            std::vector<int> triangleIndices = triangle->vertexIndices;
-            for (int index: triangleIndices) {
-                Vertex *neighbor = vertices[index];
+            for (Vertex *neighbor : triangle->vertices) {
                 if (neighbor != vertex && visitedNeighbors.find(neighbor) == visitedNeighbors.end()) {
                     //float weight = euclideanDistance(vertex, neighbor) / neighborDistanceSum;
                     float weight = 1.0 / numNeighbors;
@@ -885,9 +869,9 @@ std::string ResultsWidget::getResultsAttributesLabelText() {
     std::vector<Triangle*> triangles = mesh->getTriangles();
     int numTriangles = triangles.size();
     for (int i=0; i<numTriangles; i++) {
-        int index0 = triangles[i]->vertexIndices[0];
-        int index1 = triangles[i]->vertexIndices[1];
-        int index2 = triangles[i]->vertexIndices[2];
+        int index0 = triangles[i]->vertices[0]->index;
+        int index1 = triangles[i]->vertices[1]->index;
+        int index2 = triangles[i]->vertices[2]->index;
 
         uniqueVertices.insert(index0);
         uniqueVertices.insert(index1);

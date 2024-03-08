@@ -33,23 +33,23 @@ void Torus::initTriangles() {
                 int index1 = (faceCounter + 1 - numHorSteps) % numVertices;
                 int index2 = faceCounter % numVertices;
                 int index3 = (faceCounter + 1) % numVertices;
-                triangles.push_back({{index1, index2, index3}});
+                triangles.push_back({{&vertices[index1], &vertices[index2], &vertices[index3]}});
 
                 int index4 = (faceCounter + numHorSteps) % numVertices;
                 int index5 = (faceCounter + 1) % numVertices;
                 int index6 = faceCounter % numVertices;
-                triangles.push_back({{index4, index5, index6}});
+                triangles.push_back({{&vertices[index4], &vertices[index5], &vertices[index6]}});
             }
             else {
                 int index1 = (faceCounter + 1) % numVertices;
                 int index2 = faceCounter % numVertices;
                 int index3 = (faceCounter + 1 + numVertSteps) % numVertices;
-                triangles.push_back({{index1, index2, index3}});
+                triangles.push_back({{&vertices[index1], &vertices[index2], &vertices[index3]}});
 
                 int index4 = (faceCounter + numVertSteps) % numVertices;
                 int index5 = (faceCounter + 1 + numVertSteps) % numVertices;
                 int index6 = faceCounter % numVertices;
-                triangles.push_back({{index4, index5, index6}});
+                triangles.push_back({{&vertices[index4], &vertices[index5], &vertices[index6]}});
             }
             faceCounter += 1;
         }
