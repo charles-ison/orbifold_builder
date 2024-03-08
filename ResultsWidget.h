@@ -63,6 +63,8 @@ private:
     void smooth();
     void findVerticesToSmooth(Vertex *vertexToSmooth);
     void setSelectedPoints(Vertex *vertex);
+    std::vector<Vertex*> connectFirstAndLastVertices(std::vector<Vertex*> boundary);
+    std::vector<Vertex*> connectMiddleVertices(std::vector<Vertex*> boundary);
 
     Mesh* mesh;
     Cube* cubeSurface;

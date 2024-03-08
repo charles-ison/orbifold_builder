@@ -6,7 +6,6 @@
 #include <queue>
 #include <unordered_set>
 #include <tuple>
-#include <iostream>
 
 ResultsWidget::~ResultsWidget() {
     // Make sure the context is current when deleting the buffers.
@@ -288,18 +287,6 @@ void ResultsWidget::cutSurface() {
         boundary2DisplaySize = tempBoundaryVertices2.size();
         boundariesOverlapping = false;
     }
-
-    /*
-    std::cout << "boundaryVertices1: " << std::endl;
-    for (Vertex* vertex : boundaryVertices1) {
-        std::cout << vertex->index << std::endl;
-    }
-
-    std::cout << "boundaryVertices2: " << std::endl;
-    for (Vertex* vertex : boundaryVertices2) {
-        std::cout << vertex->index << std::endl;
-    }
-     */
 
     numOpenings += 1;
     drawnVertices.clear();
@@ -671,18 +658,6 @@ void ResultsWidget::glue() {
         return;
     }
 
-    /*
-    std::cout << "boundaryVertices1: " << std::endl;
-    for (Vertex* vertex : boundaryVertices1) {
-        std::cout << vertex->index << std::endl;
-    }
-
-    std::cout << "boundaryVertices2: " << std::endl;
-    for (Vertex* vertex : boundaryVertices2) {
-        std::cout << vertex->index << std::endl;
-    }
-     */
-
     connectVertices();
 
     if (numOpenings == 1) {
@@ -704,6 +679,39 @@ void ResultsWidget::glue() {
     update();
 }
 
+std::vector<Vertex*> ResultsWidget::connectFirstAndLastVertices(std::vector<Vertex*> boundary) {
+    Vertex* firstVertex = boundary.front();
+    Vertex* lastVertex = boundary.back();
+    for (Triangle *triangle: lastVertex->triangles) {
+        std::vector<int> boundaryTriangleIndices = triangle->vertexIndices;
+        for (int k = 0; k < 3; k++) {
+            if (boundaryTriangleIndices[k] == lastVertex->index) {
+                triangle->vertexIndices[k] = firstVertex->index;
+                firstVertex->triangles.insert(triangle);
+            }
+        }
+    }
+    boundary.pop_back();
+    return boundary;
+}
+
+std::vector<Vertex*> ResultsWidget::connectMiddleVertices(std::vector<Vertex*> boundary) {
+    auto midItr = boundary.begin() + boundary.size()/2 - 1;
+    Vertex* middleVertex = *midItr;
+    Vertex* nextMiddleVertex = *(midItr + 1);
+    for (Triangle *triangle: nextMiddleVertex->triangles) {
+        std::vector<int> boundaryTriangleIndices = triangle->vertexIndices;
+        for (int k = 0; k < 3; k++) {
+            if (boundaryTriangleIndices[k] == nextMiddleVertex->index) {
+                triangle->vertexIndices[k] = middleVertex->index;
+                middleVertex->triangles.insert(triangle);
+            }
+        }
+    }
+    boundary.erase(midItr + 1);
+    return boundary;
+}
+
 void ResultsWidget::connectVertices() {
     std::vector<Vertex*> smallerBoundaryVertices;
     std::vector<Vertex*> largerBoundaryVertices;
@@ -714,6 +722,13 @@ void ResultsWidget::connectVertices() {
     } else {
         largerBoundaryVertices = boundaryVertices2;
         smallerBoundaryVertices = boundaryVertices1;
+    }
+
+    if(numOpenings == 2 && !isBoundary1Loop && !isBoundary2Loop) {
+        largerBoundaryVertices = connectMiddleVertices(largerBoundaryVertices);
+        largerBoundaryVertices = connectFirstAndLastVertices(largerBoundaryVertices);
+        smallerBoundaryVertices = connectMiddleVertices(smallerBoundaryVertices);
+        smallerBoundaryVertices = connectFirstAndLastVertices(smallerBoundaryVertices);
     }
 
     int i=0;
@@ -727,7 +742,6 @@ void ResultsWidget::connectVertices() {
                 std::vector<int> boundaryTriangleIndices = triangle->vertexIndices;
                 for (int k=0; k<3; k++) {
                     if (boundaryTriangleIndices[k] == largerBoundaryVertex->index) {
-                        //std::cout << "Changing: " << triangle->vertexIndices[k] << " to: " << smallerBoundaryVertex->index << std::endl;
                         triangle->vertexIndices[k] = smallerBoundaryVertex->index;
                         smallerBoundaryVertex->triangles.insert(triangle);
                     }
@@ -738,16 +752,8 @@ void ResultsWidget::connectVertices() {
         }
     }
 
-    if (boundariesReversed && !isBoundary1Loop && !isBoundary2Loop && !boundariesAreCombinedLoop) {
-        for (Triangle *triangle: smallerBoundaryVertices.back()->triangles) {
-            std::vector<int> boundaryTriangleVertices = triangle->vertexIndices;
-            for (int j = 0; j < 3; j++) {
-                if (boundaryTriangleVertices[j] == smallerBoundaryVertices.back()->index) {
-                    triangle->vertexIndices[j] = smallerBoundaryVertices.front()->index;
-                    smallerBoundaryVertices.front()->triangles.insert(triangle);
-                }
-            }
-        }
+    if (boundariesReversed && !isBoundary1Loop && !isBoundary2Loop && !boundariesAreCombinedLoop && numOpenings == 1) {
+        connectFirstAndLastVertices(smallerBoundaryVertices);
     }
 }
 
@@ -808,7 +814,7 @@ void ResultsWidget::toggleSmoothSurface() {
 }
 
 void ResultsWidget::smooth() {
-    float stepSize = 0.8;
+    float stepSize = 0.5;
     std::vector<QVector3D> newPositions;
     std::vector<Vertex *> vertices = mesh->getVertices();
 
