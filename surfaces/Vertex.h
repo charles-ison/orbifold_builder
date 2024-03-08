@@ -9,6 +9,7 @@ struct Vertex {
     QVector3D position;
     std::set<Triangle*> triangles;
     int index;
+    QVector3D normal;
 };
 
 #endif

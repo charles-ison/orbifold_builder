@@ -3,7 +3,7 @@
 KleinBottle::KleinBottle(QVector3D centerPosition, QVector3D scale) {
     initVertices(centerPosition, scale);
     initTriangles();
-    initNeighbors();
+    initNeighborsAndNormals();
 }
 
 void KleinBottle::initVertices(QVector3D centerPosition, QVector3D scale) {

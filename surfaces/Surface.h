@@ -13,7 +13,7 @@ public:
     virtual int getNumTriangles() = 0;
 
 protected:
-    void initNeighbors();
+    void initNeighborsAndNormals();
 
 private:
     virtual void initVertices(QVector3D centerPosition, QVector3D scale) = 0;

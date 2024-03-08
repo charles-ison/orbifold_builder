@@ -5,6 +5,7 @@ class Vertex;
 
 struct Triangle {
     std::vector<Vertex*> vertices;
+    QVector3D normal;
 
     bool sharesEdge(Triangle* triangle) {
         int numSharedVertices = 0;

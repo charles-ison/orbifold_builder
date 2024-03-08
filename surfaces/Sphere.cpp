@@ -3,7 +3,7 @@
 Sphere::Sphere(QVector3D centerPosition, QVector3D scale) {
     initVertices(centerPosition, scale);
     initTriangles();
-    initNeighbors();
+    initNeighborsAndNormals();
 }
 
 void Sphere::initVertices(QVector3D centerPosition, QVector3D scale) {

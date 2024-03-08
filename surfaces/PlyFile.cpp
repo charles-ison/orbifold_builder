@@ -55,7 +55,7 @@ PlyFile::PlyFile(QString fileName, QVector3D centerPosition, QVector3D scale) {
         triangles.push_back({{&vertices[index0],  &vertices[index1],  &vertices[index2]}});
     }
     plyFile.close();
-    initNeighbors();
+    initNeighborsAndNormals();
 }
 
 void PlyFile::initVertices(QVector3D centerPosition, QVector3D scale) {

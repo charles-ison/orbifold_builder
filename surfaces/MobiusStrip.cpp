@@ -3,7 +3,7 @@
 MobiusStrip::MobiusStrip(QVector3D centerPosition, QVector3D scale) {
     initVertices(centerPosition, scale);
     initTriangles();
-    initNeighbors();
+    initNeighborsAndNormals();
 }
 
 void MobiusStrip::initVertices(QVector3D centerPosition, QVector3D scale) {
