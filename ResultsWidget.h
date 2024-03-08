@@ -87,6 +87,7 @@ private:
     std::vector<Vertex*> boundaryVertices2;
     std::vector<Vertex*> selectedPoints;
     std::vector<Vertex*> verticesToSmooth;
+    std::unordered_set<Vertex*> deletedVertices;
 
     QColor drawingColor;
     DrawingMode drawingMode;

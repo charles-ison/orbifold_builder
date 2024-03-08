@@ -365,6 +365,7 @@ void ResultsWidget::deleteSurface(Vertex* vertexToDelete) {
     boundariesOverlapping = false;
     boundariesReversed = false;
     selectedPoints.clear();
+    deletedVertices.insert(verticesToDeleteSet.begin(), verticesToDeleteSet.end());
     mesh->deleteVertices(verticesToDeleteSet);
     geometryEngine->initMesh(mesh);
     geometryEngine->initPoints(selectedPoints);
@@ -398,13 +399,15 @@ Vertex* ResultsWidget::getVertexFromMouseEvent(QMouseEvent *e) {
     float x = (e->position().x() - (width()/2.0)) / (width()/2.0);
     float y = -(e->position().y() - (height()/2.0)) / (height()/2.0);
 
-    for (int i=0; i<vertices.size(); i++) {
-        QVector3D surfacePosition = mvp_matrix.map(vertices[i]->position);
-        float xyDistance = sqrt(pow(x - surfacePosition.x(), 2) + pow(y - surfacePosition.y(), 2));
-        if (xyDistance < xyThreshold && surfacePosition.z() < smallestZDistance) {
-            smallestZDistance = surfacePosition.z();
-            closestVertex = vertices[i];
-            surfaceVertexFound = true;
+    for (Vertex* vertex : vertices) {
+        if (deletedVertices.find(vertex) == deletedVertices.end()) {
+            QVector3D surfacePosition = mvp_matrix.map(vertex->position);
+            float xyDistance = sqrt(pow(x - surfacePosition.x(), 2) + pow(y - surfacePosition.y(), 2));
+            if (xyDistance < xyThreshold && surfacePosition.z() < smallestZDistance) {
+                smallestZDistance = surfacePosition.z();
+                closestVertex = vertex;
+                surfaceVertexFound = true;
+            }
         }
     }
     if (surfaceVertexFound) {
@@ -691,6 +694,7 @@ std::vector<Vertex*> ResultsWidget::connectFirstAndLastVertices(std::vector<Vert
             }
         }
     }
+    deletedVertices.insert(lastVertex);
     boundary.pop_back();
     return boundary;
 }
@@ -708,6 +712,7 @@ std::vector<Vertex*> ResultsWidget::connectMiddleVertices(std::vector<Vertex*> b
             }
         }
     }
+    deletedVertices.insert(nextMiddleVertex);
     boundary.erase(midItr + 1);
     return boundary;
 }
@@ -744,6 +749,7 @@ void ResultsWidget::connectVertices() {
                     if (boundaryTriangleIndices[k] == largerBoundaryVertex->index) {
                         triangle->vertexIndices[k] = smallerBoundaryVertex->index;
                         smallerBoundaryVertex->triangles.insert(triangle);
+                        deletedVertices.insert(largerBoundaryVertex);
                     }
                 }
             }
