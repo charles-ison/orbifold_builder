@@ -13,6 +13,7 @@ public:
     std::vector<Vertex*> getVertices();
     std::vector<Triangle*> getTriangles();
     void addVertex(Vertex *vertexToAdd);
+    void deleteVerticesReferences(std::unordered_set<Vertex*> verticesToDelete);
     void deleteVertices(std::unordered_set<Vertex*> verticesToDelete);
 
 private:

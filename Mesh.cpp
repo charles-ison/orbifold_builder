@@ -44,7 +44,7 @@ void Mesh::deleteTriangleReferences(Triangle* triangleToDelete) {
     }
 }
 
-void Mesh::deleteVertices(std::unordered_set<Vertex*> verticesToDelete) {
+void Mesh::deleteVerticesReferences(std::unordered_set<Vertex*> verticesToDelete) {
     std::vector<Triangle*> newTriangles;
     for (Triangle* triangle : triangles) {
         Vertex* vertex1 = triangle->vertices[0];
@@ -58,4 +58,19 @@ void Mesh::deleteVertices(std::unordered_set<Vertex*> verticesToDelete) {
         }
     }
     triangles = newTriangles;
+}
+
+void Mesh::deleteVertices(std::unordered_set<Vertex*> verticesToDelete) {
+    int delta = 0;
+    auto itr = vertices.begin();
+    while(itr != vertices.end()) {
+        Vertex* vertex = *itr;
+        if(verticesToDelete.find(vertex) != verticesToDelete.end()) {
+            itr = vertices.erase(itr);
+            delta += 1;
+        } else {
+            vertex->index -= delta;
+            itr ++;
+        }
+    }
 }

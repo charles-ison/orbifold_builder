@@ -361,7 +361,7 @@ void ResultsWidget::deleteSurface(Vertex* vertexToDelete) {
     boundariesOverlapping = false;
     boundariesReversed = false;
     selectedPoints.clear();
-    deletedVertices.insert(verticesToDeleteSet.begin(), verticesToDeleteSet.end());
+    mesh->deleteVerticesReferences(verticesToDeleteSet);
     mesh->deleteVertices(verticesToDeleteSet);
     geometryEngine->initMesh(mesh);
     geometryEngine->initPoints(selectedPoints);
@@ -396,14 +396,12 @@ Vertex* ResultsWidget::getVertexFromMouseEvent(QMouseEvent *e) {
     float y = -(e->position().y() - (height()/2.0)) / (height()/2.0);
 
     for (Vertex* vertex : vertices) {
-        if (deletedVertices.find(vertex) == deletedVertices.end()) {
-            QVector3D surfacePosition = mvp_matrix.map(vertex->position);
-            float xyDistance = sqrt(pow(x - surfacePosition.x(), 2) + pow(y - surfacePosition.y(), 2));
-            if (xyDistance < xyThreshold && surfacePosition.z() < smallestZDistance) {
-                smallestZDistance = surfacePosition.z();
-                closestVertex = vertex;
-                surfaceVertexFound = true;
-            }
+        QVector3D surfacePosition = mvp_matrix.map(vertex->position);
+        float xyDistance = sqrt(pow(x - surfacePosition.x(), 2) + pow(y - surfacePosition.y(), 2));
+        if (xyDistance < xyThreshold && surfacePosition.z() < smallestZDistance) {
+            smallestZDistance = surfacePosition.z();
+            closestVertex = vertex;
+            surfaceVertexFound = true;
         }
     }
     if (surfaceVertexFound) {
@@ -686,7 +684,7 @@ std::vector<Vertex*> ResultsWidget::connectFirstAndLastVertices(std::vector<Vert
             }
         }
     }
-    deletedVertices.insert(lastVertex);
+    mesh->deleteVertices({lastVertex});
     boundary.pop_back();
     return boundary;
 }
@@ -703,7 +701,7 @@ std::vector<Vertex*> ResultsWidget::connectMiddleVertices(std::vector<Vertex*> b
             }
         }
     }
-    deletedVertices.insert(nextMiddleVertex);
+    mesh->deleteVertices({nextMiddleVertex});
     boundary.erase(midItr + 1);
     return boundary;
 }
@@ -711,6 +709,7 @@ std::vector<Vertex*> ResultsWidget::connectMiddleVertices(std::vector<Vertex*> b
 void ResultsWidget::connectVertices() {
     std::vector<Vertex*> smallerBoundaryVertices;
     std::vector<Vertex*> largerBoundaryVertices;
+    std::unordered_set<Vertex*> verticesToDelete;
 
     if (boundaryVertices1.size() > boundaryVertices2.size()) {
         largerBoundaryVertices = boundaryVertices1;
@@ -739,7 +738,7 @@ void ResultsWidget::connectVertices() {
                     if (triangle->vertices[k] == largerBoundaryVertex) {
                         triangle->vertices[k] = smallerBoundaryVertex;
                         smallerBoundaryVertex->triangles.insert(triangle);
-                        deletedVertices.insert(largerBoundaryVertex);
+                        verticesToDelete.insert(largerBoundaryVertex);
                     }
                 }
             }
@@ -751,6 +750,8 @@ void ResultsWidget::connectVertices() {
     if (boundariesReversed && !isBoundary1Loop && !isBoundary2Loop && !boundariesAreCombinedLoop && numOpenings == 1) {
         connectFirstAndLastVertices(smallerBoundaryVertices);
     }
+
+    mesh->deleteVertices(verticesToDelete);
 }
 
 void ResultsWidget::reverseBoundaries() {
