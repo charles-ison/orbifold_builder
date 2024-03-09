@@ -571,7 +571,6 @@ void ResultsWidget::initializeGL() {
     boundary2DisplaySize = 0;
     numSmoothingSteps = 0;
     numSmoothingStepsSoFar = 0;
-    xyThreshold = xyThresholdDrag;
     drawingColor = Qt::white;
 
     // Use QBasicTimer because it's faster than QTimer
@@ -647,11 +646,6 @@ void ResultsWidget::setDrawingColor(QColor newColor) {
 
 void ResultsWidget::setDrawingMode(DrawingMode newDrawingMode) {
     drawingMode = newDrawingMode;
-    if (drawingMode == DrawingMode::drag) {
-        xyThreshold = xyThresholdDrag;
-    } else {
-        xyThreshold = xyThresholdClick;
-    }
 }
 
 void ResultsWidget::glue() {

@@ -104,9 +104,7 @@ private:
     int boundary2DisplaySize;
     int numSmoothingSteps;
     int numSmoothingStepsSoFar;
-    float xyThreshold;
-    const float xyThresholdClick = 0.03;
-    const float xyThresholdDrag = 0.015;
+    const float xyThreshold = 0.03;
 };
 
 #endif
