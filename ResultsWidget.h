@@ -78,7 +78,7 @@ private:
     QOpenGLShaderProgram program;
     GeometryEngine *geometryEngine = nullptr;
     QMatrix4x4 projection;
-    QMatrix4x4 mvp_matrix;
+    QMatrix4x4 mvpMatrix;
     QVector3D rotationAxis;
     qreal angularSpeed = 0;
     QQuaternion rotation;

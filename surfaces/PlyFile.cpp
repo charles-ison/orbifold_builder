@@ -52,7 +52,7 @@ PlyFile::PlyFile(QString fileName, QVector3D centerPosition, QVector3D scale) {
         plyFile >> plyFileToken;
         int index2 = stoi(plyFileToken);
 
-        triangles.push_back({{&vertices[index0],  &vertices[index1],  &vertices[index2]}});
+        triangles.push_back({{&vertices[index2],  &vertices[index1],  &vertices[index0]}});
     }
     plyFile.close();
     initNeighborsAndNormals();

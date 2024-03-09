@@ -2,7 +2,6 @@
 #include <QMouseEvent>
 #include <QtWidgets>
 #include <cmath>
-#include <limits>
 #include <queue>
 #include <unordered_set>
 #include <tuple>
@@ -376,10 +375,9 @@ void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
 
     Vertex *vertex = getVertexFromMouseEvent(e);
     if (vertex == nullptr) {
-        if (drawingMode==DrawingMode::drag) {
-            drawnVertices.clear();
-        }
-    } else if (drawnVertices.size() == 0 || vertex != drawnVertices.back()) {
+        drawnVertices.clear();
+    }
+    else if (drawnVertices.size() == 0 || vertex != drawnVertices.back()) {
         addDrawnVertices(vertex);
     }
 
@@ -388,27 +386,38 @@ void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
 }
 
 Vertex* ResultsWidget::getVertexFromMouseEvent(QMouseEvent *e) {
-    Vertex *closestVertex = new Vertex;
-    bool surfaceVertexFound = false;
-    float smallestZDistance = std::numeric_limits<float>::max();
-    std::vector<Vertex*> vertices = mesh->getVertices();
+    bool vertexFound = false;
     float x = (e->position().x() - (width()/2.0)) / (width()/2.0);
     float y = -(e->position().y() - (height()/2.0)) / (height()/2.0);
+    std::vector<Vertex*> vertices = mesh->getVertices();
+    std::priority_queue<std::tuple<float, float, Vertex*>, std::vector<std::tuple<float, float, Vertex*>>, std::greater<std::tuple<float, float, Vertex*>>> candidateVertices;
+    float zDistanceSum = 0.0;
+    std::vector<float> zDistances;
 
     for (Vertex* vertex : vertices) {
-        QVector3D surfacePosition = mvp_matrix.map(vertex->position);
-        float xyDistance = sqrt(pow(x - surfacePosition.x(), 2) + pow(y - surfacePosition.y(), 2));
-        if (xyDistance < xyThreshold && surfacePosition.z() < smallestZDistance) {
-            smallestZDistance = surfacePosition.z();
-            closestVertex = vertex;
-            surfaceVertexFound = true;
+        QVector3D rotatedVertexPosition = mvpMatrix.map(vertex->position);
+        QVector3D rotatedVertexNormal = rotation.rotatedVector(vertex->normal);
+        float xyDistance = sqrt(pow(x - rotatedVertexPosition.x(), 2) + pow(y - rotatedVertexPosition.y(), 2));
+        if (xyDistance < xyThreshold && rotatedVertexNormal.z() > 0) {
+            float zDistance = vertex->position.z();
+            zDistances.push_back(zDistance);
+            zDistanceSum += zDistance;
+            candidateVertices.push({xyDistance, zDistance, vertex});
+            vertexFound = true;
         }
     }
-    if (surfaceVertexFound) {
-        return closestVertex;
-    } else {
-        return nullptr;
+    if (vertexFound) {
+        std::sort(zDistances.begin(), zDistances.end());
+        float thirdQuartileZDistance = zDistances[(3.0/4.0) * zDistances.size()];
+        while (!candidateVertices.empty()) {
+            std::tuple<float, float, Vertex *> candidateVertex = candidateVertices.top();
+            candidateVertices.pop();
+            if (std::get<1>(candidateVertex) >= thirdQuartileZDistance) {
+                return std::get<2>(candidateVertex);
+            }
+        }
     }
+    return nullptr;
 }
 
 void ResultsWidget::addDrawnVertices(Vertex *newVertex) {
@@ -621,7 +630,7 @@ void ResultsWidget::paintGL() {
         QMatrix4x4 matrix;
         matrix.translate(0.0, 0.0, -5.0);
         matrix.rotate(rotation);
-        mvp_matrix = projection * matrix;
+        mvpMatrix = projection * matrix;
 
         // Set modelview-projection matrix
         program.setUniformValue("mvp_matrix", projection * matrix);
