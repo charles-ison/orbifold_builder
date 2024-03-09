@@ -391,7 +391,6 @@ Vertex* ResultsWidget::getVertexFromMouseEvent(QMouseEvent *e) {
     float y = -(e->position().y() - (height()/2.0)) / (height()/2.0);
     std::vector<Vertex*> vertices = mesh->getVertices();
     std::priority_queue<std::tuple<float, float, Vertex*>, std::vector<std::tuple<float, float, Vertex*>>, std::greater<std::tuple<float, float, Vertex*>>> candidateVertices;
-    float zDistanceSum = 0.0;
     std::vector<float> zDistances;
 
     for (Vertex* vertex : vertices) {
@@ -401,18 +400,17 @@ Vertex* ResultsWidget::getVertexFromMouseEvent(QMouseEvent *e) {
         if (xyDistance < xyThreshold && rotatedVertexNormal.z() > 0) {
             float zDistance = vertex->position.z();
             zDistances.push_back(zDistance);
-            zDistanceSum += zDistance;
             candidateVertices.push({xyDistance, zDistance, vertex});
             vertexFound = true;
         }
     }
     if (vertexFound) {
         std::sort(zDistances.begin(), zDistances.end());
-        float thirdQuartileZDistance = zDistances[(3.0/4.0) * zDistances.size()];
+        float zDistanceThreshold = zDistances[(9.0/10.0) * zDistances.size()];
         while (!candidateVertices.empty()) {
             std::tuple<float, float, Vertex *> candidateVertex = candidateVertices.top();
             candidateVertices.pop();
-            if (std::get<1>(candidateVertex) >= thirdQuartileZDistance) {
+            if (std::get<1>(candidateVertex) >= zDistanceThreshold) {
                 return std::get<2>(candidateVertex);
             }
         }
