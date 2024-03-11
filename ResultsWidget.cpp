@@ -95,11 +95,10 @@ void ResultsWidget::mousePressEvent(QMouseEvent *e) {
     if (findVertexToDelete || findVertexToSmooth) {
         Vertex *vertex = getVertexFromMouseEvent(e);
         setSelectedPoints(vertex);
-    }
-    else {
+    } else {
         if (drawingMode == DrawingMode::click) {
             mouseMoveEvent(e);
-        } else {
+        } else if (drawingMode == DrawingMode::drag) {
             drawnVertices.clear();
         }
         isDrawingEnabled = true;
@@ -374,14 +373,21 @@ void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
     }
 
     Vertex *vertex = getVertexFromMouseEvent(e);
+
+    if (drawingMode == DrawingMode::click && drawnVertices.empty()) {
+        setSelectedPoints(vertex);
+    } else {
+        selectedPoints.clear();
+    }
+
     if (vertex == nullptr) {
         drawnVertices.clear();
-    }
-    else if (drawnVertices.size() == 0 || vertex != drawnVertices.back()) {
+    } else if (drawnVertices.empty() || vertex != drawnVertices.back()) {
         addDrawnVertices(vertex);
     }
 
     geometryEngine->initLine(drawnVertices, drawingColor);
+    geometryEngine->initPoints(selectedPoints);
     update();
 }
 
@@ -429,8 +435,7 @@ void ResultsWidget::addDrawnVertices(Vertex *newVertex) {
     for (int i = newVertices.size() - 1; i > -1; i--) {
         if (drawnVertices.size() > 2 && newVertices[i] == drawnVertices[drawnVertices.size()-2]) {
             drawnVertices.pop_back();
-        }
-        else {
+        } else {
             bool loopFound = drawnVerticesContainLoop(newVertices[i]);
             drawnVertices.push_back(newVertices[i]);
             if (loopFound) {
