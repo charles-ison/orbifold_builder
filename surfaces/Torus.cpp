@@ -3,7 +3,6 @@
 Torus::Torus(QVector3D centerPosition, QVector3D scale) {
     initVertices(centerPosition, scale);
     initTriangles();
-    initNeighborsAndNormals();
 }
 
 void Torus::initVertices(QVector3D centerPosition, QVector3D scale) {

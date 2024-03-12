@@ -3,7 +3,6 @@
 Cube::Cube(QVector3D centerPosition, QVector3D scale) {
     initVertices(centerPosition, scale);
     initTriangles();
-    initNeighborsAndNormals();
 }
 
 void Cube::initVertices(QVector3D centerPosition, QVector3D scale) {

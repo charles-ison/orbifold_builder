@@ -16,6 +16,8 @@ public:
     void deleteVerticesReferences(std::unordered_set<Vertex*> verticesToDelete);
     void deleteVertices(std::unordered_set<Vertex*> verticesToDelete);
     void deleteOutdatedTriangles();
+    void updateVertexNeighbors();
+    void updateNormals();
 
 private:
     void deleteTriangleReferences(Triangle* triangle);

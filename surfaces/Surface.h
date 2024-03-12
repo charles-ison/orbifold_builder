@@ -12,9 +12,6 @@ public:
     virtual int getNumVertices() = 0;
     virtual int getNumTriangles() = 0;
 
-protected:
-    void initNeighborsAndNormals();
-
 private:
     virtual void initVertices(QVector3D centerPosition, QVector3D scale) = 0;
     virtual void initTriangles() = 0;

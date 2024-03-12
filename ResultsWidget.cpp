@@ -286,6 +286,7 @@ void ResultsWidget::cutSurface() {
 
     numOpenings += 1;
     drawnVertices.clear();
+    mesh->updateNormals();
     boundariesAreCombinedLoop = false;
     geometryEngine->initLine(drawnVertices, drawingColor);
     geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed, boundariesOverlapping, numOpenings);
@@ -676,6 +677,7 @@ void ResultsWidget::glue() {
     boundariesAreCombinedLoop = false;
     boundariesOverlapping = false;
 
+    mesh->updateNormals();
     geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2,boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed, boundariesOverlapping, numOpenings);
     geometryEngine->initMesh(mesh);
     update();
@@ -865,6 +867,7 @@ void ResultsWidget::smooth() {
         verticesToSmooth[j]->position = newPositions[j];
     }
 
+    mesh->updateNormals();
     geometryEngine->initMesh(mesh);
     geometryEngine->initLine(drawnVertices, drawingColor);
     geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed, boundariesOverlapping, numOpenings);

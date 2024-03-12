@@ -4,7 +4,6 @@
 CrossCap::CrossCap(QVector3D centerPosition, QVector3D scale) {
     initVertices(centerPosition, scale);
     initTriangles();
-    initNeighborsAndNormals();
 }
 
 void CrossCap::initVertices(QVector3D centerPosition, QVector3D scale) {
