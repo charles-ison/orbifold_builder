@@ -15,6 +15,7 @@ public:
     void addVertex(Vertex *vertexToAdd);
     void deleteVerticesReferences(std::unordered_set<Vertex*> verticesToDelete);
     void deleteVertices(std::unordered_set<Vertex*> verticesToDelete);
+    void deleteOutdatedTriangles();
 
 private:
     void deleteTriangleReferences(Triangle* triangle);

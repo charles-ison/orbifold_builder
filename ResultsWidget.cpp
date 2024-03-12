@@ -690,8 +690,8 @@ std::vector<Vertex*> ResultsWidget::connectFirstAndLastVertices(std::vector<Vert
             }
         }
     }
-    mesh->deleteVertices({lastVertex});
     boundary.pop_back();
+    mesh->deleteVertices({lastVertex});
     return boundary;
 }
 
@@ -707,8 +707,8 @@ std::vector<Vertex*> ResultsWidget::connectMiddleVertices(std::vector<Vertex*> b
             }
         }
     }
-    mesh->deleteVertices({nextMiddleVertex});
     boundary.erase(midItr + 1);
+    mesh->deleteVertices({nextMiddleVertex});
     return boundary;
 }
 
@@ -758,6 +758,7 @@ void ResultsWidget::connectVertices() {
     }
 
     mesh->deleteVertices(verticesToDelete);
+    mesh->deleteOutdatedTriangles();
 }
 
 void ResultsWidget::reverseBoundaries() {

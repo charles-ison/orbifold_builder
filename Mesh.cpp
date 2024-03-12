@@ -74,3 +74,20 @@ void Mesh::deleteVertices(std::unordered_set<Vertex*> verticesToDelete) {
         }
     }
 }
+
+void Mesh::deleteOutdatedTriangles() {
+    std::vector<Triangle*> newTriangles;
+    for (Triangle* triangle : triangles) {
+        Vertex* vertex1 = triangle->vertices[0];
+        Vertex* vertex2 = triangle->vertices[1];
+        Vertex* vertex3 = triangle->vertices[2];
+        std::set<Vertex*> triangleVertices = {vertex1, vertex2, vertex3};
+
+        if (triangleVertices.size() != 3) {
+            deleteTriangleReferences(triangle);
+        } else {
+            newTriangles.push_back(triangle);
+        }
+    }
+    triangles = newTriangles;
+}
