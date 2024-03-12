@@ -108,11 +108,11 @@ void ResultsWidget::mousePressEvent(QMouseEvent *e) {
 void ResultsWidget::setSelectedPoints(Vertex *vertex) {
     if (vertex != nullptr) {
         selectedPoints = {vertex};
-        geometryEngine->initPoints(selectedPoints);
-        update();
     } else {
         selectedPoints.clear();
     }
+    geometryEngine->initPoints(selectedPoints);
+    update();
 }
 
 bool ResultsWidget::triangleContainsVertex(Vertex *vertex, Triangle *triangle) {
@@ -373,21 +373,20 @@ void ResultsWidget::mouseMoveEvent(QMouseEvent *e) {
     }
 
     Vertex *vertex = getVertexFromMouseEvent(e);
-
-    if (drawingMode == DrawingMode::click && drawnVertices.empty()) {
-        setSelectedPoints(vertex);
-    } else {
-        selectedPoints.clear();
-    }
-
     if (vertex == nullptr) {
         drawnVertices.clear();
     } else if (drawnVertices.empty() || vertex != drawnVertices.back()) {
         addDrawnVertices(vertex);
     }
 
+    if (drawingMode == DrawingMode::click && drawnVertices.size() == 1) {
+        setSelectedPoints(vertex);
+    } else {
+        selectedPoints.clear();
+        geometryEngine->initPoints(selectedPoints);
+    }
+
     geometryEngine->initLine(drawnVertices, drawingColor);
-    geometryEngine->initPoints(selectedPoints);
     update();
 }
 
@@ -651,6 +650,9 @@ void ResultsWidget::setDrawingColor(QColor newColor) {
 
 void ResultsWidget::setDrawingMode(DrawingMode newDrawingMode) {
     drawingMode = newDrawingMode;
+    drawnVertices.clear();
+    geometryEngine->initLine(drawnVertices, drawingColor);
+    update();
 }
 
 void ResultsWidget::glue() {
