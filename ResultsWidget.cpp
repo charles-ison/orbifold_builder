@@ -836,37 +836,49 @@ void ResultsWidget::toggleSmoothSurface() {
     for (Vertex* vertex : vertices) {
         //float neighborDistanceSum = 0.0;
         std::unordered_set<Vertex *> visitedNeighbors;
-        for (Triangle *triangle : vertex->triangles) {
-            for (Vertex *neighbor : triangle->vertices) {
-                if (neighbor != vertex && visitedNeighbors.find(neighbor) == visitedNeighbors.end()) {
+        std::vector<Vertex *> neighbors;
+        for (Triangle *triangle: vertex->triangles) {
+            for (Vertex *neighbor: triangle->vertices) {
+                if (visitedNeighbors.find(neighbor) == visitedNeighbors.end()) {
                     //neighborDistanceSum += euclideanDistance(vertex, neighbor);
                     visitedNeighbors.insert(neighbor);
+                    neighbors.push_back(neighbor);
                 }
             }
         }
 
-        int numNeighbors = visitedNeighbors.size() + 1;
-        visitedNeighbors.clear();
-        for (Triangle* triangle : vertex->triangles) {
-            for (Vertex* neighbor : triangle->vertices) {
-                if (visitedNeighbors.find(neighbor) == visitedNeighbors.end()) {
-                    if (vertex == neighbor) {
-                        matrixA->vals.push_back(1.0 - stepSize*numNeighbors);
-                    } else {
-                        matrixA->vals.push_back(-stepSize);
-                    }
-                    visitedNeighbors.insert(neighbor);
-                    matrixA->rowIndices.push_back(neighbor->index);
-                    if (matrixA->vals.size()-1 <= matrixA->colFirstIndices[vertex->index]) {
-                        matrixA->colFirstIndices[vertex->index] = matrixA->vals.size()-1;
-                    }
-                }
+        std::sort(neighbors.begin(), neighbors.end());
+        for (Vertex *neighbor: neighbors) {
+            if (vertex == neighbor) {
+                matrixA->vals.push_back(1.0 - stepSize * (neighbors.size()-1));
+            } else {
+                matrixA->vals.push_back(stepSize);
+            }
+            visitedNeighbors.insert(neighbor);
+            matrixA->rowIndices.push_back(neighbor->index);
+            if (matrixA->vals.size() - 1 <= matrixA->colFirstIndices[vertex->index]) {
+                matrixA->colFirstIndices[vertex->index] = matrixA->vals.size() - 1;
             }
         }
     }
-    std::vector<double> newXPositions = biconjugateGradientMethod(matrixA, bX, 0.01, 5);
-    std::vector<double> newYPositions = biconjugateGradientMethod(matrixA, bY, 0.01, 5);
-    std::vector<double> newZPositions = biconjugateGradientMethod(matrixA, bZ, 0.01, 5);
+
+    /*
+    for (int rowIndex : matrixA->rowIndices) {
+        std::cout << "rowIndex: " << rowIndex << std::endl;
+    }
+
+    for (double val : matrixA->vals) {
+        std::cout << "val: " << val << std::endl;
+    }
+
+    for (int colFirstIndex : matrixA->colFirstIndices) {
+        std::cout << "colFirstIndex: " << colFirstIndex << std::endl;
+    }
+     */
+
+    std::vector<double> newXPositions = biconjugateGradientMethod(matrixA, bX, 0.001, 1);
+    std::vector<double> newYPositions = biconjugateGradientMethod(matrixA, bY, 0.001, 1);
+    std::vector<double> newZPositions = biconjugateGradientMethod(matrixA, bZ, 0.001, 1);
     for (int i=0; i<vertices.size(); i++) {
         vertices[i]->position = {(float) newXPositions[i], (float) newYPositions[i], (float) newZPositions[i]};
     }
