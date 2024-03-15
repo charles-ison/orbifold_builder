@@ -5,6 +5,7 @@
 #include <queue>
 #include <unordered_set>
 #include <tuple>
+#include <iostream>
 
 ResultsWidget::~ResultsWidget() {
     // Make sure the context is current when deleting the buffers.
@@ -800,7 +801,7 @@ void ResultsWidget::findVerticesToSmooth(Vertex *vertexToSmooth) {
     }
 }
 
-void ResultsWidget::toggleSmoothSurface() {
+void ResultsWidget::toggleExplicitSmoothSurface() {
     if (!findVertexToSmooth) {
         isDrawingEnabled = false;
         verticesToSmooth.clear();
@@ -816,6 +817,64 @@ void ResultsWidget::toggleSmoothSurface() {
     }
 
     findVertexToSmooth = !findVertexToSmooth;
+    update();
+}
+
+void ResultsWidget::toggleSmoothSurface() {
+    float stepSize = 0.0001;
+    std::vector<Vertex*> vertices = mesh->getVertices();
+    int numVertices = vertices.size();
+
+    std::vector<double> bX, bY, bZ;
+    for (Vertex* vertex : vertices) {
+        bX.push_back(vertex->position.x());
+        bY.push_back(vertex->position.y());
+        bZ.push_back(vertex->position.z());
+    }
+
+    SparseMat* matrixA = new SparseMat(numVertices, numVertices, 0);
+    for (Vertex* vertex : vertices) {
+        //float neighborDistanceSum = 0.0;
+        std::unordered_set<Vertex *> visitedNeighbors;
+        for (Triangle *triangle : vertex->triangles) {
+            for (Vertex *neighbor : triangle->vertices) {
+                if (neighbor != vertex && visitedNeighbors.find(neighbor) == visitedNeighbors.end()) {
+                    //neighborDistanceSum += euclideanDistance(vertex, neighbor);
+                    visitedNeighbors.insert(neighbor);
+                }
+            }
+        }
+
+        int numNeighbors = visitedNeighbors.size() + 1;
+        visitedNeighbors.clear();
+        for (Triangle* triangle : vertex->triangles) {
+            for (Vertex* neighbor : triangle->vertices) {
+                if (visitedNeighbors.find(neighbor) == visitedNeighbors.end()) {
+                    if (vertex == neighbor) {
+                        matrixA->vals.push_back(1.0 - stepSize*numNeighbors);
+                    } else {
+                        matrixA->vals.push_back(-stepSize);
+                    }
+                    visitedNeighbors.insert(neighbor);
+                    matrixA->rowIndices.push_back(neighbor->index);
+                    if (matrixA->vals.size()-1 <= matrixA->colFirstIndices[vertex->index]) {
+                        matrixA->colFirstIndices[vertex->index] = matrixA->vals.size()-1;
+                    }
+                }
+            }
+        }
+    }
+    std::vector<double> newXPositions = biconjugateGradientMethod(matrixA, bX, 0.01, 5);
+    std::vector<double> newYPositions = biconjugateGradientMethod(matrixA, bY, 0.01, 5);
+    std::vector<double> newZPositions = biconjugateGradientMethod(matrixA, bZ, 0.01, 5);
+    for (int i=0; i<vertices.size(); i++) {
+        vertices[i]->position = {(float) newXPositions[i], (float) newYPositions[i], (float) newZPositions[i]};
+    }
+
+    mesh->updateNormals();
+    geometryEngine->initMesh(mesh);
+    geometryEngine->initLine(drawnVertices, drawingColor);
+    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed, boundariesOverlapping, numOpenings);
     update();
 }
 
@@ -924,4 +983,124 @@ void ResultsWidget::reset() {
     geometryEngine->initLine(drawnVertices, drawingColor);
     geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed, boundariesOverlapping, numOpenings);
     update();
+}
+
+std::vector<double> ResultsWidget::matrixMultiplication(SparseMat* matrixA, std::vector<double> x, int multiplicationType) {
+    std::vector<double> r;
+    if (multiplicationType) {
+        r=matrixA->multiply(x);
+    } else {
+        r=matrixA->multiplyInverse(x);
+    }
+    return r;
+}
+
+std::vector<double> ResultsWidget::solveEquation(SparseMat* matrixA, std::vector<double> b) {
+    double diag;
+    int size = b.size();
+    std::vector<double> x;
+    for (int i=0; i<size; i++) {
+        diag = 0.0;
+        for (int j=matrixA->colFirstIndices[i]; j<matrixA->colFirstIndices[i+1]; j++) {
+            if (matrixA->rowIndices[j] == i) {
+                diag = matrixA->vals[j];
+                break;
+            }
+            if (diag != 0.0) {
+                x.push_back(b[i]/diag);
+            } else {
+                x.push_back(b[i]);
+            }
+        }
+    }
+    return x;
+}
+
+double ResultsWidget::findLargestComponent(std::vector<double> b) {
+    double largestIndex = 0;
+    for (int i=0; i<b.size(); i++) {
+        if (abs(b[i]) > abs(b[largestIndex])) {
+            largestIndex = i;
+        }
+    }
+    return abs(b[largestIndex]);
+}
+
+std::vector<double> ResultsWidget::biconjugateGradientMethod(SparseMat* matrixA, std::vector<double> b, double tolerance, int maxIters) {
+    int size = b.size();
+    int iter = 0;
+    double error = 0.0;
+    double ak = 0.0;
+    double akDen = 1.0;
+    double bk = 0.0;
+    double bkDen = 1.0;
+    double bkNum = 0.0;
+    std::vector<double> x;
+    std::vector<double> p(size);
+    std::vector<double> pp(size);
+    std::vector<double> r(size);
+    std::vector<double> rr(size);
+    std::vector<double> z(size);
+    std::vector<double> zz(size);
+
+
+    for (int i=0; i<size; i++) {
+        x.push_back(0.0);
+    }
+    r = matrixMultiplication(matrixA, x, 0);
+
+    for (int i=0; i<size; i++) {
+        r[i]=b[i]-r[i];
+        rr[i]=r[i];
+    }
+
+    double largestComponent = findLargestComponent(b);
+    z = solveEquation(matrixA, b);
+
+    while (iter < maxIters) {
+        iter++;
+
+        // Should a be transposed here?
+        zz = solveEquation(matrixA, rr);
+
+        bkNum = 0.0;
+        for (int i=0; i<size; i++) {
+            bkNum += z[i]*rr[i];
+        }
+
+        if (iter == 1) {
+            for (int i=0; i<size; i++) {
+                p[i] = z[i];
+                pp[i] = z[i];
+            }
+        } else {
+            bk = bkNum/bkDen;
+            for (int i=0; i<size; i++) {
+                p[i] = bk * p[i] + z[i];
+                pp[i] = bk * pp[i] + zz[i];
+            }
+        }
+
+        bkDen = bkNum;
+        z = matrixMultiplication(matrixA, p, 0);
+
+        akDen = 0.0;
+        for (int i = 0; i<size; i++) {
+            akDen += z[i]*pp[i];
+        }
+        ak = bkNum/akDen;
+        zz = matrixMultiplication(matrixA, pp, 1);
+
+        for (int i=0; i<size; i++) {
+            x[i] += ak*p[i];
+            r[i] -= ak*z[i];
+            rr[i] -= ak*zz[i];
+        }
+        z = solveEquation(matrixA, r);
+        error = findLargestComponent(r)/largestComponent;
+        if (error <= tolerance) {
+            break;
+        }
+    }
+    return x;
 }

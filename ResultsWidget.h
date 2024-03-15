@@ -17,11 +17,11 @@
 #include "surfaces/CrossCap.h"
 #include "surfaces/PlyFile.h"
 #include "Mesh.h"
+#include "SparseMat.h"
 
 class GeometryEngine;
 
 class ResultsWidget : public QOpenGLWidget, protected QOpenGLFunctions {
-
     Q_OBJECT
 
 public:
@@ -51,6 +51,7 @@ protected:
     void initShaders();
 
 private:
+    void toggleExplicitSmoothSurface();
     void deleteSurface(Vertex *vertexToDelete);
     void addDrawnVertices(Vertex *newVertex);
     std::tuple<float, std::vector<Vertex*>> getVerticesPathAndDistance(Vertex *startVertex, Vertex *endVertex);
@@ -65,6 +66,10 @@ private:
     void setSelectedPoints(Vertex *vertex);
     std::vector<Vertex*> connectFirstAndLastVertices(std::vector<Vertex*> boundary);
     std::vector<Vertex*> connectMiddleVertices(std::vector<Vertex*> boundary);
+    std::vector<double> biconjugateGradientMethod(SparseMat* matrixA, std::vector<double> b, double tolerance, int maxIters);
+    std::vector<double> matrixMultiplication(SparseMat* matrixA, std::vector<double>x, int multiplicationType);
+    double findLargestComponent(std::vector<double> b);
+    std::vector<double> solveEquation(SparseMat* matrixA, std::vector<double> b);
 
     Mesh* mesh;
     Cube* cubeSurface;
