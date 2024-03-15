@@ -821,7 +821,7 @@ void ResultsWidget::toggleExplicitSmoothSurface() {
 }
 
 void ResultsWidget::toggleSmoothSurface() {
-    float stepSize = 0.0001;
+    float stepSize = 0.001;
     std::vector<Vertex*> vertices = mesh->getVertices();
     int numVertices = vertices.size();
 
@@ -862,24 +862,20 @@ void ResultsWidget::toggleSmoothSurface() {
         }
     }
 
-    /*
-    for (int rowIndex : matrixA->rowIndices) {
-        std::cout << "rowIndex: " << rowIndex << std::endl;
-    }
-
-    for (double val : matrixA->vals) {
-        std::cout << "val: " << val << std::endl;
-    }
-
-    for (int colFirstIndex : matrixA->colFirstIndices) {
-        std::cout << "colFirstIndex: " << colFirstIndex << std::endl;
-    }
-     */
-
+    matrixA->colFirstIndices[matrixA->colFirstIndices.size()-1] = matrixA->vals.size();
     std::vector<double> newXPositions = biconjugateGradientMethod(matrixA, bX, 0.001, 1);
     std::vector<double> newYPositions = biconjugateGradientMethod(matrixA, bY, 0.001, 1);
     std::vector<double> newZPositions = biconjugateGradientMethod(matrixA, bZ, 0.001, 1);
+
     for (int i=0; i<vertices.size(); i++) {
+        /*
+        std::cout << "vertex before: " << std::endl;
+        std::cout << vertices[i]->position.x() << ", " << vertices[i]->position.y() << ", " << vertices[i]->position.z() << std::endl;
+
+        std::cout << "vertex after: " << std::endl;
+        std::cout << newXPositions[i] << ", " << newYPositions[i] << ", " << newZPositions[i] << std::endl;
+         */
+
         vertices[i]->position = {(float) newXPositions[i], (float) newYPositions[i], (float) newZPositions[i]};
     }
 
@@ -997,16 +993,6 @@ void ResultsWidget::reset() {
     update();
 }
 
-std::vector<double> ResultsWidget::matrixMultiplication(SparseMat* matrixA, std::vector<double> x, int multiplicationType) {
-    std::vector<double> r;
-    if (multiplicationType) {
-        r=matrixA->multiply(x);
-    } else {
-        r=matrixA->multiplyInverse(x);
-    }
-    return r;
-}
-
 std::vector<double> ResultsWidget::solveEquation(SparseMat* matrixA, std::vector<double> b) {
     double diag;
     int size = b.size();
@@ -1018,24 +1004,22 @@ std::vector<double> ResultsWidget::solveEquation(SparseMat* matrixA, std::vector
                 diag = matrixA->vals[j];
                 break;
             }
-            if (diag != 0.0) {
-                x.push_back(b[i]/diag);
-            } else {
-                x.push_back(b[i]);
-            }
+        }
+        if (diag != 0.0) {
+            x.push_back(b[i]/diag);
+        } else {
+            x.push_back(b[i]);
         }
     }
     return x;
 }
 
-double ResultsWidget::findLargestComponent(std::vector<double> b) {
-    double largestIndex = 0;
+double ResultsWidget::computeNorm(std::vector<double> b) {
+    double sum = 0.0;
     for (int i=0; i<b.size(); i++) {
-        if (abs(b[i]) > abs(b[largestIndex])) {
-            largestIndex = i;
-        }
+        sum += sqrt(b[i]);
     }
-    return abs(b[largestIndex]);
+    return sqrt(sum);
 }
 
 std::vector<double> ResultsWidget::biconjugateGradientMethod(SparseMat* matrixA, std::vector<double> b, double tolerance, int maxIters) {
@@ -1047,7 +1031,6 @@ std::vector<double> ResultsWidget::biconjugateGradientMethod(SparseMat* matrixA,
     double bk = 0.0;
     double bkDen = 1.0;
     double bkNum = 0.0;
-    std::vector<double> x;
     std::vector<double> p(size);
     std::vector<double> pp(size);
     std::vector<double> r(size);
@@ -1055,24 +1038,24 @@ std::vector<double> ResultsWidget::biconjugateGradientMethod(SparseMat* matrixA,
     std::vector<double> z(size);
     std::vector<double> zz(size);
 
-
+    std::vector<double> x;
     for (int i=0; i<size; i++) {
         x.push_back(0.0);
     }
-    r = matrixMultiplication(matrixA, x, 0);
+    r = matrixA->multiply(x);
 
     for (int i=0; i<size; i++) {
         r[i]=b[i]-r[i];
         rr[i]=r[i];
     }
 
-    double largestComponent = findLargestComponent(b);
-    z = solveEquation(matrixA, b);
+    double bNorm = computeNorm(b);
+    z = solveEquation(matrixA, r);
 
     while (iter < maxIters) {
         iter++;
 
-        // Should a be transposed here?
+        // Technically matrixA should be transposed here
         zz = solveEquation(matrixA, rr);
 
         bkNum = 0.0;
@@ -1094,14 +1077,15 @@ std::vector<double> ResultsWidget::biconjugateGradientMethod(SparseMat* matrixA,
         }
 
         bkDen = bkNum;
-        z = matrixMultiplication(matrixA, p, 0);
+        z = matrixA->multiply(p);
 
         akDen = 0.0;
         for (int i = 0; i<size; i++) {
             akDen += z[i]*pp[i];
         }
+
         ak = bkNum/akDen;
-        zz = matrixMultiplication(matrixA, pp, 1);
+        zz = matrixA->multiplyInverse(pp);
 
         for (int i=0; i<size; i++) {
             x[i] += ak*p[i];
@@ -1109,7 +1093,8 @@ std::vector<double> ResultsWidget::biconjugateGradientMethod(SparseMat* matrixA,
             rr[i] -= ak*zz[i];
         }
         z = solveEquation(matrixA, r);
-        error = findLargestComponent(r)/largestComponent;
+        error = computeNorm(r)/bNorm;
+
         if (error <= tolerance) {
             break;
         }

@@ -26,7 +26,7 @@ struct SparseMat {
         for (int i = 0; i<numCols; i++) {
             colFirstIndices.push_back(INT_MAX);
         }
-        colFirstIndices.push_back(numRows);
+        colFirstIndices.push_back(numVals);
     }
 
     std::vector<double> multiply(std::vector<double> x) {

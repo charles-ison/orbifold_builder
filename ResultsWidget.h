@@ -67,8 +67,7 @@ private:
     std::vector<Vertex*> connectFirstAndLastVertices(std::vector<Vertex*> boundary);
     std::vector<Vertex*> connectMiddleVertices(std::vector<Vertex*> boundary);
     std::vector<double> biconjugateGradientMethod(SparseMat* matrixA, std::vector<double> b, double tolerance, int maxIters);
-    std::vector<double> matrixMultiplication(SparseMat* matrixA, std::vector<double>x, int multiplicationType);
-    double findLargestComponent(std::vector<double> b);
+    double computeNorm(std::vector<double> b);
     std::vector<double> solveEquation(SparseMat* matrixA, std::vector<double> b);
 
     Mesh* mesh;
