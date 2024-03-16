@@ -541,7 +541,7 @@ void ResultsWidget::timerEvent(QTimerEvent *) {
     }
 
     if (shouldPaintGL and numSmoothingStepsSoFar < numSmoothingSteps) {
-        explicitSmooth();
+        implicitSmooth();
         shouldUpdate = true;
         numSmoothingStepsSoFar += 1;
     } else if (numSmoothingStepsSoFar == numSmoothingSteps){
@@ -863,9 +863,9 @@ void ResultsWidget::implicitSmooth() {
     }
 
     matrixA->colFirstIndices[matrixA->colFirstIndices.size()-1] = matrixA->vals.size();
-    std::vector<double> newXPositions = biconjugateGradientMethod(matrixA, bX, 0.1, 5);
-    std::vector<double> newYPositions = biconjugateGradientMethod(matrixA, bY, 0.1, 5);
-    std::vector<double> newZPositions = biconjugateGradientMethod(matrixA, bZ, 0.1, 5);
+    std::vector<double> newXPositions = biconjugateGradientMethod(matrixA, bX, 0.2, 5);
+    std::vector<double> newYPositions = biconjugateGradientMethod(matrixA, bY, 0.2, 5);
+    std::vector<double> newZPositions = biconjugateGradientMethod(matrixA, bZ, 0.2, 5);
 
     for (int i=0; i<vertices.size(); i++) {
         vertices[i]->position = {(float) newXPositions[i], (float) newYPositions[i], (float) newZPositions[i]};
@@ -1025,20 +1025,14 @@ std::vector<double> ResultsWidget::biconjugateGradientMethod(SparseMat* matrixA,
     double bkNum = 0.0;
     std::vector<double> p(size);
     std::vector<double> pp(size);
-    std::vector<double> r(size);
-    std::vector<double> rr(size);
     std::vector<double> z(size);
     std::vector<double> zz(size);
+    std::vector<double> r = b;
+    std::vector<double> rr = b;
 
     std::vector<double> x;
     for (int i=0; i<size; i++) {
         x.push_back(0.0);
-    }
-    r = matrixA->multiply(x);
-
-    for (int i=0; i<size; i++) {
-        r[i]=b[i]-r[i];
-        rr[i]=r[i];
     }
 
     double bNorm = computeNorm(b);
