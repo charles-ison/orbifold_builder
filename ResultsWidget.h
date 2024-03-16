@@ -51,6 +51,7 @@ protected:
     void initShaders();
 
 private:
+    void implicitSmooth();
     void explicitSmooth();
     void deleteSurface(Vertex *vertexToDelete);
     void addDrawnVertices(Vertex *newVertex);
@@ -61,7 +62,6 @@ private:
     bool rotationDirectionAligns(Triangle* triangle, Vertex* vertex1, Vertex* vertex2);
     float euclideanDistance(Vertex* vertex1, Vertex* vertex2);
     void connectVertices();
-    void smooth();
     void findVerticesToSmooth(Vertex *vertexToSmooth);
     void setSelectedPoints(Vertex *vertex);
     std::vector<Vertex*> connectFirstAndLastVertices(std::vector<Vertex*> boundary);
