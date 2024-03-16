@@ -821,7 +821,7 @@ void ResultsWidget::toggleExplicitSmoothSurface() {
 }
 
 void ResultsWidget::toggleSmoothSurface() {
-    float stepSize = 0.001;
+    float stepSize = 0.5;
     std::vector<Vertex*> vertices = mesh->getVertices();
     int numVertices = vertices.size();
 
@@ -850,9 +850,9 @@ void ResultsWidget::toggleSmoothSurface() {
         std::sort(neighbors.begin(), neighbors.end());
         for (Vertex *neighbor: neighbors) {
             if (vertex == neighbor) {
-                matrixA->vals.push_back(1.0 - stepSize * (neighbors.size()-1));
+                matrixA->vals.push_back(1.0 + stepSize * (neighbors.size()-1));
             } else {
-                matrixA->vals.push_back(stepSize);
+                matrixA->vals.push_back(-stepSize);
             }
             visitedNeighbors.insert(neighbor);
             matrixA->rowIndices.push_back(neighbor->index);
@@ -863,9 +863,9 @@ void ResultsWidget::toggleSmoothSurface() {
     }
 
     matrixA->colFirstIndices[matrixA->colFirstIndices.size()-1] = matrixA->vals.size();
-    std::vector<double> newXPositions = biconjugateGradientMethod(matrixA, bX, 0.001, 1);
-    std::vector<double> newYPositions = biconjugateGradientMethod(matrixA, bY, 0.001, 1);
-    std::vector<double> newZPositions = biconjugateGradientMethod(matrixA, bZ, 0.001, 1);
+    std::vector<double> newXPositions = biconjugateGradientMethod(matrixA, bX, 0.001, 10);
+    std::vector<double> newYPositions = biconjugateGradientMethod(matrixA, bY, 0.001, 10);
+    std::vector<double> newZPositions = biconjugateGradientMethod(matrixA, bZ, 0.001, 10);
 
     for (int i=0; i<vertices.size(); i++) {
         /*
@@ -1094,7 +1094,6 @@ std::vector<double> ResultsWidget::biconjugateGradientMethod(SparseMat* matrixA,
         }
         z = solveEquation(matrixA, r);
         error = computeNorm(r)/bNorm;
-
         if (error <= tolerance) {
             break;
         }
