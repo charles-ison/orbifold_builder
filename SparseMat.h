@@ -1,5 +1,3 @@
-#include <iostream>
-
 struct SparseMat {
     int numRows;
     int numCols;

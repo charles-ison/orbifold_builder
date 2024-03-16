@@ -51,7 +51,7 @@ protected:
     void initShaders();
 
 private:
-    void toggleExplicitSmoothSurface();
+    void explicitSmooth();
     void deleteSurface(Vertex *vertexToDelete);
     void addDrawnVertices(Vertex *newVertex);
     std::tuple<float, std::vector<Vertex*>> getVerticesPathAndDistance(Vertex *startVertex, Vertex *endVertex);
