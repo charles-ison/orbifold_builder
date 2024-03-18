@@ -5,6 +5,7 @@
 #include <queue>
 #include <unordered_set>
 #include <tuple>
+#include <iostream>
 
 ResultsWidget::~ResultsWidget() {
     // Make sure the context is current when deleting the buffers.
@@ -34,6 +35,7 @@ void ResultsWidget::addSurface(Surface newSurface) {
     numSmoothingStepsSoFar = 0;
     drawnVertices.clear();
     verticesToSmooth.clear();
+    verticesToSmoothMap.clear();
     boundaryVertices1.clear();
     boundaryVertices2.clear();
     selectedPoints.clear();
@@ -540,7 +542,7 @@ void ResultsWidget::timerEvent(QTimerEvent *) {
     }
 
     if (shouldPaintGL and numSmoothingStepsSoFar < numSmoothingSteps) {
-        explicitSmooth();
+        implicitSmooth();
         shouldUpdate = true;
         numSmoothingStepsSoFar += 1;
     } else if (numSmoothingStepsSoFar == numSmoothingSteps){
@@ -806,6 +808,7 @@ void ResultsWidget::toggleSmoothSurface() {
     if (!findVertexToSmooth) {
         isDrawingEnabled = false;
         verticesToSmooth.clear();
+        verticesToSmoothMap.clear();
     } else {
         if (!selectedPoints.empty()) {
             findVerticesToSmooth(selectedPoints.front());
@@ -870,9 +873,9 @@ void ResultsWidget::implicitSmooth() {
     }
     matrixA->colFirstIndices[matrixA->colFirstIndices.size()-1] = matrixA->vals.size();
 
-    std::vector<double> newXPositions = biconjugateGradientMethod(matrixA, bX, 0.1, 5);
-    std::vector<double> newYPositions = biconjugateGradientMethod(matrixA, bY, 0.1, 5);
-    std::vector<double> newZPositions = biconjugateGradientMethod(matrixA, bZ, 0.1, 5);
+    std::vector<double> newXPositions = biconjugateGradientMethod(matrixA, bX, 0.0001, 5);
+    std::vector<double> newYPositions = biconjugateGradientMethod(matrixA, bY, 0.0001, 5);
+    std::vector<double> newZPositions = biconjugateGradientMethod(matrixA, bZ, 0.0001, 5);
 
     for (int i=0; i<verticesToSmooth.size(); i++) {
         verticesToSmooth[i]->position.setX(newXPositions[i]);
@@ -880,7 +883,7 @@ void ResultsWidget::implicitSmooth() {
         verticesToSmooth[i]->position.setZ(newZPositions[i]);
     }
 
-    //mesh->updateNormals();
+    mesh->updateNormals();
     geometryEngine->initMesh(mesh);
     geometryEngine->initLine(drawnVertices, drawingColor);
     geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed, boundariesOverlapping, numOpenings);
@@ -973,6 +976,7 @@ std::string ResultsWidget::getResultsAttributesLabelText() {
 void ResultsWidget::reset() {
     drawnVertices.clear();
     verticesToSmooth.clear();
+    verticesToSmoothMap.clear();
     boundaryVertices1.clear();
     boundaryVertices2.clear();
     selectedPoints.clear();
@@ -1015,7 +1019,7 @@ std::vector<double> ResultsWidget::solveEquation(SparseMat* matrixA, std::vector
 double ResultsWidget::computeNorm(std::vector<double> b) {
     double sum = 0.0;
     for (int i=0; i<b.size(); i++) {
-        sum += sqrt(b[i]);
+        sum += pow(b[i], 2);
     }
     return sqrt(sum);
 }
