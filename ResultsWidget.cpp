@@ -5,7 +5,6 @@
 #include <queue>
 #include <unordered_set>
 #include <tuple>
-#include <iostream>
 
 ResultsWidget::~ResultsWidget() {
     // Make sure the context is current when deleting the buffers.
@@ -541,7 +540,7 @@ void ResultsWidget::timerEvent(QTimerEvent *) {
     }
 
     if (shouldPaintGL and numSmoothingStepsSoFar < numSmoothingSteps) {
-        implicitSmooth();
+        explicitSmooth();
         shouldUpdate = true;
         numSmoothingStepsSoFar += 1;
     } else if (numSmoothingStepsSoFar == numSmoothingSteps){
@@ -777,6 +776,7 @@ void ResultsWidget::findVerticesToSmooth(Vertex *vertexToSmooth) {
     std::unordered_set<Vertex*> verticesToSmoothSet;
     verticesToSmoothSet.insert(vertexToSmooth);
     verticesToSmooth.push_back(vertexToSmooth);
+    verticesToSmoothMap.insert({vertexToSmooth, verticesToSmoothMap.size()});
 
     std::queue<Vertex*> verticesToSmoothQueue;
     verticesToSmoothQueue.push(vertexToSmooth);
@@ -795,6 +795,7 @@ void ResultsWidget::findVerticesToSmooth(Vertex *vertexToSmooth) {
                     verticesToSmoothQueue.push(neighbor);
                     verticesToSmoothSet.insert(neighbor);
                     verticesToSmooth.push_back(neighbor);
+                    verticesToSmoothMap.insert({neighbor, verticesToSmoothMap.size()});
                 }
             }
         }
@@ -808,7 +809,7 @@ void ResultsWidget::toggleSmoothSurface() {
     } else {
         if (!selectedPoints.empty()) {
             findVerticesToSmooth(selectedPoints.front());
-            numSmoothingSteps = 50;
+            numSmoothingSteps = 30;
             numSmoothingStepsSoFar = 0;
         }
         isDrawingEnabled = true;
@@ -821,57 +822,65 @@ void ResultsWidget::toggleSmoothSurface() {
 }
 
 void ResultsWidget::implicitSmooth() {
-    float stepSize = 0.2;
-    std::vector<Vertex*> vertices = mesh->getVertices();
-    int numVertices = vertices.size();
-
     std::vector<double> bX, bY, bZ;
-    for (Vertex* vertex : vertices) {
+
+    for (Vertex* vertex: verticesToSmooth) {
         bX.push_back(vertex->position.x());
         bY.push_back(vertex->position.y());
         bZ.push_back(vertex->position.z());
     }
 
-    SparseMat* matrixA = new SparseMat(numVertices, numVertices, 0);
-    for (Vertex* vertex : vertices) {
+    std::map<Vertex*, std::vector<Vertex*>> vertexNeighbors;
+    for (Vertex* vertex: verticesToSmooth) {
         //float neighborDistanceSum = 0.0;
         std::unordered_set<Vertex *> visitedNeighbors;
         std::vector<Vertex *> neighbors;
         for (Triangle *triangle: vertex->triangles) {
             for (Vertex *neighbor: triangle->vertices) {
-                if (visitedNeighbors.find(neighbor) == visitedNeighbors.end()) {
+                if (verticesToSmoothMap.find(neighbor) != verticesToSmoothMap.end() && visitedNeighbors.find(neighbor) == visitedNeighbors.end()) {
                     //neighborDistanceSum += euclideanDistance(vertex, neighbor);
                     visitedNeighbors.insert(neighbor);
                     neighbors.push_back(neighbor);
                 }
             }
         }
+        std::sort(neighbors.begin(), neighbors.end(), [this](Vertex* v1, Vertex* v2) {return verticesToSmoothMap.at(v1) < verticesToSmoothMap.at(v2); });
+        vertexNeighbors.insert({vertex, neighbors});
+    }
 
-        std::sort(neighbors.begin(), neighbors.end());
+    double stepSize = 0.2;
+    int numVertices = verticesToSmooth.size();
+    SparseMat* matrixA = new SparseMat(numVertices, numVertices, 0);
+    for (Vertex* vertex: verticesToSmooth) {
+        int vertexIndex = verticesToSmoothMap.at(vertex);
+        std::vector<Vertex *> neighbors = vertexNeighbors.at(vertex);
         for (Vertex *neighbor: neighbors) {
+            //float weight = euclideanDistance(vertex, neighbor) / neighborDistanceSum;
             if (vertex == neighbor) {
-                matrixA->vals.push_back(1.0 + stepSize * (neighbors.size()-1));
+                matrixA->vals.push_back(1.0 + stepSize * (neighbors.size() - 1));
             } else {
                 matrixA->vals.push_back(-stepSize);
             }
-            visitedNeighbors.insert(neighbor);
-            matrixA->rowIndices.push_back(neighbor->index);
-            if (matrixA->vals.size() - 1 <= matrixA->colFirstIndices[vertex->index]) {
-                matrixA->colFirstIndices[vertex->index] = matrixA->vals.size() - 1;
+            int neighborIndex = verticesToSmoothMap.at(neighbor);
+            matrixA->rowIndices.push_back(neighborIndex);
+            if (matrixA->vals.size() - 1 <= matrixA->colFirstIndices[vertexIndex]) {
+                matrixA->colFirstIndices[vertexIndex] = matrixA->vals.size() - 1;
             }
         }
     }
-
     matrixA->colFirstIndices[matrixA->colFirstIndices.size()-1] = matrixA->vals.size();
-    std::vector<double> newXPositions = biconjugateGradientMethod(matrixA, bX, 0.2, 5);
-    std::vector<double> newYPositions = biconjugateGradientMethod(matrixA, bY, 0.2, 5);
-    std::vector<double> newZPositions = biconjugateGradientMethod(matrixA, bZ, 0.2, 5);
 
-    for (int i=0; i<vertices.size(); i++) {
-        vertices[i]->position = {(float) newXPositions[i], (float) newYPositions[i], (float) newZPositions[i]};
+    std::vector<double> newXPositions = biconjugateGradientMethod(matrixA, bX, 0.1, 5);
+    std::vector<double> newYPositions = biconjugateGradientMethod(matrixA, bY, 0.1, 5);
+    std::vector<double> newZPositions = biconjugateGradientMethod(matrixA, bZ, 0.1, 5);
+
+    for (int i=0; i<verticesToSmooth.size(); i++) {
+        verticesToSmooth[i]->position.setX(newXPositions[i]);
+        verticesToSmooth[i]->position.setY(newYPositions[i]);
+        verticesToSmooth[i]->position.setZ(newZPositions[i]);
     }
 
-    mesh->updateNormals();
+    //mesh->updateNormals();
     geometryEngine->initMesh(mesh);
     geometryEngine->initLine(drawnVertices, drawingColor);
     geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed, boundariesOverlapping, numOpenings);
@@ -888,14 +897,12 @@ void ResultsWidget::explicitSmooth() {
         float yDiff = 0.0;
         float zDiff = 0.0;
         int numNeighbors = 1;
-        //float neighborDistanceSum = 0.0;
         std::unordered_set<Vertex *> visitedNeighbors;
 
-        // Initializing cord weights
+        // Initializing uniform weights
         for (Triangle *triangle : vertex->triangles) {
             for (Vertex *neighbor : triangle->vertices) {
                 if (neighbor != vertex && visitedNeighbors.find(neighbor) == visitedNeighbors.end()) {
-                    //neighborDistanceSum += euclideanDistance(vertex, neighbor);
                     numNeighbors += 1;
                     visitedNeighbors.insert(neighbor);
                 }
@@ -906,7 +913,6 @@ void ResultsWidget::explicitSmooth() {
         for (Triangle *triangle: vertex->triangles) {
             for (Vertex *neighbor : triangle->vertices) {
                 if (neighbor != vertex && visitedNeighbors.find(neighbor) == visitedNeighbors.end()) {
-                    //float weight = euclideanDistance(vertex, neighbor) / neighborDistanceSum;
                     float weight = 1.0 / numNeighbors;
                     xDiff += weight * (neighbor->position.x() - vertex->position.x());
                     yDiff += weight * (neighbor->position.y() - vertex->position.y());

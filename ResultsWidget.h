@@ -53,6 +53,7 @@ protected:
 private:
     void implicitSmooth();
     void explicitSmooth();
+    static bool sortVertices(Vertex* vertex1, Vertex* vertex2);
     void deleteSurface(Vertex *vertexToDelete);
     void addDrawnVertices(Vertex *newVertex);
     std::tuple<float, std::vector<Vertex*>> getVerticesPathAndDistance(Vertex *startVertex, Vertex *endVertex);
@@ -91,6 +92,7 @@ private:
     std::vector<Vertex*> boundaryVertices2;
     std::vector<Vertex*> selectedPoints;
     std::vector<Vertex*> verticesToSmooth;
+    std::map<Vertex*, int> verticesToSmoothMap;
 
     QColor drawingColor;
     DrawingMode drawingMode;
