@@ -826,43 +826,38 @@ void ResultsWidget::toggleSmoothSurface() {
 
 void ResultsWidget::implicitSmooth() {
     std::vector<double> bX, bY, bZ;
-
     for (Vertex* vertex: verticesToSmooth) {
         bX.push_back(vertex->position.x());
         bY.push_back(vertex->position.y());
         bZ.push_back(vertex->position.z());
     }
 
-    std::map<Vertex*, std::vector<Vertex*>> vertexNeighbors;
+    double stepSize = 2.0;
+    int numVertices = verticesToSmooth.size();
+    SparseMat* matrixA = new SparseMat(numVertices, numVertices, 0);
     for (Vertex* vertex: verticesToSmooth) {
-        //float neighborDistanceSum = 0.0;
+        float neighborDistanceSum = 0.0;
         std::unordered_set<Vertex *> visitedNeighbors;
         std::vector<Vertex *> neighbors;
         for (Triangle *triangle: vertex->triangles) {
             for (Vertex *neighbor: triangle->vertices) {
                 if (verticesToSmoothMap.find(neighbor) != verticesToSmoothMap.end() && visitedNeighbors.find(neighbor) == visitedNeighbors.end()) {
-                    //neighborDistanceSum += euclideanDistance(vertex, neighbor);
+                    neighborDistanceSum += euclideanDistance(vertex, neighbor);
                     visitedNeighbors.insert(neighbor);
                     neighbors.push_back(neighbor);
                 }
             }
         }
         std::sort(neighbors.begin(), neighbors.end(), [this](Vertex* v1, Vertex* v2) {return verticesToSmoothMap.at(v1) < verticesToSmoothMap.at(v2); });
-        vertexNeighbors.insert({vertex, neighbors});
-    }
 
-    double stepSize = 0.2;
-    int numVertices = verticesToSmooth.size();
-    SparseMat* matrixA = new SparseMat(numVertices, numVertices, 0);
-    for (Vertex* vertex: verticesToSmooth) {
         int vertexIndex = verticesToSmoothMap.at(vertex);
-        std::vector<Vertex *> neighbors = vertexNeighbors.at(vertex);
         for (Vertex *neighbor: neighbors) {
-            //float weight = euclideanDistance(vertex, neighbor) / neighborDistanceSum;
             if (vertex == neighbor) {
-                matrixA->vals.push_back(1.0 + stepSize * (neighbors.size() - 1));
+                //matrixA->vals.push_back(1.0 + stepSize * (neighbors.size() - 1));
+                matrixA->vals.push_back(1.0 + stepSize * (neighborDistanceSum));
             } else {
-                matrixA->vals.push_back(-stepSize);
+                //matrixA->vals.push_back(-stepSize);
+                matrixA->vals.push_back(-stepSize * euclideanDistance(vertex, neighbor));
             }
             int neighborIndex = verticesToSmoothMap.at(neighbor);
             matrixA->rowIndices.push_back(neighborIndex);
@@ -872,7 +867,6 @@ void ResultsWidget::implicitSmooth() {
         }
     }
     matrixA->colFirstIndices[matrixA->colFirstIndices.size()-1] = matrixA->vals.size();
-
     std::vector<double> newXPositions = biconjugateGradientMethod(matrixA, bX, 0.0001, 5);
     std::vector<double> newYPositions = biconjugateGradientMethod(matrixA, bY, 0.0001, 5);
     std::vector<double> newZPositions = biconjugateGradientMethod(matrixA, bZ, 0.0001, 5);
