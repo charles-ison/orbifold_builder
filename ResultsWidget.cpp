@@ -832,7 +832,7 @@ void ResultsWidget::implicitSmooth() {
         bZ.push_back(vertex->position.z());
     }
 
-    double stepSize = 2.0;
+    double stepSize = 1.0;
     int numVertices = verticesToSmooth.size();
     SparseMat* matrixA = new SparseMat(numVertices, numVertices, 0);
     for (Vertex* vertex: verticesToSmooth) {
@@ -867,9 +867,9 @@ void ResultsWidget::implicitSmooth() {
         }
     }
     matrixA->colFirstIndices[matrixA->colFirstIndices.size()-1] = matrixA->vals.size();
-    std::vector<double> newXPositions = biconjugateGradientMethod(matrixA, bX, 0.0001, 5);
-    std::vector<double> newYPositions = biconjugateGradientMethod(matrixA, bY, 0.0001, 5);
-    std::vector<double> newZPositions = biconjugateGradientMethod(matrixA, bZ, 0.0001, 5);
+    std::vector<double> newXPositions = biconjugateGradientMethod(matrixA, bX, 0.0001, 10);
+    std::vector<double> newYPositions = biconjugateGradientMethod(matrixA, bY, 0.0001, 10);
+    std::vector<double> newZPositions = biconjugateGradientMethod(matrixA, bZ, 0.0001, 10);
 
     for (int i=0; i<verticesToSmooth.size(); i++) {
         verticesToSmooth[i]->position.setX(newXPositions[i]);
