@@ -543,6 +543,7 @@ void ResultsWidget::timerEvent(QTimerEvent *) {
 
     if (shouldPaintGL and numSmoothingStepsSoFar < numSmoothingSteps) {
         implicitSmooth();
+        //explicitSmooth();
         shouldUpdate = true;
         numSmoothingStepsSoFar += 1;
     } else if (numSmoothingStepsSoFar == numSmoothingSteps){
@@ -890,33 +891,32 @@ void ResultsWidget::explicitSmooth() {
     std::vector<Vertex *> vertices = mesh->getVertices();
 
     for (Vertex *vertex: verticesToSmooth) {
+        float neighborDistanceSum = 0.0;
         float xDiff = 0.0;
         float yDiff = 0.0;
         float zDiff = 0.0;
-        int numNeighbors = 1;
+        std::vector<Vertex *> neighbors;
         std::unordered_set<Vertex *> visitedNeighbors;
 
         // Initializing uniform weights
         for (Triangle *triangle : vertex->triangles) {
             for (Vertex *neighbor : triangle->vertices) {
                 if (neighbor != vertex && visitedNeighbors.find(neighbor) == visitedNeighbors.end()) {
-                    numNeighbors += 1;
+                    neighborDistanceSum += euclideanDistance(vertex, neighbor);
                     visitedNeighbors.insert(neighbor);
+                    neighbors.push_back(neighbor);
                 }
             }
         }
 
         visitedNeighbors.clear();
-        for (Triangle *triangle: vertex->triangles) {
-            for (Vertex *neighbor : triangle->vertices) {
-                if (neighbor != vertex && visitedNeighbors.find(neighbor) == visitedNeighbors.end()) {
-                    float weight = 1.0 / numNeighbors;
-                    xDiff += weight * (neighbor->position.x() - vertex->position.x());
-                    yDiff += weight * (neighbor->position.y() - vertex->position.y());
-                    zDiff += weight * (neighbor->position.z() - vertex->position.z());
-                    visitedNeighbors.insert(neighbor);
-                }
-            }
+        for (Vertex *neighbor : neighbors) {
+            //float weight = 1.0 / neighbors.size();
+            float weight = euclideanDistance(vertex, neighbor) / neighborDistanceSum;
+            xDiff += weight * (neighbor->position.x() - vertex->position.x());
+            yDiff += weight * (neighbor->position.y() - vertex->position.y());
+            zDiff += weight * (neighbor->position.z() - vertex->position.z());
+            visitedNeighbors.insert(neighbor);
         }
 
         float newX = vertex->position.x() + stepSize * xDiff;
