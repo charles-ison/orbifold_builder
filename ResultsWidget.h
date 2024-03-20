@@ -61,7 +61,7 @@ private:
     Vertex* getVertexFromMouseEvent(QMouseEvent *e);
     bool triangleContainsVertex(Vertex *vertex, Triangle *triangle);
     bool rotationDirectionAligns(Triangle* triangle, Vertex* vertex1, Vertex* vertex2);
-    float euclideanDistance(Vertex* vertex1, Vertex* vertex2);
+    double euclideanDistance(Vertex* vertex1, Vertex* vertex2);
     void connectVertices();
     void findVerticesToSmooth(Vertex *vertexToSmooth);
     void setSelectedPoints(Vertex *vertex);

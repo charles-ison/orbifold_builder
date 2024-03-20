@@ -5,7 +5,6 @@
 #include <queue>
 #include <unordered_set>
 #include <tuple>
-#include <iostream>
 
 ResultsWidget::~ResultsWidget() {
     // Make sure the context is current when deleting the buffers.
@@ -450,13 +449,13 @@ void ResultsWidget::addDrawnVertices(Vertex *newVertex) {
 std::tuple<float, std::vector<Vertex*>> ResultsWidget::getVerticesPathAndDistance(Vertex *startVertex, Vertex *endVertex) {
     std::vector<Vertex*> path = {startVertex};
     std::unordered_set<Vertex*> checkedVertices;
-    std::priority_queue<std::tuple<float, std::vector<Vertex*>>, std::vector<std::tuple<float, std::vector<Vertex*>>>, std::greater<std::tuple<float, std::vector<Vertex*>>> > potentialPaths;
+    std::priority_queue<std::tuple<double, std::vector<Vertex*>>, std::vector<std::tuple<double, std::vector<Vertex*>>>, std::greater<std::tuple<float, std::vector<Vertex*>>> > potentialPaths;
     potentialPaths.push({0.0, path});
     QVector3D endVertexPosition = endVertex->position;
 
     while(!potentialPaths.empty()) {
-        std::tuple<float, std::vector<Vertex*>> nextDistanceAndPath = potentialPaths.top();
-        float oldDistance = std::get<0>(nextDistanceAndPath);
+        std::tuple<double, std::vector<Vertex*>> nextDistanceAndPath = potentialPaths.top();
+        double oldDistance = std::get<0>(nextDistanceAndPath);
         std::vector<Vertex*> nextPath = std::get<1>(nextDistanceAndPath);
         Vertex *nextVertex = nextPath.back();
         potentialPaths.pop();
@@ -464,12 +463,12 @@ std::tuple<float, std::vector<Vertex*>> ResultsWidget::getVerticesPathAndDistanc
         for (Triangle* triangle : nextVertex->triangles) {
             for (Vertex *neighbor : triangle->vertices) {
                 if (neighbor->position == endVertexPosition) {
-                    float distance = oldDistance + euclideanDistance(neighbor, nextVertex);
+                    double distance = oldDistance + euclideanDistance(neighbor, nextVertex);
                     return {distance, nextPath};
                 } else if (checkedVertices.find(neighbor) == checkedVertices.end()) {
                     std::vector<Vertex*> newPotentialPath = nextPath;
                     newPotentialPath.push_back(neighbor);
-                    float distance = oldDistance + euclideanDistance(neighbor, nextVertex);
+                    double distance = oldDistance + euclideanDistance(neighbor, nextVertex);
                     potentialPaths.push({distance, newPotentialPath});
                     checkedVertices.insert(neighbor);
                 }
@@ -479,7 +478,7 @@ std::tuple<float, std::vector<Vertex*>> ResultsWidget::getVerticesPathAndDistanc
     return {0.0, path};;
 }
 
-float ResultsWidget::euclideanDistance(Vertex* vertex1, Vertex* vertex2) {
+double ResultsWidget::euclideanDistance(Vertex* vertex1, Vertex* vertex2) {
     float dx = vertex1->position.x()-vertex2->position.x();
     float dy = vertex1->position.y()-vertex2->position.y();
     float dz = vertex1->position.z()-vertex2->position.z();
@@ -543,7 +542,6 @@ void ResultsWidget::timerEvent(QTimerEvent *) {
 
     if (shouldPaintGL and numSmoothingStepsSoFar < numSmoothingSteps) {
         implicitSmooth();
-        //explicitSmooth();
         shouldUpdate = true;
         numSmoothingStepsSoFar += 1;
     } else if (numSmoothingStepsSoFar == numSmoothingSteps){
@@ -837,7 +835,7 @@ void ResultsWidget::implicitSmooth() {
     int numVertices = verticesToSmooth.size();
     SparseMat* matrixA = new SparseMat(numVertices, numVertices, 0);
     for (Vertex* vertex: verticesToSmooth) {
-        float neighborDistanceSum = 0.0;
+        double neighborDistanceSum = 0.0;
         std::unordered_set<Vertex *> visitedNeighbors;
         std::vector<Vertex *> neighbors;
         for (Triangle *triangle: vertex->triangles) {
@@ -855,7 +853,7 @@ void ResultsWidget::implicitSmooth() {
         for (Vertex *neighbor: neighbors) {
             if (vertex == neighbor) {
                 //matrixA->vals.push_back(1.0 + stepSize * (neighbors.size() - 1));
-                matrixA->vals.push_back(1.0 + stepSize * (neighborDistanceSum));
+                matrixA->vals.push_back(1.0 + stepSize * neighborDistanceSum);
             } else {
                 //matrixA->vals.push_back(-stepSize);
                 matrixA->vals.push_back(-stepSize * euclideanDistance(vertex, neighbor));
@@ -867,10 +865,11 @@ void ResultsWidget::implicitSmooth() {
             }
         }
     }
+
     matrixA->colFirstIndices[matrixA->colFirstIndices.size()-1] = matrixA->vals.size();
-    std::vector<double> newXPositions = biconjugateGradientMethod(matrixA, bX, 0.0001, 10);
-    std::vector<double> newYPositions = biconjugateGradientMethod(matrixA, bY, 0.0001, 10);
-    std::vector<double> newZPositions = biconjugateGradientMethod(matrixA, bZ, 0.0001, 10);
+    std::vector<double> newXPositions = biconjugateGradientMethod(matrixA, bX, 0.0001, 100);
+    std::vector<double> newYPositions = biconjugateGradientMethod(matrixA, bY, 0.0001, 100);
+    std::vector<double> newZPositions = biconjugateGradientMethod(matrixA, bZ, 0.0001, 100);
 
     for (int i=0; i<verticesToSmooth.size(); i++) {
         verticesToSmooth[i]->position.setX(newXPositions[i]);
@@ -891,14 +890,14 @@ void ResultsWidget::explicitSmooth() {
     std::vector<Vertex *> vertices = mesh->getVertices();
 
     for (Vertex *vertex: verticesToSmooth) {
-        float neighborDistanceSum = 0.0;
-        float xDiff = 0.0;
-        float yDiff = 0.0;
-        float zDiff = 0.0;
+        double neighborDistanceSum = 0.0;
+        double xDiff = 0.0;
+        double yDiff = 0.0;
+        double zDiff = 0.0;
         std::vector<Vertex *> neighbors;
         std::unordered_set<Vertex *> visitedNeighbors;
 
-        // Initializing uniform weights
+        // Initializing weights
         for (Triangle *triangle : vertex->triangles) {
             for (Vertex *neighbor : triangle->vertices) {
                 if (neighbor != vertex && visitedNeighbors.find(neighbor) == visitedNeighbors.end()) {
@@ -912,7 +911,7 @@ void ResultsWidget::explicitSmooth() {
         visitedNeighbors.clear();
         for (Vertex *neighbor : neighbors) {
             //float weight = 1.0 / neighbors.size();
-            float weight = euclideanDistance(vertex, neighbor) / neighborDistanceSum;
+            double weight = euclideanDistance(vertex, neighbor) / neighborDistanceSum;
             xDiff += weight * (neighbor->position.x() - vertex->position.x());
             yDiff += weight * (neighbor->position.y() - vertex->position.y());
             zDiff += weight * (neighbor->position.z() - vertex->position.z());
