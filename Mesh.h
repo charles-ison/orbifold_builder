@@ -5,6 +5,7 @@
 #include "surfaces/Vertex.h"
 #include "surfaces/Surface.h"
 #include "Util.h"
+#include "SparseMat.h"
 
 class Mesh {
 
@@ -18,11 +19,20 @@ public:
     void deleteVertices(std::unordered_set<Vertex*> verticesToDelete);
     void deleteOutdatedTriangles();
     void updateTriangles();
+    void implicitSmooth(std::vector<Vertex*> verticesToSmooth, std::map<Vertex*, int> verticesToSmoothMap);
+    void explicitSmooth(std::vector<Vertex*> verticesToSmooth, std::map<Vertex*, int> verticesToSmoothMap);
+    bool triangleContainsVertex(Vertex *vertex, Triangle *triangle);
 
 private:
     void deleteTriangleReferences(Triangle* triangle);
     std::vector<double> computeAngles(Vertex* vertex0, Vertex* vertex1, Vertex* vertex2);
     void updateVertexNeighbors();
+    double getMeanValueWeights(Vertex* vertex1, Vertex* vertex2);
+    double getMeanCurvatureWeights(Vertex* vertex1, Vertex* vertex2);
+    std::vector<double> biconjugateGradientMethod(SparseMat* matrixA, std::vector<double> b, double tolerance, int maxIters);
+    std::vector<double> solveEquation(SparseMat* matrixA, std::vector<double> b);
+    double computeNorm(std::vector<double> b);
+
     std::vector<Vertex*> vertices;
     std::vector<Triangle*> triangles;
 };

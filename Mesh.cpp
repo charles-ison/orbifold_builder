@@ -1,4 +1,5 @@
 #include "Mesh.h"
+#include <iostream>
 
 void Mesh::resetSurface(Surface *surface) {
     vertices.clear();
@@ -136,4 +137,304 @@ void Mesh::deleteOutdatedTriangles() {
         }
     }
     triangles = newTriangles;
+}
+
+double Mesh::getMeanValueWeights(Vertex* vertex1, Vertex* vertex2) {
+    double weights = 0.0;
+    int numAnglesFound = 0;
+    for (Triangle* triangle : vertex1->triangles) {
+        if (triangleContainsVertex(vertex2, triangle)) {
+            for (int i=0; i<3; i++) {
+                if (triangle->vertices[i] == vertex1) {
+                    weights += tan(triangle->angles[i]/2.0)/2.0;
+                    numAnglesFound += 1;
+                }
+            }
+        }
+    }
+
+    if (numAnglesFound != 2) {
+        std::cout << "Error: 2 angles not found for mean value weights. Surface not closed." << std::endl;
+    }
+    return weights;
+}
+
+double Mesh::getMeanCurvatureWeights(Vertex* vertex1, Vertex* vertex2) {
+    double weights = 0.0;
+    int numAnglesFound = 0;
+    for (Triangle* triangle : vertex1->triangles) {
+        if (triangleContainsVertex(vertex2, triangle)) {
+            for (int i=0; i<3; i++) {
+                if (triangle->vertices[i] != vertex1 && triangle->vertices[i] != vertex2) {
+                    weights += cot(triangle->angles[i])/2.0;
+                    numAnglesFound += 1;
+                }
+            }
+        }
+    }
+    if (numAnglesFound != 2) {
+        std::cout << "Error: 2 angles not found for mean curvature weights. Surface not closed." << std::endl;
+    }
+    return weights;
+}
+
+void Mesh::implicitSmooth(std::vector<Vertex*> verticesToSmooth, std::map<Vertex*, int> verticesToSmoothMap) {
+    std::vector<double> bX, bY, bZ;
+    for (Vertex* vertex: verticesToSmooth) {
+        bX.push_back(vertex->position.x());
+        bY.push_back(vertex->position.y());
+        bZ.push_back(vertex->position.z());
+    }
+
+    double stepSize = 1.0;
+    int numVertices = verticesToSmooth.size();
+    SparseMat* matrixA = new SparseMat(numVertices, numVertices, 0);
+    for (Vertex* vertex: verticesToSmooth) {
+        double neighborWeightSum = 0.0;
+        std::unordered_set<Vertex *> visitedNeighbors;
+        std::vector<Vertex *> neighbors;
+        for (Triangle *triangle: vertex->triangles) {
+            for (Vertex *neighbor: triangle->vertices) {
+                if (neighbor != vertex && verticesToSmoothMap.find(neighbor) != verticesToSmoothMap.end() && visitedNeighbors.find(neighbor) == visitedNeighbors.end()) {
+                    // Uniform weights
+                    // neighborWeightSum += 1;
+
+                    // Cord Weights
+                    // neighborWeightSum += euclideanDistance(vertex, neighbor);
+
+                    // Mean Curvature Weights
+                    neighborWeightSum += getMeanCurvatureWeights(vertex, neighbor);
+
+                    // Mean Value Weights
+                    //neighborWeightSum += getMeanValueWeights(vertex, neighbor);
+
+                    visitedNeighbors.insert(neighbor);
+                    neighbors.push_back(neighbor);
+                }
+            }
+        }
+
+        neighbors.push_back(vertex);
+        std::sort(neighbors.begin(), neighbors.end(), [&](Vertex* v1, Vertex* v2) {return verticesToSmoothMap.at(v1) < verticesToSmoothMap.at(v2); });
+
+        int vertexIndex = verticesToSmoothMap.at(vertex);
+        for (Vertex *neighbor: neighbors) {
+            if (vertex == neighbor) {
+                matrixA->vals.push_back(1.0 + stepSize * neighborWeightSum);
+            } else {
+                // Uniform weights
+                // double weight = 1;
+
+                // Cord weights
+                // double weight = euclideanDistance(vertex, neighbor);
+
+                // Mean Curvature weights
+                double weight = getMeanCurvatureWeights(vertex, neighbor);
+
+                // Mean Value weights
+                //double weight = getMeanValueWeights(vertex, neighbor);
+
+                matrixA->vals.push_back(-stepSize * weight);
+            }
+            int neighborIndex = verticesToSmoothMap.at(neighbor);
+            matrixA->rowIndices.push_back(neighborIndex);
+            if (matrixA->vals.size() - 1 <= matrixA->colFirstIndices[vertexIndex]) {
+                matrixA->colFirstIndices[vertexIndex] = matrixA->vals.size() - 1;
+            }
+        }
+    }
+
+    matrixA->colFirstIndices[matrixA->colFirstIndices.size()-1] = matrixA->vals.size();
+    std::vector<double> newXPositions = biconjugateGradientMethod(matrixA, bX, 0.0001, 20);
+    std::vector<double> newYPositions = biconjugateGradientMethod(matrixA, bY, 0.0001, 20);
+    std::vector<double> newZPositions = biconjugateGradientMethod(matrixA, bZ, 0.0001, 20);
+
+    for (int i=0; i<verticesToSmooth.size(); i++) {
+        verticesToSmooth[i]->position.setX(newXPositions[i]);
+        verticesToSmooth[i]->position.setY(newYPositions[i]);
+        verticesToSmooth[i]->position.setZ(newZPositions[i]);
+    }
+
+    updateTriangles();
+}
+
+void Mesh::explicitSmooth(std::vector<Vertex*> verticesToSmooth, std::map<Vertex*, int> verticesToSmoothMap) {
+    float stepSize = 0.1;
+    std::vector<QVector3D> newPositions;
+
+    for (Vertex *vertex: verticesToSmooth) {
+        double neighborWeightSum = 0.0;
+        double xDiff = 0.0;
+        double yDiff = 0.0;
+        double zDiff = 0.0;
+        std::vector<Vertex *> neighbors;
+        std::unordered_set<Vertex *> visitedNeighbors;
+
+        // Initializing weights
+        for (Triangle *triangle : vertex->triangles) {
+            for (Vertex *neighbor : triangle->vertices) {
+                if (neighbor != vertex && visitedNeighbors.find(neighbor) == visitedNeighbors.end()) {
+                    // Uniform weights
+                    // neighborWeightSum += 1;
+
+                    // Cord Weights
+                    //neighborWeightSum += euclideanDistance(vertex, neighbor);
+
+                    // Mean Curvature Weights
+                    neighborWeightSum += getMeanCurvatureWeights(vertex, neighbor);
+
+                    // Mean Value Weights
+                    // neighborWeightSum += getMeanValueWeights(vertex, neighbor);
+
+                    visitedNeighbors.insert(neighbor);
+                    neighbors.push_back(neighbor);
+                }
+            }
+        }
+
+        visitedNeighbors.clear();
+        for (Vertex *neighbor : neighbors) {
+            // Uniform weights
+            // double weight = 1;
+
+            // Cord weights
+            // double weight = euclideanDistance(vertex, neighbor);
+
+            // Mean Curvature weights
+            double weight = getMeanCurvatureWeights(vertex, neighbor);
+
+            // Mean Value weights
+            // double weight = getMeanValueWeights(vertex, neighbor);
+
+            xDiff += weight * (neighbor->position.x() - vertex->position.x());
+            yDiff += weight * (neighbor->position.y() - vertex->position.y());
+            zDiff += weight * (neighbor->position.z() - vertex->position.z());
+            visitedNeighbors.insert(neighbor);
+        }
+
+        float newX = vertex->position.x() + stepSize * xDiff;
+        float newY = vertex->position.y() + stepSize * yDiff;
+        float newZ = vertex->position.z() + stepSize * zDiff;
+        newPositions.push_back({newX, newY, newZ});
+    }
+
+    for (int j = 0; j < verticesToSmooth.size(); j++) {
+        verticesToSmooth[j]->position = newPositions[j];
+    }
+
+    updateTriangles();
+}
+
+bool Mesh::triangleContainsVertex(Vertex *vertex, Triangle *triangle) {
+    Vertex *vertex1 = triangle->vertices[0];
+    Vertex *vertex2 = triangle->vertices[1];
+    Vertex *vertex3 = triangle->vertices[2];
+
+    if (vertex1==vertex || vertex2==vertex || vertex3==vertex) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+std::vector<double> Mesh::biconjugateGradientMethod(SparseMat* matrixA, std::vector<double> b, double tolerance, int maxIters) {
+    int size = b.size();
+    int iter = 0;
+    double error = 0.0;
+    double ak = 0.0;
+    double akDen = 1.0;
+    double bk = 0.0;
+    double bkDen = 1.0;
+    double bkNum = 0.0;
+    std::vector<double> p(size);
+    std::vector<double> pp(size);
+    std::vector<double> z(size);
+    std::vector<double> zz(size);
+    std::vector<double> r = b;
+    std::vector<double> rr = b;
+
+    std::vector<double> x;
+    for (int i=0; i<size; i++) {
+        x.push_back(0.0);
+    }
+
+    double bNorm = computeNorm(b);
+    z = solveEquation(matrixA, r);
+
+    while (iter < maxIters) {
+        iter++;
+
+        // Technically matrixA should be transposed here
+        zz = solveEquation(matrixA, rr);
+
+        bkNum = 0.0;
+        for (int i=0; i<size; i++) {
+            bkNum += z[i]*rr[i];
+        }
+
+        if (iter == 1) {
+            for (int i=0; i<size; i++) {
+                p[i] = z[i];
+                pp[i] = z[i];
+            }
+        } else {
+            bk = bkNum/bkDen;
+            for (int i=0; i<size; i++) {
+                p[i] = bk * p[i] + z[i];
+                pp[i] = bk * pp[i] + zz[i];
+            }
+        }
+
+        bkDen = bkNum;
+        z = matrixA->multiply(p);
+
+        akDen = 0.0;
+        for (int i = 0; i<size; i++) {
+            akDen += z[i]*pp[i];
+        }
+
+        ak = bkNum/akDen;
+        zz = matrixA->multiplyInverse(pp);
+
+        for (int i=0; i<size; i++) {
+            x[i] += ak*p[i];
+            r[i] -= ak*z[i];
+            rr[i] -= ak*zz[i];
+        }
+        z = solveEquation(matrixA, r);
+        error = computeNorm(r)/bNorm;
+        if (error <= tolerance) {
+            break;
+        }
+    }
+    return x;
+}
+
+std::vector<double> Mesh::solveEquation(SparseMat* matrixA, std::vector<double> b) {
+    double diag;
+    int size = b.size();
+    std::vector<double> x;
+    for (int i=0; i<size; i++) {
+        diag = 0.0;
+        for (int j=matrixA->colFirstIndices[i]; j<matrixA->colFirstIndices[i+1]; j++) {
+            if (matrixA->rowIndices[j] == i) {
+                diag = matrixA->vals[j];
+                break;
+            }
+        }
+        if (diag != 0.0) {
+            x.push_back(b[i]/diag);
+        } else {
+            x.push_back(b[i]);
+        }
+    }
+    return x;
+}
+
+double Mesh::computeNorm(std::vector<double> b) {
+    double sum = 0.0;
+    for (int i=0; i<b.size(); i++) {
+        sum += pow(b[i], 2);
+    }
+    return sqrt(sum);
 }

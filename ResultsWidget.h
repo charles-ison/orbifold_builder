@@ -17,7 +17,6 @@
 #include "surfaces/CrossCap.h"
 #include "surfaces/PlyFile.h"
 #include "Mesh.h"
-#include "SparseMat.h"
 
 class GeometryEngine;
 
@@ -66,11 +65,6 @@ private:
     void setSelectedPoints(Vertex *vertex);
     std::vector<Vertex*> connectFirstAndLastVertices(std::vector<Vertex*> boundary);
     std::vector<Vertex*> connectMiddleVertices(std::vector<Vertex*> boundary);
-    std::vector<double> biconjugateGradientMethod(SparseMat* matrixA, std::vector<double> b, double tolerance, int maxIters);
-    double computeNorm(std::vector<double> b);
-    std::vector<double> solveEquation(SparseMat* matrixA, std::vector<double> b);
-    double getMeanCurvatureWeights(Vertex* vertex1, Vertex* vertex2);
-    double getMeanValueWeights(Vertex* vertex1, Vertex* vertex2);
 
     Mesh* mesh;
     Cube* cubeSurface;
