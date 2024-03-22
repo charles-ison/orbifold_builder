@@ -187,7 +187,7 @@ void Mesh::implicitSmooth(std::vector<Vertex*> verticesToSmooth, std::map<Vertex
         bZ.push_back(vertex->position.z());
     }
 
-    double stepSize = 1.0;
+    double stepSize = 10.0;
     int numVertices = verticesToSmooth.size();
     SparseMat* matrixA = new SparseMat(numVertices, numVertices, 0);
     for (Vertex* vertex: verticesToSmooth) {
@@ -260,7 +260,7 @@ void Mesh::implicitSmooth(std::vector<Vertex*> verticesToSmooth, std::map<Vertex
 }
 
 void Mesh::explicitSmooth(std::vector<Vertex*> verticesToSmooth, std::map<Vertex*, int> verticesToSmoothMap) {
-    float stepSize = 0.1;
+    float stepSize = 0.5;
     std::vector<QVector3D> newPositions;
 
     for (Vertex *vertex: verticesToSmooth) {
@@ -279,13 +279,13 @@ void Mesh::explicitSmooth(std::vector<Vertex*> verticesToSmooth, std::map<Vertex
                     // neighborWeightSum += 1;
 
                     // Cord Weights
-                    //neighborWeightSum += euclideanDistance(vertex, neighbor);
+                    // neighborWeightSum += 1.0 / euclideanDistance(vertex, neighbor);
 
                     // Mean Curvature Weights
-                    neighborWeightSum += getMeanCurvatureWeights(vertex, neighbor);
+                    // neighborWeightSum += getMeanCurvatureWeights(vertex, neighbor);
 
                     // Mean Value Weights
-                    // neighborWeightSum += getMeanValueWeights(vertex, neighbor);
+                    neighborWeightSum += getMeanValueWeights(vertex, neighbor);
 
                     visitedNeighbors.insert(neighbor);
                     neighbors.push_back(neighbor);
@@ -293,24 +293,22 @@ void Mesh::explicitSmooth(std::vector<Vertex*> verticesToSmooth, std::map<Vertex
             }
         }
 
-        visitedNeighbors.clear();
         for (Vertex *neighbor : neighbors) {
             // Uniform weights
             // double weight = 1;
 
             // Cord weights
-            // double weight = euclideanDistance(vertex, neighbor);
+            // double weight = 1.0 / euclideanDistance(vertex, neighbor);
 
             // Mean Curvature weights
-            double weight = getMeanCurvatureWeights(vertex, neighbor);
+            // double weight = getMeanCurvatureWeights(vertex, neighbor);
 
             // Mean Value weights
-            // double weight = getMeanValueWeights(vertex, neighbor);
+            double weight = getMeanValueWeights(vertex, neighbor);
 
-            xDiff += weight * (neighbor->position.x() - vertex->position.x());
-            yDiff += weight * (neighbor->position.y() - vertex->position.y());
-            zDiff += weight * (neighbor->position.z() - vertex->position.z());
-            visitedNeighbors.insert(neighbor);
+            xDiff += (weight/neighborWeightSum) * (neighbor->position.x() - vertex->position.x());
+            yDiff += (weight/neighborWeightSum) * (neighbor->position.y() - vertex->position.y());
+            zDiff += (weight/neighborWeightSum) * (neighbor->position.z() - vertex->position.z());
         }
 
         float newX = vertex->position.x() + stepSize * xDiff;
