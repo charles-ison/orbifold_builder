@@ -274,7 +274,7 @@ void Mesh::explicitSmooth(std::vector<Vertex*> verticesToSmooth, std::map<Vertex
         // Initializing weights
         for (Triangle *triangle : vertex->triangles) {
             for (Vertex *neighbor : triangle->vertices) {
-                if (neighbor != vertex && visitedNeighbors.find(neighbor) == visitedNeighbors.end()) {
+                if (neighbor != vertex && verticesToSmoothMap.find(neighbor) != verticesToSmoothMap.end() && visitedNeighbors.find(neighbor) == visitedNeighbors.end()) {
                     // Uniform weights
                     // neighborWeightSum += 1;
 
