@@ -526,8 +526,8 @@ void ResultsWidget::timerEvent(QTimerEvent *) {
     }
 
     if (shouldPaintGL and numSmoothingStepsSoFar < numSmoothingSteps) {
-        implicitSmooth();
-        //explicitSmooth();
+        //implicitSmooth();
+        explicitSmooth();
         shouldUpdate = true;
         numSmoothingStepsSoFar += 1;
     } else if (numSmoothingStepsSoFar == numSmoothingSteps){
@@ -797,7 +797,7 @@ void ResultsWidget::toggleSmoothSurface() {
     } else {
         if (!selectedPoints.empty()) {
             findVerticesToSmooth(selectedPoints.front());
-            numSmoothingSteps = 1;
+            numSmoothingSteps = 30;
             numSmoothingStepsSoFar = 0;
         }
         isDrawingEnabled = true;
@@ -933,12 +933,12 @@ void ResultsWidget::implicitSmooth() {
 }
 
 void ResultsWidget::explicitSmooth() {
-    float stepSize = 0.5;
+    float stepSize = 0.05;
     std::vector<QVector3D> newPositions;
     std::vector<Vertex *> vertices = mesh->getVertices();
 
     for (Vertex *vertex: verticesToSmooth) {
-        double neighborDistanceSum = 0.0;
+        double neighborWeightSum = 0.0;
         double xDiff = 0.0;
         double yDiff = 0.0;
         double zDiff = 0.0;
@@ -949,7 +949,18 @@ void ResultsWidget::explicitSmooth() {
         for (Triangle *triangle : vertex->triangles) {
             for (Vertex *neighbor : triangle->vertices) {
                 if (neighbor != vertex && visitedNeighbors.find(neighbor) == visitedNeighbors.end()) {
-                    neighborDistanceSum += euclideanDistance(vertex, neighbor);
+                    // Uniform weights
+                    // neighborWeightSum += 1;
+
+                    // Cord Weights
+                    //neighborWeightSum += euclideanDistance(vertex, neighbor);
+
+                    // Mean Curvature Weights
+                    // neighborWeightSum += getMeanCurvatureWeights(vertex, neighbor);
+
+                    // Mean Value Weights
+                    neighborWeightSum += getMeanValueWeights(vertex, neighbor);
+
                     visitedNeighbors.insert(neighbor);
                     neighbors.push_back(neighbor);
                 }
@@ -958,8 +969,18 @@ void ResultsWidget::explicitSmooth() {
 
         visitedNeighbors.clear();
         for (Vertex *neighbor : neighbors) {
-            //float weight = 1.0 / neighbors.size();
-            double weight = euclideanDistance(vertex, neighbor) / neighborDistanceSum;
+            // Uniform weights
+            // double weight = 1;
+
+            // Cord weights
+            // double weight = euclideanDistance(vertex, neighbor);
+
+            // Mean Curvature weights
+            //double weight = getMeanCurvatureWeights(vertex, neighbor);
+
+            // Mean Value weights
+            double weight = getMeanValueWeights(vertex, neighbor);
+
             xDiff += weight * (neighbor->position.x() - vertex->position.x());
             yDiff += weight * (neighbor->position.y() - vertex->position.y());
             zDiff += weight * (neighbor->position.z() - vertex->position.z());
