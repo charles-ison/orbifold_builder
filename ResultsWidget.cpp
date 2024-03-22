@@ -393,7 +393,7 @@ Vertex* ResultsWidget::getVertexFromMouseEvent(QMouseEvent *e) {
         QVector3D rotatedVertexNormal = rotation.rotatedVector(vertex->normal);
         float xyDistance = sqrt(pow(x - rotatedVertexPosition.x(), 2) + pow(y - rotatedVertexPosition.y(), 2));
         if (xyDistance < xyThreshold && rotatedVertexNormal.z() > 0) {
-            float zDistance = vertex->position.z();
+            float zDistance = rotatedVertexPosition.z();
             zDistances.push_back(zDistance);
             candidateVertices.push({xyDistance, zDistance, vertex});
             vertexFound = true;
@@ -401,11 +401,11 @@ Vertex* ResultsWidget::getVertexFromMouseEvent(QMouseEvent *e) {
     }
     if (vertexFound) {
         std::sort(zDistances.begin(), zDistances.end());
-        float zDistanceThreshold = zDistances[(9.0/10.0) * zDistances.size()];
+        float zDistanceThreshold = zDistances[(0.1/1.0) * zDistances.size()];
         while (!candidateVertices.empty()) {
             std::tuple<float, float, Vertex *> candidateVertex = candidateVertices.top();
             candidateVertices.pop();
-            if (std::get<1>(candidateVertex) >= zDistanceThreshold) {
+            if (std::get<1>(candidateVertex) <= zDistanceThreshold) {
                 return std::get<2>(candidateVertex);
             }
         }
