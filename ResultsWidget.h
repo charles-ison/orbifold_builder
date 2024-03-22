@@ -61,7 +61,6 @@ private:
     Vertex* getVertexFromMouseEvent(QMouseEvent *e);
     bool triangleContainsVertex(Vertex *vertex, Triangle *triangle);
     bool rotationDirectionAligns(Triangle* triangle, Vertex* vertex1, Vertex* vertex2);
-    double euclideanDistance(Vertex* vertex1, Vertex* vertex2);
     void connectVertices();
     void findVerticesToSmooth(Vertex *vertexToSmooth);
     void setSelectedPoints(Vertex *vertex);
@@ -70,6 +69,7 @@ private:
     std::vector<double> biconjugateGradientMethod(SparseMat* matrixA, std::vector<double> b, double tolerance, int maxIters);
     double computeNorm(std::vector<double> b);
     std::vector<double> solveEquation(SparseMat* matrixA, std::vector<double> b);
+    double getMeanCurvatureWeights(Vertex* vertex1, Vertex* vertex2);
 
     Mesh* mesh;
     Cube* cubeSurface;

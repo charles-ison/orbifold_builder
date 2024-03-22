@@ -22,6 +22,7 @@ qt_add_executable(orbifold_builder
     ResultsWidget.cpp ResultsWidget.h
     Mesh.cpp Mesh.h
     SparseMat.h
+    Util.h
     surfaces/Surface.h
     surfaces/Cube.cpp surfaces/Cube.h
     surfaces/Sphere.cpp surfaces/Sphere.h

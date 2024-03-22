@@ -4,6 +4,7 @@
 #include <unordered_set>
 #include "surfaces/Vertex.h"
 #include "surfaces/Surface.h"
+#include "Util.h"
 
 class Mesh {
 
@@ -16,11 +17,12 @@ public:
     void deleteVerticesReferences(std::unordered_set<Vertex*> verticesToDelete);
     void deleteVertices(std::unordered_set<Vertex*> verticesToDelete);
     void deleteOutdatedTriangles();
-    void updateVertexNeighbors();
-    void updateNormals();
+    void updateTriangles();
 
 private:
     void deleteTriangleReferences(Triangle* triangle);
+    std::vector<double> computeAngles(Vertex* vertex0, Vertex* vertex1, Vertex* vertex2);
+    void updateVertexNeighbors();
     std::vector<Vertex*> vertices;
     std::vector<Triangle*> triangles;
 };

@@ -20,7 +20,7 @@ void Mesh::addSurface(Surface *surface) {
     }
 
     updateVertexNeighbors();
-    updateNormals();
+    updateTriangles();
 }
 
 void Mesh::updateVertexNeighbors() {
@@ -35,7 +35,17 @@ void Mesh::updateVertexNeighbors() {
     }
 }
 
-void Mesh::updateNormals() {
+std::vector<double> Mesh::computeAngles(Vertex* vertex0, Vertex* vertex1, Vertex* vertex2) {
+    double edge01 = euclideanDistance(vertex0, vertex1);
+    double edge12 = euclideanDistance(vertex1, vertex2);
+    double edge20 = euclideanDistance(vertex2, vertex0);
+    double angle0 = acos((pow(edge01, 2) + pow(edge20, 2) - pow(edge12, 2)) / (2 * edge01 * edge20));
+    double angle1 = acos((pow(edge01, 2) + pow(edge12, 2) - pow(edge20, 2)) / (2 * edge01 * edge12));
+    double angle2 = acos((pow(edge12, 2) + pow(edge20, 2) - pow(edge01, 2)) / (2 * edge12 * edge20));
+    return {angle0, angle1, angle2};
+}
+
+void Mesh::updateTriangles() {
     for (int i=0; i<triangles.size(); i++) {
         Vertex* vertex0 = triangles[i]->vertices[0];
         Vertex* vertex1 = triangles[i]->vertices[1];
@@ -45,6 +55,7 @@ void Mesh::updateNormals() {
         QVector3D vector2 = vertex2->position - vertex1->position;
         QVector3D faceNormal = QVector3D::crossProduct(vector1, vector2).normalized();
         triangles[i]->normal = faceNormal;
+        triangles[i]->angles = computeAngles(vertex0, vertex1, vertex2);
     }
 
     for (int i=0; i<vertices.size(); i++) {

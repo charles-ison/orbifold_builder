@@ -5,6 +5,7 @@
 #include <queue>
 #include <unordered_set>
 #include <tuple>
+#include <iostream>
 
 ResultsWidget::~ResultsWidget() {
     // Make sure the context is current when deleting the buffers.
@@ -287,7 +288,7 @@ void ResultsWidget::cutSurface() {
 
     numOpenings += 1;
     drawnVertices.clear();
-    mesh->updateNormals();
+    mesh->updateTriangles();
     boundariesAreCombinedLoop = false;
     geometryEngine->initLine(drawnVertices, drawingColor);
     geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed, boundariesOverlapping, numOpenings);
@@ -478,22 +479,6 @@ std::tuple<float, std::vector<Vertex*>> ResultsWidget::getVerticesPathAndDistanc
     return {0.0, path};;
 }
 
-double ResultsWidget::euclideanDistance(Vertex* vertex1, Vertex* vertex2) {
-    float dx = vertex1->position.x()-vertex2->position.x();
-    float dy = vertex1->position.y()-vertex2->position.y();
-    float dz = vertex1->position.z()-vertex2->position.z();
-
-    // Use for fast marching
-    //float delta = 2*oldDistance - pow(dx-dy-dz, 2);
-    //if (delta >= 0) {
-    //    return (dx + dy + dz + sqrt(delta))/2;
-    //} else {
-    //    return oldDistance + sqrt(pow(dx, 2) + pow(dy, 2) + pow(dz, 2));
-    //}
-
-    return sqrt(pow(dx, 2) + pow(dy, 2) + pow(dz, 2));
-}
-
 bool ResultsWidget::drawnVerticesContainLoop(Vertex *newVertex) {
     bool loopFound = false;
     for (int i=0; i<drawnVertices.size(); i++) {
@@ -542,6 +527,7 @@ void ResultsWidget::timerEvent(QTimerEvent *) {
 
     if (shouldPaintGL and numSmoothingStepsSoFar < numSmoothingSteps) {
         implicitSmooth();
+        //explicitSmooth();
         shouldUpdate = true;
         numSmoothingStepsSoFar += 1;
     } else if (numSmoothingStepsSoFar == numSmoothingSteps){
@@ -678,7 +664,7 @@ void ResultsWidget::glue() {
     boundariesAreCombinedLoop = false;
     boundariesOverlapping = false;
 
-    mesh->updateNormals();
+    mesh->updateTriangles();
     geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2,boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed, boundariesOverlapping, numOpenings);
     geometryEngine->initMesh(mesh);
     update();
@@ -811,7 +797,7 @@ void ResultsWidget::toggleSmoothSurface() {
     } else {
         if (!selectedPoints.empty()) {
             findVerticesToSmooth(selectedPoints.front());
-            numSmoothingSteps = 30;
+            numSmoothingSteps = 1;
             numSmoothingStepsSoFar = 0;
         }
         isDrawingEnabled = true;
@@ -823,6 +809,25 @@ void ResultsWidget::toggleSmoothSurface() {
     update();
 }
 
+double ResultsWidget::getMeanCurvatureWeights(Vertex* vertex1, Vertex* vertex2) {
+    double meanCurvatureWeights = 0.0;
+    int numAnglesComputed = 0;
+    for (Triangle* triangle : vertex1->triangles) {
+        if (triangleContainsVertex(vertex2, triangle)) {
+            for (int i=0; i<3; i++) {
+                if (triangle->vertices[i] != vertex1 && triangle->vertices[i] != vertex2) {
+                     meanCurvatureWeights += cot(triangle->angles[i])/2;
+                     numAnglesComputed += 1;
+                }
+            }
+        }
+    }
+    if (numAnglesComputed != 2) {
+        std::cout << "Error: 2 angles not found for mean curvature weights. Surface not closed." << std::endl;
+    }
+    return meanCurvatureWeights;
+}
+
 void ResultsWidget::implicitSmooth() {
     std::vector<double> bX, bY, bZ;
     for (Vertex* vertex: verticesToSmooth) {
@@ -831,32 +836,48 @@ void ResultsWidget::implicitSmooth() {
         bZ.push_back(vertex->position.z());
     }
 
-    double stepSize = 1.0;
+    double stepSize = 10.0;
     int numVertices = verticesToSmooth.size();
     SparseMat* matrixA = new SparseMat(numVertices, numVertices, 0);
     for (Vertex* vertex: verticesToSmooth) {
-        double neighborDistanceSum = 0.0;
+        double neighborWeightSum = 0.0;
         std::unordered_set<Vertex *> visitedNeighbors;
         std::vector<Vertex *> neighbors;
         for (Triangle *triangle: vertex->triangles) {
             for (Vertex *neighbor: triangle->vertices) {
-                if (verticesToSmoothMap.find(neighbor) != verticesToSmoothMap.end() && visitedNeighbors.find(neighbor) == visitedNeighbors.end()) {
-                    neighborDistanceSum += euclideanDistance(vertex, neighbor);
+                if (neighbor != vertex && verticesToSmoothMap.find(neighbor) != verticesToSmoothMap.end() && visitedNeighbors.find(neighbor) == visitedNeighbors.end()) {
+                    // Uniform weights
+                    // neighborWeightSum += 1;
+
+                    // Cord Weights
+                    // neighborWeightSum += euclideanDistance(vertex, neighbor);
+
+                    // Mean Curvature Weights
+                    neighborWeightSum += getMeanCurvatureWeights(vertex, neighbor);
+
                     visitedNeighbors.insert(neighbor);
                     neighbors.push_back(neighbor);
                 }
             }
         }
+        neighbors.push_back(vertex);
         std::sort(neighbors.begin(), neighbors.end(), [this](Vertex* v1, Vertex* v2) {return verticesToSmoothMap.at(v1) < verticesToSmoothMap.at(v2); });
 
         int vertexIndex = verticesToSmoothMap.at(vertex);
         for (Vertex *neighbor: neighbors) {
             if (vertex == neighbor) {
-                //matrixA->vals.push_back(1.0 + stepSize * (neighbors.size() - 1));
-                matrixA->vals.push_back(1.0 + stepSize * neighborDistanceSum);
+                matrixA->vals.push_back(1.0 + stepSize * neighborWeightSum);
             } else {
-                //matrixA->vals.push_back(-stepSize);
-                matrixA->vals.push_back(-stepSize * euclideanDistance(vertex, neighbor));
+                // Uniform weights
+                // double weight = 1;
+
+                // Cord weights
+                // double weight = euclideanDistance(vertex, neighbor);
+
+                // Mean Curvature weights
+                double weight = getMeanCurvatureWeights(vertex, neighbor);
+
+                matrixA->vals.push_back(-stepSize * weight);
             }
             int neighborIndex = verticesToSmoothMap.at(neighbor);
             matrixA->rowIndices.push_back(neighborIndex);
@@ -877,7 +898,7 @@ void ResultsWidget::implicitSmooth() {
         verticesToSmooth[i]->position.setZ(newZPositions[i]);
     }
 
-    mesh->updateNormals();
+    mesh->updateTriangles();
     geometryEngine->initMesh(mesh);
     geometryEngine->initLine(drawnVertices, drawingColor);
     geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed, boundariesOverlapping, numOpenings);
@@ -928,7 +949,7 @@ void ResultsWidget::explicitSmooth() {
         verticesToSmooth[j]->position = newPositions[j];
     }
 
-    mesh->updateNormals();
+    mesh->updateTriangles();
     geometryEngine->initMesh(mesh);
     geometryEngine->initLine(drawnVertices, drawingColor);
     geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed, boundariesOverlapping, numOpenings);
