@@ -1,4 +1,5 @@
 #include "Mesh.h"
+#include <queue>
 #include <iostream>
 
 void Mesh::resetSurface(Surface *surface) {
@@ -437,4 +438,36 @@ double Mesh::computeNorm(std::vector<double> b) {
         sum += pow(b[i], 2);
     }
     return sqrt(sum);
+}
+
+std::tuple<float, std::vector<Vertex*>> Mesh::getVerticesPathAndDistance(Vertex *startVertex, Vertex *endVertex) {
+    std::vector<Vertex*> path = {startVertex};
+    std::unordered_set<Vertex*> checkedVertices;
+    std::priority_queue<std::tuple<double, std::vector<Vertex*>>, std::vector<std::tuple<double, std::vector<Vertex*>>>, std::greater<std::tuple<float, std::vector<Vertex*>>> > potentialPaths;
+    potentialPaths.push({0.0, path});
+    QVector3D endVertexPosition = endVertex->position;
+
+    while(!potentialPaths.empty()) {
+        std::tuple<double, std::vector<Vertex*>> nextDistanceAndPath = potentialPaths.top();
+        double oldDistance = std::get<0>(nextDistanceAndPath);
+        std::vector<Vertex*> nextPath = std::get<1>(nextDistanceAndPath);
+        Vertex *nextVertex = nextPath.back();
+        potentialPaths.pop();
+
+        for (Triangle* triangle : nextVertex->triangles) {
+            for (Vertex *neighbor : triangle->vertices) {
+                if (neighbor->position == endVertexPosition) {
+                    double distance = oldDistance + euclideanDistance(neighbor, nextVertex);
+                    return {distance, nextPath};
+                } else if (checkedVertices.find(neighbor) == checkedVertices.end()) {
+                    std::vector<Vertex*> newPotentialPath = nextPath;
+                    newPotentialPath.push_back(neighbor);
+                    double distance = oldDistance + euclideanDistance(neighbor, nextVertex);
+                    potentialPaths.push({distance, newPotentialPath});
+                    checkedVertices.insert(neighbor);
+                }
+            }
+        }
+    }
+    return {0.0, path};;
 }

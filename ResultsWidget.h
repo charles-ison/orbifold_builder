@@ -52,13 +52,10 @@ protected:
 private:
     void implicitSmooth();
     void explicitSmooth();
-    static bool sortVertices(Vertex* vertex1, Vertex* vertex2);
     void deleteSurface(Vertex *vertexToDelete);
     void addDrawnVertices(Vertex *newVertex);
-    std::tuple<float, std::vector<Vertex*>> getVerticesPathAndDistance(Vertex *startVertex, Vertex *endVertex);
     bool drawnVerticesContainLoop(Vertex *newVertex);
     Vertex* getVertexFromMouseEvent(QMouseEvent *e);
-    bool triangleContainsVertex(Vertex *vertex, Triangle *triangle);
     bool rotationDirectionAligns(Triangle* triangle, Vertex* vertex1, Vertex* vertex2);
     void connectVertices();
     void findVerticesToSmooth(Vertex *vertexToSmooth);

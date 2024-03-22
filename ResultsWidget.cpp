@@ -418,7 +418,7 @@ void ResultsWidget::addDrawnVertices(Vertex *newVertex) {
     if (drawnVertices.size() == 0) {
         newVertices= {newVertex};
     } else {
-        std::tuple<float, std::vector<Vertex*>> verticesPathAndDistance = getVerticesPathAndDistance(newVertex, drawnVertices.back());
+        std::tuple<float, std::vector<Vertex*>> verticesPathAndDistance = mesh->getVerticesPathAndDistance(newVertex, drawnVertices.back());
         newVertices = std::get<1>(verticesPathAndDistance);
     }
     for (int i = newVertices.size() - 1; i > -1; i--) {
@@ -432,38 +432,6 @@ void ResultsWidget::addDrawnVertices(Vertex *newVertex) {
             }
         }
     }
-}
-
-std::tuple<float, std::vector<Vertex*>> ResultsWidget::getVerticesPathAndDistance(Vertex *startVertex, Vertex *endVertex) {
-    std::vector<Vertex*> path = {startVertex};
-    std::unordered_set<Vertex*> checkedVertices;
-    std::priority_queue<std::tuple<double, std::vector<Vertex*>>, std::vector<std::tuple<double, std::vector<Vertex*>>>, std::greater<std::tuple<float, std::vector<Vertex*>>> > potentialPaths;
-    potentialPaths.push({0.0, path});
-    QVector3D endVertexPosition = endVertex->position;
-
-    while(!potentialPaths.empty()) {
-        std::tuple<double, std::vector<Vertex*>> nextDistanceAndPath = potentialPaths.top();
-        double oldDistance = std::get<0>(nextDistanceAndPath);
-        std::vector<Vertex*> nextPath = std::get<1>(nextDistanceAndPath);
-        Vertex *nextVertex = nextPath.back();
-        potentialPaths.pop();
-
-        for (Triangle* triangle : nextVertex->triangles) {
-            for (Vertex *neighbor : triangle->vertices) {
-                if (neighbor->position == endVertexPosition) {
-                    double distance = oldDistance + euclideanDistance(neighbor, nextVertex);
-                    return {distance, nextPath};
-                } else if (checkedVertices.find(neighbor) == checkedVertices.end()) {
-                    std::vector<Vertex*> newPotentialPath = nextPath;
-                    newPotentialPath.push_back(neighbor);
-                    double distance = oldDistance + euclideanDistance(neighbor, nextVertex);
-                    potentialPaths.push({distance, newPotentialPath});
-                    checkedVertices.insert(neighbor);
-                }
-            }
-        }
-    }
-    return {0.0, path};;
 }
 
 bool ResultsWidget::drawnVerticesContainLoop(Vertex *newVertex) {
@@ -513,8 +481,8 @@ void ResultsWidget::timerEvent(QTimerEvent *) {
     }
 
     if (shouldPaintGL and numSmoothingStepsSoFar < numSmoothingSteps) {
-        //implicitSmooth();
-        explicitSmooth();
+        implicitSmooth();
+        //explicitSmooth();
         shouldUpdate = true;
         numSmoothingStepsSoFar += 1;
     } else if (numSmoothingStepsSoFar == numSmoothingSteps){
