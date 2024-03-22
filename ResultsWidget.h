@@ -70,6 +70,7 @@ private:
     double computeNorm(std::vector<double> b);
     std::vector<double> solveEquation(SparseMat* matrixA, std::vector<double> b);
     double getMeanCurvatureWeights(Vertex* vertex1, Vertex* vertex2);
+    double getMeanValueWeights(Vertex* vertex1, Vertex* vertex2);
 
     Mesh* mesh;
     Cube* cubeSurface;

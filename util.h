@@ -21,6 +21,4 @@ static double cot(double angle) {
     return cos(angle) / sin(angle);
 }
 
-
-
 #endif

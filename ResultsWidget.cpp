@@ -809,23 +809,43 @@ void ResultsWidget::toggleSmoothSurface() {
     update();
 }
 
-double ResultsWidget::getMeanCurvatureWeights(Vertex* vertex1, Vertex* vertex2) {
-    double meanCurvatureWeights = 0.0;
-    int numAnglesComputed = 0;
+double ResultsWidget::getMeanValueWeights(Vertex* vertex1, Vertex* vertex2) {
+    double weights = 0.0;
+    int numAnglesFound = 0;
     for (Triangle* triangle : vertex1->triangles) {
         if (triangleContainsVertex(vertex2, triangle)) {
             for (int i=0; i<3; i++) {
-                if (triangle->vertices[i] != vertex1 && triangle->vertices[i] != vertex2) {
-                     meanCurvatureWeights += cot(triangle->angles[i])/2;
-                     numAnglesComputed += 1;
+                if (triangle->vertices[i] == vertex1) {
+                    weights += tan(triangle->angles[i]/2.0)/2.0;
+                    numAnglesFound += 1;
                 }
             }
         }
     }
-    if (numAnglesComputed != 2) {
+
+    if (numAnglesFound != 2) {
+        std::cout << "Error: 2 angles not found for mean value weights. Surface not closed." << std::endl;
+    }
+    return weights;
+}
+
+double ResultsWidget::getMeanCurvatureWeights(Vertex* vertex1, Vertex* vertex2) {
+    double weights = 0.0;
+    int numAnglesFound = 0;
+    for (Triangle* triangle : vertex1->triangles) {
+        if (triangleContainsVertex(vertex2, triangle)) {
+            for (int i=0; i<3; i++) {
+                if (triangle->vertices[i] != vertex1 && triangle->vertices[i] != vertex2) {
+                    weights += cot(triangle->angles[i])/2.0;
+                    numAnglesFound += 1;
+                }
+            }
+        }
+    }
+    if (numAnglesFound != 2) {
         std::cout << "Error: 2 angles not found for mean curvature weights. Surface not closed." << std::endl;
     }
-    return meanCurvatureWeights;
+    return weights;
 }
 
 void ResultsWidget::implicitSmooth() {
@@ -836,7 +856,7 @@ void ResultsWidget::implicitSmooth() {
         bZ.push_back(vertex->position.z());
     }
 
-    double stepSize = 10.0;
+    double stepSize = 1.0;
     int numVertices = verticesToSmooth.size();
     SparseMat* matrixA = new SparseMat(numVertices, numVertices, 0);
     for (Vertex* vertex: verticesToSmooth) {
@@ -855,11 +875,15 @@ void ResultsWidget::implicitSmooth() {
                     // Mean Curvature Weights
                     neighborWeightSum += getMeanCurvatureWeights(vertex, neighbor);
 
+                    // Mean Value Weights
+                    //neighborWeightSum += getMeanValueWeights(vertex, neighbor);
+
                     visitedNeighbors.insert(neighbor);
                     neighbors.push_back(neighbor);
                 }
             }
         }
+
         neighbors.push_back(vertex);
         std::sort(neighbors.begin(), neighbors.end(), [this](Vertex* v1, Vertex* v2) {return verticesToSmoothMap.at(v1) < verticesToSmoothMap.at(v2); });
 
@@ -877,6 +901,9 @@ void ResultsWidget::implicitSmooth() {
                 // Mean Curvature weights
                 double weight = getMeanCurvatureWeights(vertex, neighbor);
 
+                // Mean Value weights
+                //double weight = getMeanValueWeights(vertex, neighbor);
+
                 matrixA->vals.push_back(-stepSize * weight);
             }
             int neighborIndex = verticesToSmoothMap.at(neighbor);
@@ -888,9 +915,9 @@ void ResultsWidget::implicitSmooth() {
     }
 
     matrixA->colFirstIndices[matrixA->colFirstIndices.size()-1] = matrixA->vals.size();
-    std::vector<double> newXPositions = biconjugateGradientMethod(matrixA, bX, 0.0001, 100);
-    std::vector<double> newYPositions = biconjugateGradientMethod(matrixA, bY, 0.0001, 100);
-    std::vector<double> newZPositions = biconjugateGradientMethod(matrixA, bZ, 0.0001, 100);
+    std::vector<double> newXPositions = biconjugateGradientMethod(matrixA, bX, 0.0001, 20);
+    std::vector<double> newYPositions = biconjugateGradientMethod(matrixA, bY, 0.0001, 20);
+    std::vector<double> newZPositions = biconjugateGradientMethod(matrixA, bZ, 0.0001, 20);
 
     for (int i=0; i<verticesToSmooth.size(); i++) {
         verticesToSmooth[i]->position.setX(newXPositions[i]);
