@@ -50,8 +50,7 @@ protected:
     void initShaders();
 
 private:
-    void implicitSmooth();
-    void explicitSmooth();
+    void smooth();
     void deleteSurface(Vertex *vertexToDelete);
     void addDrawnVertices(Vertex *newVertex);
     bool drawnVerticesContainLoop(Vertex *newVertex);

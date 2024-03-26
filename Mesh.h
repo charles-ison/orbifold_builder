@@ -19,6 +19,7 @@ public:
     void deleteVertices(std::unordered_set<Vertex*> verticesToDelete);
     void deleteOutdatedTriangles();
     void updateTriangles();
+    void directLaplaceEquationSolving(std::vector<Vertex*> verticesToSmooth, std::map<Vertex*, int> verticesToSmoothMap, std::vector<Vertex*> drawnVertices);
     void implicitSmooth(std::vector<Vertex*> verticesToSmooth, std::map<Vertex*, int> verticesToSmoothMap);
     void explicitSmooth(std::vector<Vertex*> verticesToSmooth, std::map<Vertex*, int> verticesToSmoothMap);
     bool triangleContainsVertex(Vertex *vertex, Triangle *triangle);

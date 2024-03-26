@@ -481,7 +481,7 @@ void ResultsWidget::timerEvent(QTimerEvent *) {
     }
 
     if (shouldPaintGL and numSmoothingStepsSoFar < numSmoothingSteps) {
-        implicitSmooth();
+        smooth();
         //explicitSmooth();
         shouldUpdate = true;
         numSmoothingStepsSoFar += 1;
@@ -764,16 +764,10 @@ void ResultsWidget::toggleSmoothSurface() {
     update();
 }
 
-void ResultsWidget::implicitSmooth() {
-    mesh->implicitSmooth(verticesToSmooth, verticesToSmoothMap);
-    geometryEngine->initMesh(mesh);
-    geometryEngine->initLine(drawnVertices, drawingColor);
-    geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed, boundariesOverlapping, numOpenings);
-    update();
-}
-
-void ResultsWidget::explicitSmooth() {
-    mesh->explicitSmooth(verticesToSmooth, verticesToSmoothMap);
+void ResultsWidget::smooth() {
+    mesh->directLaplaceEquationSolving(verticesToSmooth, verticesToSmoothMap, drawnVertices);
+    //mesh->implicitSmooth(verticesToSmooth, verticesToSmoothMap);
+    //mesh->explicitSmooth(verticesToSmooth, verticesToSmoothMap);
     geometryEngine->initMesh(mesh);
     geometryEngine->initLine(drawnVertices, drawingColor);
     geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed, boundariesOverlapping, numOpenings);
