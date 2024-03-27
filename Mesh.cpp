@@ -180,37 +180,32 @@ double Mesh::getMeanCurvatureWeights(Vertex* vertex1, Vertex* vertex2) {
 }
 
 void Mesh::directLaplaceEquationSolving(std::vector<Vertex*> verticesToSmooth, std::map<Vertex*, int> verticesToSmoothMap, std::vector<Vertex*> drawnVertices) {
+    std::vector<double> bX, bY, bZ;
+    int numVertices = verticesToSmooth.size();
+    for (int i=0; i<numVertices; i++) {
+        bX.push_back(0.0);
+        bY.push_back(0.0);
+        bZ.push_back(0.0);
+    }
+
     std::unordered_set<Vertex*> drawnVerticesSet;
     for(Vertex* drawnVertex : drawnVertices) {
         if (drawnVerticesSet.find(drawnVertex) == drawnVerticesSet.end()) {
             drawnVerticesSet.insert(drawnVertex);
-            verticesToSmooth.push_back(drawnVertex);
             verticesToSmoothMap.insert({drawnVertex, verticesToSmoothMap.size()});
         }
     }
 
-    std::vector<double> bX, bY, bZ;
-    for (Vertex* vertex: verticesToSmooth) {
-        if (drawnVerticesSet.find(vertex) == drawnVerticesSet.end()) {
-            bX.push_back(0.0);
-            bY.push_back(0.0);
-            bZ.push_back(0.0);
-        } else {
-            bX.push_back(vertex->position.x());
-            bY.push_back(vertex->position.y());
-            bZ.push_back(vertex->position.z());
-        }
-    }
-
-    int numVertices = verticesToSmooth.size();
     SparseMat* matrixA = new SparseMat(numVertices, numVertices, 0);
-    for (Vertex* vertex: verticesToSmooth) {
+    for (int i=0; i<numVertices; i++) {
+        Vertex* vertex = verticesToSmooth[i];
         double neighborWeightSum = 0.0;
         std::unordered_set<Vertex *> visitedNeighbors;
         std::vector<Vertex *> neighbors;
         for (Triangle *triangle: vertex->triangles) {
             for (Vertex *neighbor: triangle->vertices) {
-                if (neighbor != vertex && verticesToSmoothMap.find(neighbor) != verticesToSmoothMap.end() && visitedNeighbors.find(neighbor) == visitedNeighbors.end()) {
+                bool impactsSystemOfEquations = verticesToSmoothMap.find(neighbor) != verticesToSmoothMap.end() || drawnVerticesSet.find(neighbor) != drawnVerticesSet.end();
+                if (neighbor != vertex && visitedNeighbors.find(neighbor) == visitedNeighbors.end() && impactsSystemOfEquations) {
                     // Uniform weights
                     neighborWeightSum += 1;
 
@@ -234,13 +229,14 @@ void Mesh::directLaplaceEquationSolving(std::vector<Vertex*> verticesToSmooth, s
         int vertexIndex = verticesToSmoothMap.at(vertex);
         for (Vertex *neighbor : neighbors) {
             bool valFound = false;
-            if (vertex == neighbor && drawnVerticesSet.find(neighbor) != drawnVerticesSet.end()) {
-                matrixA->vals.push_back(1.0);
-                valFound = true;
+            if (drawnVerticesSet.find(neighbor) != drawnVerticesSet.end()) {
+                bX[i] -= neighbor->position.x();
+                bY[i] -= neighbor->position.y();
+                bZ[i] -= neighbor->position.z();
             } else if (vertex == neighbor) {
                 matrixA->vals.push_back(-neighborWeightSum);
                 valFound = true;
-            } else if(drawnVerticesSet.find(neighbor) == drawnVerticesSet.end()) {
+            } else {
                 // Uniform weights
                 double weight = 1;
 
@@ -266,32 +262,11 @@ void Mesh::directLaplaceEquationSolving(std::vector<Vertex*> verticesToSmooth, s
             }
         }
     }
-    matrixA->colFirstIndices[matrixA->colFirstIndices.size()-1] = matrixA->vals.size();
 
+    matrixA->colFirstIndices[matrixA->colFirstIndices.size()-1] = matrixA->vals.size();
     std::vector<double> newXPositions = biconjugateGradientMethod(matrixA, bX, 0.0001, 10000);
     std::vector<double> newYPositions = biconjugateGradientMethod(matrixA, bY, 0.0001, 10000);
     std::vector<double> newZPositions = biconjugateGradientMethod(matrixA, bZ, 0.0001, 10000);
-
-
-    for(double b_x : bX) {
-        std::cout << "b_x: " << b_x << std::endl;
-    }
-
-    for(double val : matrixA->vals) {
-        std::cout << "val: " << val << std::endl;
-    }
-
-    for(double rowIndex : matrixA->rowIndices) {
-        std::cout << "rowIndex: " << rowIndex << std::endl;
-    }
-
-    for(double columnFirstIndex : matrixA->colFirstIndices) {
-        std::cout << "columnFirstIndex: " << columnFirstIndex << std::endl;
-    }
-
-    for(double newXPosition : newXPositions) {
-        std::cout << "newXPosition: " << newXPosition << std::endl;
-    }
 
     for (int i=0; i<verticesToSmooth.size(); i++) {
         verticesToSmooth[i]->position.setX(newXPositions[i]);
@@ -462,7 +437,6 @@ bool Mesh::triangleContainsVertex(Vertex *vertex, Triangle *triangle) {
 std::vector<double> Mesh::biconjugateGradientMethod(SparseMat* matrixA, std::vector<double> b, double tolerance, int maxIters) {
     int size = b.size();
     int iter = 0;
-    double error = 0.0;
     double ak = 0.0;
     double akDen = 1.0;
     double bk = 0.0;
@@ -470,25 +444,21 @@ std::vector<double> Mesh::biconjugateGradientMethod(SparseMat* matrixA, std::vec
     double bkNum = 0.0;
     std::vector<double> p(size);
     std::vector<double> pp(size);
-    std::vector<double> z(size);
     std::vector<double> zz(size);
-    std::vector<double> r = b;
-    std::vector<double> rr = b;
+    std::vector<double> rr(size);
+    std::vector<double> x = b;
+    std::vector<double> r = matrixA->multiply(x);
 
-    std::vector<double> x;
     for (int i=0; i<size; i++) {
-        x.push_back(0.0);
+        r[i] = b[i] - r[i];
+        rr[i] = r[i];
     }
 
     double bNorm = computeNorm(b);
-    z = solveEquation(matrixA, r);
-    error = computeNorm(r)/bNorm;
+    std::vector<double> z = solveEquation(matrixA, r);
+    double error = computeNorm(r)/bNorm;
 
     while (iter < maxIters && error >= tolerance) {
-
-        std::cout << "iter: " << iter << std::endl;
-        std::cout << "error: " << error << std::endl;
-
         iter++;
 
         // Technically matrixA should be transposed here
