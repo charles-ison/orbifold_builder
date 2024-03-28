@@ -475,11 +475,7 @@ std::vector<double> Mesh::biconjugateGradientMethod(SparseMat* matrixA, std::vec
                 pp[i] = z[i];
             }
         } else {
-            if (bkNum == 0 && bkDen == 0) {
-                bk = 1.0;
-            } else {
-                bk = bkNum/bkDen;
-            }
+            bk = bkNum/bkDen;
             for (int i=0; i<size; i++) {
                 p[i] = bk * p[i] + z[i];
                 pp[i] = bk * pp[i] + zz[i];
@@ -494,11 +490,7 @@ std::vector<double> Mesh::biconjugateGradientMethod(SparseMat* matrixA, std::vec
             akDen += z[i]*pp[i];
         }
 
-        if (bkNum == 0 && akDen == 0) {
-            ak = 1.0;
-        } else {
-            ak = bkNum / akDen;
-        }
+        ak = bkNum / akDen;
         zz = matrixA->multiplyInverse(pp);
 
         for (int i=0; i<size; i++) {
