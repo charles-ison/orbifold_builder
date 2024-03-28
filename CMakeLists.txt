@@ -1,4 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
+
+set(CMAKE_OSX_ARCHITECTURES x86_64)
+
 project(orbifold_builder LANGUAGES CXX)
 
 if(NOT DEFINED INSTALL_EXAMPLESDIR)
