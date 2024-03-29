@@ -575,9 +575,8 @@ void ResultsWidget::paintGL() {
         matrix.translate(0.0, 0.0, -5.0);
         matrix.rotate(rotation);
         mvpMatrix = projection * matrix;
-
-        // Set modelview-projection matrix
-        program.setUniformValue("mvp_matrix", projection * matrix);
+        program.setUniformValue("mvp_matrix", mvpMatrix);
+        program.setUniformValue("normal_matrix", mvpMatrix.normalMatrix());
 
         // Draw geometry
         geometryEngine->drawMesh(&program);

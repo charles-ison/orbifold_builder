@@ -29,27 +29,33 @@ private:
     QOpenGLBuffer arrayBuf;
     QOpenGLBuffer indexBuf;
     QOpenGLBuffer colorBuf;
+    QOpenGLBuffer normalBuf;
 
     int numLineVertices;
     QOpenGLBuffer lineColorBuf;
     QOpenGLBuffer lineArrayBuf;
+    QOpenGLBuffer lineNormalBuf;
 
-    int numPointsToDeleteVertices;
-    QOpenGLBuffer pointToDeleteColorBuf;
-    QOpenGLBuffer pointToDeleteArrayBuf;
+    int numPointVertices;
+    QOpenGLBuffer pointColorBuf;
+    QOpenGLBuffer pointArrayBuf;
+    QOpenGLBuffer pointNormalBuf;
 
     int numBoundaryVertices1;
     QOpenGLBuffer boundaryColorBuf1;
     QOpenGLBuffer boundaryArrayBuf1;
+    QOpenGLBuffer boundaryNormalBuf1;
 
     int numBoundaryVertices2;
     QOpenGLBuffer boundaryColorBuf2;
     QOpenGLBuffer boundaryArrayBuf2;
+    QOpenGLBuffer boundaryNormalBuf2;
 
     int numArrowVertices;
     QOpenGLBuffer arrowColorBuf;
     QOpenGLBuffer arrowIndexBuf;
     QOpenGLBuffer arrowArrayBuf;
+    QOpenGLBuffer arrowNormalBuf;
 };
 
 #endif

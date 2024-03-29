@@ -17,8 +17,8 @@ GeometryEngine::GeometryEngine() : indexBuf(QOpenGLBuffer::IndexBuffer) {
     arrowArrayBuf.create();
     arrowColorBuf.create();
     arrowIndexBuf.create();
-    pointToDeleteColorBuf.create();
-    pointToDeleteArrayBuf.create();
+    pointColorBuf.create();
+    pointArrayBuf.create();
 }
 
 GeometryEngine::~GeometryEngine() {
@@ -34,19 +34,21 @@ GeometryEngine::~GeometryEngine() {
     arrowArrayBuf.destroy();
     arrowColorBuf.destroy();
     arrowIndexBuf.destroy();
-    pointToDeleteColorBuf.destroy();
-    pointToDeleteArrayBuf.destroy();
+    pointColorBuf.destroy();
+    pointArrayBuf.destroy();
 }
 
 void GeometryEngine::initMesh(Mesh* mesh) {
     std::vector<QVector3D> positions;
     std::vector<QVector3D> colors;
+    std::vector<QVector3D> normals;
     std::vector<Vertex*> meshVertices = mesh->getVertices();
     int numVertices = meshVertices.size();
 
     for (Vertex* vertexPointer : meshVertices) {
         positions.push_back(vertexPointer->position);
         colors.push_back(vertexPointer->position);
+        normals.push_back(vertexPointer->normal);
     }
 
     // Transfer position data to VBO 0
@@ -57,10 +59,14 @@ void GeometryEngine::initMesh(Mesh* mesh) {
     colorBuf.bind();
     colorBuf.allocate(&colors[0], numVertices * sizeof(QVector3D));
 
+    // Transfer normal data to VBO 0
+    normalBuf.bind();
+    normalBuf.allocate(&normals[0], numVertices * sizeof(QVector3D));
+
     std::vector<GLushort> indices;
     std::vector<Triangle*> triangles = mesh->getTriangles();
     int numTriangles = triangles.size();
-    numIndices = 3*numTriangles;
+    numIndices = 3 * numTriangles;
 
     for (int i=0; i<numTriangles; i++) {
         int index0 = triangles[i]->vertices[0]->index;
@@ -80,6 +86,7 @@ void GeometryEngine::initMesh(Mesh* mesh) {
 void GeometryEngine::initLine(std::vector<Vertex*> lineVerticesVector, QColor color) {
     std::vector<QVector3D> positions;
     std::vector<QVector3D> colors;
+    std::vector<QVector3D> normals;
     numLineVertices = lineVerticesVector.size();
 
     QRgb rgb = color.rgb();
@@ -88,6 +95,7 @@ void GeometryEngine::initLine(std::vector<Vertex*> lineVerticesVector, QColor co
     for (Vertex* lineVertex : lineVerticesVector) {
         positions.push_back(lineVertex->position);
         colors.push_back(vecColor);
+        normals.push_back(lineVertex->normal);
     }
 
     // Transfer position data to VBO 0
@@ -97,25 +105,35 @@ void GeometryEngine::initLine(std::vector<Vertex*> lineVerticesVector, QColor co
     // Transfer color data to VBO 0
     lineColorBuf.bind();
     lineColorBuf.allocate(&colors[0], numLineVertices * sizeof(QVector3D));
+
+    // Transfer normal data to VBO 0
+    lineNormalBuf.bind();
+    lineNormalBuf.allocate(&normals[0], numLineVertices * sizeof(QVector3D));
 }
 
 void GeometryEngine::initPoints(std::vector<Vertex*> vertices) {
     std::vector<QVector3D> positions;
     std::vector<QVector3D> colors;
-    numPointsToDeleteVertices = vertices.size();
+    std::vector<QVector3D> normals;
+    numPointVertices = vertices.size();
 
-    for (Vertex* vertexToDelete : vertices) {
-        positions.push_back(vertexToDelete->position);
+    for (Vertex* vertex : vertices) {
+        positions.push_back(vertex->position);
+        normals.push_back(vertex->normal);
         colors.push_back({1.0, 1.0, 1.0});
     }
 
     // Transfer position data to VBO 0
-    pointToDeleteArrayBuf.bind();
-    pointToDeleteArrayBuf.allocate(&positions[0], sizeof(QVector3D));
+    pointArrayBuf.bind();
+    pointArrayBuf.allocate(&positions[0], sizeof(QVector3D));
 
     // Transfer color data to VBO 0
-    pointToDeleteColorBuf.bind();
+    pointColorBuf.bind();
     lineColorBuf.allocate(&colors[0], sizeof(QVector3D));
+
+    // Transfer normal data to VBO 0
+    pointNormalBuf.bind();
+    pointNormalBuf.allocate(&normals[0], sizeof(QVector3D));
 }
 
 std::vector<QVector3D> GeometryEngine::initBoundaryColors(int numVertices, int displaySize) {
@@ -130,6 +148,8 @@ std::vector<QVector3D> GeometryEngine::initBoundaryColors(int numVertices, int d
 void GeometryEngine::initBoundary(std::vector<Vertex*> boundaryVertices1, std::vector<Vertex*> boundaryVertices2, int displaySize1, int displaySize2, bool isBoundary1Loop, bool isBoundary2Loop, bool boundariesAreCombinedLoop, bool boundariesReversed, bool boundariesOverlapping, int numOpenings) {
     std::vector<QVector3D> positions1;
     std::vector<QVector3D> positions2;
+    std::vector<QVector3D> normals1;
+    std::vector<QVector3D> normals2;
     std::vector<Vertex*> newBoundaryVertices1 = boundaryVertices1;
     std::vector<Vertex*> newBoundaryVertices2 = boundaryVertices2;
     int newDisplaySize1 = displaySize1;
@@ -165,10 +185,12 @@ void GeometryEngine::initBoundary(std::vector<Vertex*> boundaryVertices1, std::v
 
     for (Vertex* boundaryVertex : newBoundaryVertices1) {
         positions1.push_back(boundaryVertex->position);
+        normals1.push_back(boundaryVertex->normal);
     }
 
     for (Vertex* boundaryVertex : newBoundaryVertices2) {
         positions2.push_back(boundaryVertex->position);
+        normals2.push_back(boundaryVertex->normal);
     }
 
     std::vector<QVector3D> colors1 = initBoundaryColors(numBoundaryVertices1, newDisplaySize1);
@@ -182,6 +204,10 @@ void GeometryEngine::initBoundary(std::vector<Vertex*> boundaryVertices1, std::v
     boundaryColorBuf1.bind();
     boundaryColorBuf1.allocate(&colors1[0], numBoundaryVertices1 * sizeof(QVector3D));
 
+    // Transfer normal data to VBO 0
+    boundaryNormalBuf1.bind();
+    boundaryNormalBuf1.allocate(&normals1[0], numBoundaryVertices1 * sizeof(QVector3D));
+
     // Transfer position data to VBO 0
     boundaryArrayBuf2.bind();
     boundaryArrayBuf2.allocate(&positions2[0], numBoundaryVertices2 * sizeof(QVector3D));
@@ -189,6 +215,10 @@ void GeometryEngine::initBoundary(std::vector<Vertex*> boundaryVertices1, std::v
     // Transfer color scale data to VBO 0
     boundaryColorBuf2.bind();
     boundaryColorBuf2.allocate(&colors2[0], numBoundaryVertices2 * sizeof(QVector3D));
+
+    // Transfer normal data to VBO 0
+    boundaryNormalBuf2.bind();
+    boundaryNormalBuf2.allocate(&normals2[0], numBoundaryVertices2 * sizeof(QVector3D));
 
     initArrows(positions1, colors1, positions2, colors2, boundariesOverlapping, boundariesReversed, numOpenings);
 }
@@ -224,6 +254,7 @@ std::vector<QVector3D> GeometryEngine::buildArrow(std::vector<QVector3D> positio
 
 void GeometryEngine::initArrows(std::vector<QVector3D> positions1, std::vector<QVector3D> colors1, std::vector<QVector3D> positions2, std::vector<QVector3D> colors2, bool boundariesOverlapping, bool boundariesReversed, int numOpenings) {
     std::vector<QVector3D> arrowPositions;
+    std::vector<QVector3D> arrowNormals;
     std::vector<QVector3D> arrowColors;
 
     if (!positions1.empty()) {
@@ -274,7 +305,7 @@ void GeometryEngine::drawMesh(QOpenGLShaderProgram *program) {
     indexBuf.bind();
 
     // Tell OpenGL programmable pipeline how to locate position data
-    int positionLocation = program->attributeLocation("a_position");
+    int positionLocation = program->attributeLocation("input_position");
     program->enableAttributeArray(positionLocation);
     program->setAttributeBuffer(positionLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
 
@@ -286,6 +317,14 @@ void GeometryEngine::drawMesh(QOpenGLShaderProgram *program) {
     program->enableAttributeArray(inputColorLocation);
     program->setAttributeBuffer(inputColorLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
 
+    // Tell OpenGL which VBOs to use
+    normalBuf.bind();
+
+    // Tell OpenGL programmable pipeline how to locate color data
+    int normalLocation = program->attributeLocation("input_normal");
+    program->enableAttributeArray(normalLocation);
+    program->setAttributeBuffer(normalLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
+
     // Draw geometry using indices from VBO 1
     glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_SHORT, nullptr);
 }
@@ -295,7 +334,7 @@ void GeometryEngine::drawLine(QOpenGLShaderProgram *program) {
     lineArrayBuf.bind();
 
     // Tell OpenGL programmable pipeline how to locate position data
-    int positionLocation = program->attributeLocation("a_position");
+    int positionLocation = program->attributeLocation("input_position");
     program->enableAttributeArray(positionLocation);
     program->setAttributeBuffer(positionLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
 
@@ -307,6 +346,14 @@ void GeometryEngine::drawLine(QOpenGLShaderProgram *program) {
     program->enableAttributeArray(inputColorLocation);
     program->setAttributeBuffer(inputColorLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
 
+    // Tell OpenGL which VBOs to use
+    lineNormalBuf.bind();
+
+    // Tell OpenGL programmable pipeline how to locate color data
+    int normalLocation = program->attributeLocation("input_normal");
+    program->enableAttributeArray(normalLocation);
+    program->setAttributeBuffer(normalLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
+
     // Draw geometry using indices from VBO 1
     glLineWidth(10.0);
     glDrawArrays(GL_LINE_STRIP, 0, numLineVertices);
@@ -317,7 +364,7 @@ void GeometryEngine::drawBoundary(QOpenGLShaderProgram *program) {
     boundaryArrayBuf2.bind();
 
     // Tell OpenGL programmable pipeline how to locate position data
-    int positionLocation2 = program->attributeLocation("a_position");
+    int positionLocation2 = program->attributeLocation("input_position");
     program->enableAttributeArray(positionLocation2);
     program->setAttributeBuffer(positionLocation2, GL_FLOAT, 0, 3, sizeof(QVector3D));
 
@@ -329,6 +376,14 @@ void GeometryEngine::drawBoundary(QOpenGLShaderProgram *program) {
     program->enableAttributeArray(inputColorLocation2);
     program->setAttributeBuffer(inputColorLocation2, GL_FLOAT, 0, 3, sizeof(QVector3D));
 
+    // Tell OpenGL which VBOs to use
+    boundaryNormalBuf2.bind();
+
+    // Tell OpenGL programmable pipeline how to locate color data
+    int normalLocation2 = program->attributeLocation("input_normal");
+    program->enableAttributeArray(normalLocation2);
+    program->setAttributeBuffer(normalLocation2, GL_FLOAT, 0, 3, sizeof(QVector3D));
+
     // Draw geometry using indices from VBO 1
     glLineWidth(10.0);
     glDrawArrays(GL_LINE_STRIP, 0, numBoundaryVertices2);
@@ -337,7 +392,7 @@ void GeometryEngine::drawBoundary(QOpenGLShaderProgram *program) {
     boundaryArrayBuf1.bind();
 
     // Tell OpenGL programmable pipeline how to locate position data
-    int positionLocation1 = program->attributeLocation("a_position");
+    int positionLocation1 = program->attributeLocation("input_position");
     program->enableAttributeArray(positionLocation1);
     program->setAttributeBuffer(positionLocation1, GL_FLOAT, 0, 3, sizeof(QVector3D));
 
@@ -348,6 +403,14 @@ void GeometryEngine::drawBoundary(QOpenGLShaderProgram *program) {
     int inputColorLocation1 = program->attributeLocation("input_color");
     program->enableAttributeArray(inputColorLocation1);
     program->setAttributeBuffer(inputColorLocation1, GL_FLOAT, 0, 3, sizeof(QVector3D));
+
+    // Tell OpenGL which VBOs to use
+    boundaryNormalBuf1.bind();
+
+    // Tell OpenGL programmable pipeline how to locate color data
+    int normalLocation1 = program->attributeLocation("input_normal");
+    program->enableAttributeArray(normalLocation1);
+    program->setAttributeBuffer(normalLocation1, GL_FLOAT, 0, 3, sizeof(QVector3D));
 
     // Draw geometry using indices from VBO 1
     glLineWidth(10.0);
@@ -361,7 +424,7 @@ void GeometryEngine::drawArrows(QOpenGLShaderProgram *program) {
     arrowArrayBuf.bind();
 
     // Tell OpenGL programmable pipeline how to locate position data
-    int positionLocation = program->attributeLocation("a_position");
+    int positionLocation = program->attributeLocation("input_position");
     program->enableAttributeArray(positionLocation);
     program->setAttributeBuffer(positionLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
 
@@ -373,6 +436,14 @@ void GeometryEngine::drawArrows(QOpenGLShaderProgram *program) {
     program->enableAttributeArray(inputColorLocation);
     program->setAttributeBuffer(inputColorLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
 
+    // Tell OpenGL which VBOs to use
+    arrowNormalBuf.bind();
+
+    // Tell OpenGL programmable pipeline how to locate color data
+    int normalLocation = program->attributeLocation("input_normal");
+    program->enableAttributeArray(normalLocation);
+    program->setAttributeBuffer(normalLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
+
     // Draw geometry using indices from VBO 1
     glLineWidth(5.0);
     glDrawArrays(GL_LINES, 0, numArrowVertices);
@@ -380,22 +451,30 @@ void GeometryEngine::drawArrows(QOpenGLShaderProgram *program) {
 
 void GeometryEngine::drawPoints(QOpenGLShaderProgram *program) {
     // Tell OpenGL which VBOs to use
-    pointToDeleteArrayBuf.bind();
+    pointArrayBuf.bind();
 
     // Tell OpenGL programmable pipeline how to locate position data
-    int positionLocation = program->attributeLocation("a_position");
+    int positionLocation = program->attributeLocation("input_position");
     program->enableAttributeArray(positionLocation);
     program->setAttributeBuffer(positionLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
 
     // Tell OpenGL which VBOs to use
-    pointToDeleteColorBuf.bind();
+    pointColorBuf.bind();
 
     // Tell OpenGL programmable pipeline how to locate color data
     int inputBoundaryColorLocation = program->attributeLocation("input_color");
     program->enableAttributeArray(inputBoundaryColorLocation);
     program->setAttributeBuffer(inputBoundaryColorLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
 
+    // Tell OpenGL which VBOs to use
+    pointNormalBuf.bind();
+
+    // Tell OpenGL programmable pipeline how to locate color data
+    int normalLocation = program->attributeLocation("input_normal");
+    program->enableAttributeArray(normalLocation);
+    program->setAttributeBuffer(normalLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
+
     // Draw geometry using indices from VBO 1
     glPointSize(10.0);
-    glDrawArrays(GL_POINTS, 0, numPointsToDeleteVertices);
+    glDrawArrays(GL_POINTS, 0, numPointVertices);
 }
