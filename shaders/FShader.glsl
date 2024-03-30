@@ -11,7 +11,7 @@ varying vec3 normal;
 varying vec3 position;
 
 void main() {
-    float ambient_strength = 0.2;
+    float ambient_strength = 0.4;
     vec3 light_color = vec3(1.0, 1.0, 1.0);
     vec3 ambient = ambient_strength * light_color;
 
@@ -23,8 +23,8 @@ void main() {
     float specular_strength = 0.3;
     vec3 flipped_camera_position = vec3(camera_position.x, camera_position.y, -camera_position.z);
     vec3 view_direction = normalize(flipped_camera_position - position);
-    vec3 reflect_direction = reflect(-light_direction, normal);
-    float spec = pow(max(dot(view_direction, reflect_direction), 0.0), 8.0);
+    vec3 halfway_direction = normalize(light_direction + view_direction);
+    float spec = pow(max(dot(normal, halfway_direction), 0.0), 8.0);
     vec3 specular = specular_strength * spec * light_color;
 
     vec3 lighting = ambient + diffuse + specular;
