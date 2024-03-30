@@ -15,10 +15,11 @@ void main() {
     vec3 light_color = vec3(1.0, 1.0, 1.0);
     vec3 ambient = ambient_strength * light_color;
 
+    float diffuse_strength = 0.5;
     vec3 light_position = vec3(-3.0, 0.0, 5.0);
     vec3 light_direction = normalize(light_position - position);
     float diff = max(dot(normal, light_direction), 0.0);
-    vec3 diffuse = diff * light_color;
+    vec3 diffuse = diffuse_strength * diff * light_color;
 
     float specular_strength = 0.3;
     vec3 flipped_camera_position = vec3(camera_position.x, camera_position.y, -camera_position.z);
