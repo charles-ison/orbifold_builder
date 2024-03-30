@@ -1,5 +1,6 @@
 #include <QtGui/qcolor.h>
 #include "GeometryEngine.h"
+#include <iostream>
 
 GeometryEngine::GeometryEngine() : indexBuf(QOpenGLBuffer::IndexBuffer) {
     initializeOpenGLFunctions();
@@ -19,6 +20,12 @@ GeometryEngine::GeometryEngine() : indexBuf(QOpenGLBuffer::IndexBuffer) {
     arrowIndexBuf.create();
     pointColorBuf.create();
     pointArrayBuf.create();
+    normalBuf.create();
+    lineNormalBuf.create();
+    pointNormalBuf.create();
+    boundaryNormalBuf1.create();
+    boundaryNormalBuf2.create();
+    arrowNormalBuf.create();
 }
 
 GeometryEngine::~GeometryEngine() {
@@ -36,6 +43,12 @@ GeometryEngine::~GeometryEngine() {
     arrowIndexBuf.destroy();
     pointColorBuf.destroy();
     pointArrayBuf.destroy();
+    normalBuf.destroy();
+    lineNormalBuf.destroy();
+    pointNormalBuf.destroy();
+    boundaryNormalBuf1.destroy();
+    boundaryNormalBuf2.destroy();
+    arrowNormalBuf.destroy();
 }
 
 void GeometryEngine::initMesh(Mesh* mesh) {
@@ -47,8 +60,8 @@ void GeometryEngine::initMesh(Mesh* mesh) {
 
     for (Vertex* vertexPointer : meshVertices) {
         positions.push_back(vertexPointer->position);
-        colors.push_back(vertexPointer->position);
         normals.push_back(vertexPointer->normal);
+        colors.push_back({0.0, 0.87, 0.87});
     }
 
     // Transfer position data to VBO 0
@@ -275,6 +288,7 @@ void GeometryEngine::initArrows(std::vector<QVector3D> positions1, std::vector<Q
         for (QVector3D arrowPosition : arrowPositions1) {
             arrowPositions.push_back(arrowPosition);
             arrowColors.push_back(arrowColor1);
+            arrowNormals.push_back({1.0, 1.0, 1.0});
         }
     }
 
@@ -285,6 +299,7 @@ void GeometryEngine::initArrows(std::vector<QVector3D> positions1, std::vector<Q
         for (QVector3D arrowPosition : arrowPositions2) {
             arrowPositions.push_back(arrowPosition);
             arrowColors.push_back(arrowColor2);
+            arrowNormals.push_back({1.0, 1.0, 1.0});
         }
     }
 
@@ -297,6 +312,10 @@ void GeometryEngine::initArrows(std::vector<QVector3D> positions1, std::vector<Q
     // Transfer color data to VBO 0
     arrowColorBuf.bind();
     arrowColorBuf.allocate(&arrowColors[0], numArrowVertices * sizeof(QVector3D));
+
+    // Transfer normal data to VBO 0
+    arrowNormalBuf.bind();
+    arrowNormalBuf.allocate(&arrowNormals[0], numArrowVertices * sizeof(QVector3D));
 }
 
 void GeometryEngine::drawMesh(QOpenGLShaderProgram *program) {
@@ -313,9 +332,9 @@ void GeometryEngine::drawMesh(QOpenGLShaderProgram *program) {
     colorBuf.bind();
 
     // Tell OpenGL programmable pipeline how to locate color data
-    int inputColorLocation = program->attributeLocation("input_color");
-    program->enableAttributeArray(inputColorLocation);
-    program->setAttributeBuffer(inputColorLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
+    int colorLocation = program->attributeLocation("input_color");
+    program->enableAttributeArray(colorLocation);
+    program->setAttributeBuffer(colorLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
 
     // Tell OpenGL which VBOs to use
     normalBuf.bind();
@@ -342,9 +361,9 @@ void GeometryEngine::drawLine(QOpenGLShaderProgram *program) {
     lineColorBuf.bind();
 
     // Tell OpenGL programmable pipeline how to locate color data
-    int inputColorLocation = program->attributeLocation("input_color");
-    program->enableAttributeArray(inputColorLocation);
-    program->setAttributeBuffer(inputColorLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
+    int colorLocation = program->attributeLocation("input_color");
+    program->enableAttributeArray(colorLocation);
+    program->setAttributeBuffer(colorLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
 
     // Tell OpenGL which VBOs to use
     lineNormalBuf.bind();
@@ -372,9 +391,9 @@ void GeometryEngine::drawBoundary(QOpenGLShaderProgram *program) {
     boundaryColorBuf2.bind();
 
     // Tell OpenGL programmable pipeline how to locate color data
-    int inputColorLocation2 = program->attributeLocation("input_color");
-    program->enableAttributeArray(inputColorLocation2);
-    program->setAttributeBuffer(inputColorLocation2, GL_FLOAT, 0, 3, sizeof(QVector3D));
+    int colorLocation2 = program->attributeLocation("input_color");
+    program->enableAttributeArray(colorLocation2);
+    program->setAttributeBuffer(colorLocation2, GL_FLOAT, 0, 3, sizeof(QVector3D));
 
     // Tell OpenGL which VBOs to use
     boundaryNormalBuf2.bind();
@@ -400,9 +419,9 @@ void GeometryEngine::drawBoundary(QOpenGLShaderProgram *program) {
     boundaryColorBuf1.bind();
 
     // Tell OpenGL programmable pipeline how to locate color data
-    int inputColorLocation1 = program->attributeLocation("input_color");
-    program->enableAttributeArray(inputColorLocation1);
-    program->setAttributeBuffer(inputColorLocation1, GL_FLOAT, 0, 3, sizeof(QVector3D));
+    int colorLocation1 = program->attributeLocation("input_color");
+    program->enableAttributeArray(colorLocation1);
+    program->setAttributeBuffer(colorLocation1, GL_FLOAT, 0, 3, sizeof(QVector3D));
 
     // Tell OpenGL which VBOs to use
     boundaryNormalBuf1.bind();
@@ -432,9 +451,9 @@ void GeometryEngine::drawArrows(QOpenGLShaderProgram *program) {
     arrowColorBuf.bind();
 
     // Tell OpenGL programmable pipeline how to locate color data
-    int inputColorLocation = program->attributeLocation("input_color");
-    program->enableAttributeArray(inputColorLocation);
-    program->setAttributeBuffer(inputColorLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
+    int colorLocation = program->attributeLocation("input_color");
+    program->enableAttributeArray(colorLocation);
+    program->setAttributeBuffer(colorLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
 
     // Tell OpenGL which VBOs to use
     arrowNormalBuf.bind();

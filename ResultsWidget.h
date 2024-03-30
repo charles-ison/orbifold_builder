@@ -85,6 +85,9 @@ private:
     std::vector<Vertex*> verticesToSmooth;
     std::map<Vertex*, int> verticesToSmoothMap;
 
+    const float xyThreshold = 0.03;
+    const QVector3D cameraPosition = QVector3D(0.0, 0.0, -5.0);
+
     QColor drawingColor;
     DrawingMode drawingMode;
     bool isDrawingEnabled;
@@ -101,7 +104,6 @@ private:
     int boundary2DisplaySize;
     int numSmoothingSteps;
     int numSmoothingStepsSoFar;
-    const float xyThreshold = 0.03;
 };
 
 #endif

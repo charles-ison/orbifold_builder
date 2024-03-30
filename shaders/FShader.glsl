@@ -4,21 +4,30 @@ precision mediump int;
 precision mediump float;
 #endif
 
+uniform vec3 camera_position;
+
 varying vec3 color;
 varying vec3 normal;
-varying vec4 position;
+varying vec3 position;
 
 void main() {
-    float ambient_strength = 0.1;
+    float ambient_strength = 0.2;
     vec3 light_color = vec3(1.0, 1.0, 1.0);
     vec3 ambient = ambient_strength * light_color;
 
-    vec3 light_position = vec3(-10, 0, -10);
-    vec3 light_dir = normalize(light_position - position.xyz);
-    float diff = max(dot(normal, light_dir), 0.0);
+    vec3 light_position = vec3(-3.0, 0.0, 5.0);
+    vec3 light_direction = normalize(light_position - position);
+    float diff = max(dot(normal, light_direction), 0.0);
     vec3 diffuse = diff * light_color;
 
-    vec3 lighting = diffuse + ambient;
+    float specular_strength = 0.3;
+    vec3 flipped_camera_position = vec3(camera_position.x, camera_position.y, -camera_position.z);
+    vec3 view_direction = normalize(flipped_camera_position - position);
+    vec3 reflect_direction = reflect(-light_direction, normal);
+    float spec = pow(max(dot(view_direction, reflect_direction), 0.0), 8.0);
+    vec3 specular = specular_strength * spec * light_color;
+
+    vec3 lighting = ambient + diffuse + specular;
     gl_FragColor = vec4(lighting * color, 1.0);
 }
 

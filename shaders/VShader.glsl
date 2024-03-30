@@ -13,11 +13,11 @@ attribute vec3 input_normal;
 
 varying vec3 color;
 varying vec3 normal;
-varying vec4 position;
+varying vec3 position;
 
 void main() {
     gl_Position = mvp_matrix * input_position;
     color = input_color;
     normal = normal_matrix * input_normal;
-    position = gl_Position;
+    position = gl_Position.xyz;
 }

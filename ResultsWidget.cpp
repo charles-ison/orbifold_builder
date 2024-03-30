@@ -572,11 +572,12 @@ void ResultsWidget::paintGL() {
 
         // Calculate model view transformation
         QMatrix4x4 matrix;
-        matrix.translate(0.0, 0.0, -5.0);
+        matrix.translate(cameraPosition.x(), cameraPosition.y(), cameraPosition.z());
         matrix.rotate(rotation);
         mvpMatrix = projection * matrix;
         program.setUniformValue("mvp_matrix", mvpMatrix);
-        program.setUniformValue("normal_matrix", mvpMatrix.normalMatrix());
+        program.setUniformValue("normal_matrix", matrix.normalMatrix());
+        program.setUniformValue("camera_position", cameraPosition);
 
         // Draw geometry
         geometryEngine->drawMesh(&program);
