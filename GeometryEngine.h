@@ -23,7 +23,7 @@ private:
     std::vector<QVector3D> initBoundaryColors(int numVertices, int displaySize);
     void drawArrows(QOpenGLShaderProgram *program);
     void initArrows(std::vector<QVector3D> positions1, std::vector<QVector3D> colors1, std::vector<QVector3D> positions2, std::vector<QVector3D> colors2, bool boundariesOverlapping, bool boundariesReversed, int numOpenings);
-    std::vector<QVector3D> buildArrow(std::vector<QVector3D> positions, int startIndex);
+    std::vector<Vertex> buildArrow(std::vector<QVector3D> positions, int startIndex);
 
     int numIndices;
     QOpenGLBuffer arrayBuf;
