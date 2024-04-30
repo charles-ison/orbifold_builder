@@ -414,19 +414,18 @@ Vertex* ResultsWidget::getVertexFromMouseEvent(QMouseEvent *e) {
 }
 
 void ResultsWidget::addDrawnVertices(Vertex *newVertex) {
-    std::vector<Vertex*> newVertices;
+    std::vector<Vertex*> newVerticesPath;
     if (drawnVertices.size() == 0) {
-        newVertices= {newVertex};
+        newVerticesPath= {newVertex};
     } else {
-        std::tuple<float, std::vector<Vertex*>> verticesPathAndDistance = mesh->getVerticesPathAndDistance(newVertex, drawnVertices.back());
-        newVertices = std::get<1>(verticesPathAndDistance);
+        newVerticesPath = mesh->getConnectingPath(newVertex, drawnVertices.back());
     }
-    for (int i = newVertices.size() - 1; i > -1; i--) {
-        if (drawnVertices.size() > 2 && newVertices[i] == drawnVertices[drawnVertices.size()-2]) {
+    for (int i = newVerticesPath.size() - 1; i > -1; i--) {
+        if (drawnVertices.size() > 2 && newVerticesPath[i] == drawnVertices[drawnVertices.size()-2]) {
             drawnVertices.pop_back();
         } else {
-            bool loopFound = drawnVerticesContainLoop(newVertices[i]);
-            drawnVertices.push_back(newVertices[i]);
+            bool loopFound = drawnVerticesContainLoop(newVerticesPath[i]);
+            drawnVertices.push_back(newVerticesPath[i]);
             if (loopFound) {
                 break;
             }

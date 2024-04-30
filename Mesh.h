@@ -23,7 +23,7 @@ public:
     void implicitSmooth(std::vector<Vertex*> verticesToSmooth, std::map<Vertex*, int> verticesToSmoothMap);
     void explicitSmooth(std::vector<Vertex*> verticesToSmooth, std::map<Vertex*, int> verticesToSmoothMap);
     bool triangleContainsVertex(Vertex *vertex, Triangle *triangle);
-    std::tuple<float, std::vector<Vertex*>> getVerticesPathAndDistance(Vertex *startVertex, Vertex *endVertex);
+    std::vector<Vertex*> getConnectingPath(Vertex *startVertex, Vertex *endVertex);
 
 private:
     void deleteTriangleReferences(Triangle* triangle);

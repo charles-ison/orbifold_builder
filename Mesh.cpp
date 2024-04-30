@@ -532,7 +532,7 @@ double Mesh::computeNorm(std::vector<double> b) {
     return sqrt(sum);
 }
 
-std::tuple<float, std::vector<Vertex*>> Mesh::getVerticesPathAndDistance(Vertex *startVertex, Vertex *endVertex) {
+std::vector<Vertex*> Mesh::getConnectingPath(Vertex *startVertex, Vertex *endVertex) {
     std::vector<Vertex*> path = {startVertex};
     std::unordered_set<Vertex*> checkedVertices;
     std::priority_queue<std::tuple<double, std::vector<Vertex*>>, std::vector<std::tuple<double, std::vector<Vertex*>>>, std::greater<std::tuple<float, std::vector<Vertex*>>> > potentialPaths;
@@ -549,8 +549,7 @@ std::tuple<float, std::vector<Vertex*>> Mesh::getVerticesPathAndDistance(Vertex 
         for (Triangle* triangle : nextVertex->triangles) {
             for (Vertex *neighbor : triangle->vertices) {
                 if (neighbor->position == endVertexPosition) {
-                    double distance = oldDistance + euclideanDistance(neighbor, nextVertex);
-                    return {distance, nextPath};
+                    return nextPath;
                 } else if (checkedVertices.find(neighbor) == checkedVertices.end()) {
                     std::vector<Vertex*> newPotentialPath = nextPath;
                     newPotentialPath.push_back(neighbor);
@@ -561,5 +560,5 @@ std::tuple<float, std::vector<Vertex*>> Mesh::getVerticesPathAndDistance(Vertex 
             }
         }
     }
-    return {0.0, path};;
+    return path;
 }
