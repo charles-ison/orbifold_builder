@@ -541,7 +541,6 @@ std::vector<Vertex*> Mesh::getConnectingPath(Vertex *startVertex, Vertex *endVer
 
     while(!potentialPaths.empty()) {
         std::tuple<double, std::vector<Vertex*>> nextDistanceAndPath = potentialPaths.top();
-        double oldDistance = std::get<0>(nextDistanceAndPath);
         std::vector<Vertex*> nextPath = std::get<1>(nextDistanceAndPath);
         Vertex *nextVertex = nextPath.back();
         potentialPaths.pop();
@@ -553,6 +552,7 @@ std::vector<Vertex*> Mesh::getConnectingPath(Vertex *startVertex, Vertex *endVer
                 } else if (checkedVertices.find(neighbor) == checkedVertices.end()) {
                     std::vector<Vertex*> newPotentialPath = nextPath;
                     newPotentialPath.push_back(neighbor);
+                    double oldDistance = std::get<0>(nextDistanceAndPath);
                     double distance = oldDistance + euclideanDistance(neighbor, nextVertex);
                     potentialPaths.push({distance, newPotentialPath});
                     checkedVertices.insert(neighbor);
