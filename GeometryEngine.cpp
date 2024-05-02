@@ -55,12 +55,19 @@ void GeometryEngine::initMesh(Mesh* mesh) {
     std::vector<QVector3D> positions;
     std::vector<QVector3D> colors;
     std::vector<QVector3D> normals;
+    std::vector<QVector3D> oppositeNormals;
     std::vector<Vertex*> meshVertices = mesh->getVertices();
-    int numVertices = meshVertices.size();
+    int numVertices = 2*meshVertices.size();
 
     for (Vertex* vertexPointer : meshVertices) {
         positions.push_back(vertexPointer->position);
         normals.push_back(vertexPointer->normal);
+        colors.push_back({0.0, 0.87, 0.87});
+    }
+
+    for (Vertex* vertexPointer : meshVertices) {
+        positions.push_back(vertexPointer->position);
+        normals.push_back(-vertexPointer->normal);
         colors.push_back({0.0, 0.87, 0.87});
     }
 
@@ -79,7 +86,7 @@ void GeometryEngine::initMesh(Mesh* mesh) {
     std::vector<GLushort> indices;
     std::vector<Triangle*> triangles = mesh->getTriangles();
     int numTriangles = triangles.size();
-    numIndices = 3 * numTriangles;
+    numIndices = 2 * 3 * numTriangles;
 
     for (int i=0; i<numTriangles; i++) {
         int index0 = triangles[i]->vertices[0]->index;
@@ -89,6 +96,10 @@ void GeometryEngine::initMesh(Mesh* mesh) {
         indices.push_back(index0);
         indices.push_back(index1);
         indices.push_back(index2);
+
+        indices.push_back(meshVertices.size() + index2);
+        indices.push_back(meshVertices.size() + index1);
+        indices.push_back(meshVertices.size() + index0);
     }
 
     // Transfer index data to VBO 1

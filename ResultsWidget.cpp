@@ -565,7 +565,7 @@ void ResultsWidget::paintGL() {
         glEnable(GL_DEPTH_TEST);
 
         // Enable back face culling
-        //glEnable(GL_CULL_FACE);
+        glEnable(GL_CULL_FACE);
 
         program.bind();
 

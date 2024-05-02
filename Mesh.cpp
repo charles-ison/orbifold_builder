@@ -55,8 +55,7 @@ void Mesh::updateTriangles() {
 
         QVector3D vector1 = vertex1->position - vertex0->position;
         QVector3D vector2 = vertex2->position - vertex1->position;
-        QVector3D faceNormal = QVector3D::crossProduct(vector1, vector2).normalized();
-        triangles[i]->normal = faceNormal;
+        triangles[i]->normal = QVector3D::crossProduct(vector1, vector2).normalized();
         triangles[i]->angles = computeAngles(vertex0, vertex1, vertex2);
     }
 
