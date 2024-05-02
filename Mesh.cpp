@@ -60,10 +60,11 @@ void Mesh::updateTriangles() {
     }
 
     for (int i=0; i<vertices.size(); i++) {
+        QVector3D newNormal = QVector3D(0.0, 0.0, 0.0);
         for (Triangle* triangle : vertices[i]->triangles) {
-            vertices[i]->normal += triangle->normal;
+            newNormal += triangle->normal;
         }
-        vertices[i]->normal = vertices[i]->normal.normalized();
+        vertices[i]->normal = newNormal.normalized();
     }
 }
 
