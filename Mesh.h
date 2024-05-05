@@ -24,6 +24,7 @@ public:
     void explicitSmooth(std::vector<Vertex*> verticesToSmooth, std::map<Vertex*, int> verticesToSmoothMap);
     bool triangleContainsVertex(Vertex *vertex, Triangle *triangle);
     std::vector<Vertex*> getConnectingPath(Vertex *startVertex, Vertex *endVertex);
+    std::vector<Triangle*> getOrderedTriangles(Vertex* vertex);
 
 private:
     void deleteTriangleReferences(Triangle* triangle);

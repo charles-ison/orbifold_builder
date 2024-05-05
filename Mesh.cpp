@@ -47,6 +47,31 @@ std::vector<double> Mesh::computeAngles(Vertex* vertex0, Vertex* vertex1, Vertex
     return {angle0, angle1, angle2};
 }
 
+std::vector<Triangle*> Mesh::getOrderedTriangles(Vertex* vertex){
+    bool nextTriangleFound = true;
+    Triangle* firstTriangle = *vertex->triangles.begin();
+    Triangle* currentTriangle = nullptr;
+    Triangle* lastTriangle = nullptr;
+    std::vector<Triangle*> orderedTriangles;
+    while (currentTriangle != firstTriangle && nextTriangleFound) {
+        if (currentTriangle == nullptr) {
+            currentTriangle = firstTriangle;
+        }
+        nextTriangleFound = false;
+        orderedTriangles.push_back(currentTriangle);
+        for (Triangle* triangle : vertex->triangles) {
+            if (currentTriangle->sharesEdge(triangle) && triangle != currentTriangle && triangle != lastTriangle) {
+                lastTriangle = currentTriangle;
+                currentTriangle = triangle;
+                nextTriangleFound = true;
+                break;
+            }
+        }
+    }
+    return orderedTriangles;
+}
+
+
 void Mesh::updateTriangles() {
     for (int i=0; i<triangles.size(); i++) {
         Vertex* vertex0 = triangles[i]->vertices[0];
@@ -60,11 +85,31 @@ void Mesh::updateTriangles() {
     }
 
     for (int i=0; i<vertices.size(); i++) {
-        QVector3D newNormal = QVector3D(0.0, 0.0, 0.0);
-        for (Triangle* triangle : vertices[i]->triangles) {
-            newNormal += triangle->normal;
+        int orientation = 1;
+        std::unordered_set<std::string> oldEdges;
+        QVector3D newVertexNormal = QVector3D(0.0, 0.0, 0.0);
+        for (Triangle* triangle : getOrderedTriangles(vertices[i])) {
+            Vertex* vertex0 = triangle->vertices[0];
+            Vertex* vertex1 = triangle->vertices[1];
+            Vertex* vertex2 = triangle->vertices[2];
+            std::string edge0 = std::to_string(vertex0->index) + "-" + std::to_string(vertex1->index);
+            std::string edge1 = std::to_string(vertex1->index) + "-" + std::to_string(vertex2->index);
+            std::string edge2 = std::to_string(vertex2->index) + "-" + std::to_string(vertex0->index);
+            bool edge0Found = oldEdges.find(edge0) != oldEdges.end();
+            bool edge1Found = oldEdges.find(edge1) != oldEdges.end();
+            bool edge2Found = oldEdges.find(edge2) != oldEdges.end();
+
+            if (edge0Found || edge1Found || edge2Found) {
+                orientation *= -1;
+            }
+
+            newVertexNormal += (orientation * triangle->normal);
+            oldEdges.clear();
+            oldEdges.insert(edge0);
+            oldEdges.insert(edge1);
+            oldEdges.insert(edge2);
         }
-        vertices[i]->normal = newNormal.normalized();
+        vertices[i]->normal = newVertexNormal.normalized();
     }
 }
 

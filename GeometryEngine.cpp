@@ -1,5 +1,6 @@
 #include <QtGui/qcolor.h>
 #include "GeometryEngine.h"
+#include <queue>
 #include <iostream>
 
 GeometryEngine::GeometryEngine() : indexBuf(QOpenGLBuffer::IndexBuffer) {
@@ -64,7 +65,6 @@ void GeometryEngine::initMesh(Mesh* mesh) {
         normals.push_back(vertexPointer->normal);
         colors.push_back({0.0, 0.87, 0.87});
     }
-
     for (Vertex* vertexPointer : meshVertices) {
         positions.push_back(vertexPointer->position);
         normals.push_back(-vertexPointer->normal);
@@ -88,18 +88,83 @@ void GeometryEngine::initMesh(Mesh* mesh) {
     int numTriangles = triangles.size();
     numIndices = 2 * 3 * numTriangles;
 
+    std::unordered_map<Triangle*, std::unordered_set<Vertex*>> problemTriangleVertices;
+    std::unordered_set<Vertex*> visitedVertices = {meshVertices[0]};
+    std::queue<Vertex*> verticesToVisit;
+    verticesToVisit.push(meshVertices[0]);
+    while(!verticesToVisit.empty()) {
+        Vertex* vertexToVisit = verticesToVisit.front();
+        verticesToVisit.pop();
+        int orientationFlag = 1;
+        std::unordered_set<std::string> oldEdges;
+        for (Triangle* triangle: mesh->getOrderedTriangles(vertexToVisit)) {
+            Vertex *vertex0 = triangle->vertices[0];
+            Vertex *vertex1 = triangle->vertices[1];
+            Vertex *vertex2 = triangle->vertices[2];
+            std::string edge0 = std::to_string(vertex0->index) + "-" + std::to_string(vertex1->index);
+            std::string edge1 = std::to_string(vertex1->index) + "-" + std::to_string(vertex2->index);
+            std::string edge2 = std::to_string(vertex2->index) + "-" + std::to_string(vertex0->index);
+            bool edge0Found = oldEdges.find(edge0) != oldEdges.end();
+            bool edge1Found = oldEdges.find(edge1) != oldEdges.end();
+            bool edge2Found = oldEdges.find(edge2) != oldEdges.end();
+            if (edge0Found || edge1Found || edge2Found) {
+                orientationFlag *= -1;
+            }
+            oldEdges.clear();
+            oldEdges.insert(edge0);
+            oldEdges.insert(edge1);
+            oldEdges.insert(edge2);
+
+            if (orientationFlag == -1) {
+                if (problemTriangleVertices.find(triangle) == problemTriangleVertices.end()) {
+                    std::unordered_set<Vertex*> newProblemVertices = {vertexToVisit};
+                    problemTriangleVertices.insert({triangle, newProblemVertices});
+                } else {
+                    problemTriangleVertices.at(triangle).insert(vertexToVisit);
+                }
+            }
+
+            for (Vertex* vertex : triangle->vertices) {
+                if (visitedVertices.find(vertex) == visitedVertices.end()) {
+                    verticesToVisit.push(vertex);
+                    visitedVertices.insert(vertex);
+                }
+            }
+        }
+    }
+
     for (int i=0; i<numTriangles; i++) {
-        int index0 = triangles[i]->vertices[0]->index;
-        int index1 = triangles[i]->vertices[1]->index;
-        int index2 = triangles[i]->vertices[2]->index;
-
-        indices.push_back(index0);
-        indices.push_back(index1);
-        indices.push_back(index2);
-
-        indices.push_back(meshVertices.size() + index2);
-        indices.push_back(meshVertices.size() + index1);
-        indices.push_back(meshVertices.size() + index0);
+        if (problemTriangleVertices.find(triangles[i]) == problemTriangleVertices.end()) {
+            int index0 = triangles[i]->vertices[0]->index;
+            int index1 = triangles[i]->vertices[1]->index;
+            int index2 = triangles[i]->vertices[2]->index;
+            indices.push_back(index0);
+            indices.push_back(index1);
+            indices.push_back(index2);
+            indices.push_back(meshVertices.size() + index2);
+            indices.push_back(meshVertices.size() + index1);
+            indices.push_back(meshVertices.size() + index0);
+        } else {
+            std::vector<int> indices1;
+            std::vector<int> indices2;
+            std::unordered_set problemVertices = problemTriangleVertices.at(triangles[i]);
+            for (Vertex* vertex : triangles[i]->vertices) {
+                if (problemVertices.find(vertex) == problemVertices.end()) {
+                    indices1.push_back(vertex->index);
+                    indices2.push_back(meshVertices.size() + vertex->index);
+                } else {
+                    indices1.push_back(meshVertices.size() + vertex->index);
+                    indices2.push_back(vertex->index);
+                }
+            }
+            for (int index : indices1) {
+                indices.push_back(index);
+            }
+            std::reverse(indices2.begin(), indices2.end());
+            for (int index : indices2) {
+                indices.push_back(index);
+            }
+        }
     }
 
     // Transfer index data to VBO 1

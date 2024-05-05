@@ -120,7 +120,6 @@ bool ResultsWidget::rotationDirectionAligns(Triangle* triangle, Vertex* vertex1,
     for (int i=0; i<3; i++) {
         Vertex* triangleVertex1 = triangle->vertices[i];
         Vertex* triangleVertex2 = triangle->vertices[(i+1)%3];
-
         if (vertex1 == triangleVertex1 && vertex2 == triangleVertex2) {
             return true;
         }

@@ -55,8 +55,8 @@ private:
     void addDrawnVertices(Vertex *newVertex);
     bool drawnVerticesContainLoop(Vertex *newVertex);
     Vertex* getVertexFromMouseEvent(QMouseEvent *e);
-    bool rotationDirectionAligns(Triangle* triangle, Vertex* vertex1, Vertex* vertex2);
     void connectVertices();
+    bool rotationDirectionAligns(Triangle* triangle, Vertex* vertex1, Vertex* vertex2);
     void findVerticesToSmooth(Vertex *vertexToSmooth);
     void setSelectedPoints(Vertex *vertex);
     std::vector<Vertex*> connectFirstAndLastVertices(std::vector<Vertex*> boundary);
