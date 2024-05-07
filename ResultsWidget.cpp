@@ -415,12 +415,19 @@ Vertex* ResultsWidget::getVertexFromMouseEvent(QMouseEvent *e) {
 void ResultsWidget::addDrawnVertices(Vertex *newVertex) {
     std::vector<Vertex*> newVerticesPath;
     if (drawnVertices.size() == 0) {
-        newVerticesPath= {newVertex};
+        newVerticesPath = {newVertex};
     } else {
         newVerticesPath = mesh->getConnectingPath(newVertex, drawnVertices.back());
     }
     for (int i = newVerticesPath.size() - 1; i > -1; i--) {
-        if (drawnVertices.size() > 2 && newVerticesPath[i] == drawnVertices[drawnVertices.size()-2]) {
+        if (drawingMode == DrawingMode::drag && drawnVertices.size() > 2 && newVerticesPath[i] == drawnVertices[drawnVertices.size()-2]) {
+            drawnVertices.pop_back();
+        } else if (drawingMode == DrawingMode::drag && drawnVertices.size() > 3 && newVerticesPath[i] == drawnVertices[drawnVertices.size()-3]) {
+            drawnVertices.pop_back();
+            drawnVertices.pop_back();
+        } else if (drawingMode == DrawingMode::drag && drawnVertices.size() > 4 && newVerticesPath[i] == drawnVertices[drawnVertices.size()-4]) {
+            drawnVertices.pop_back();
+            drawnVertices.pop_back();
             drawnVertices.pop_back();
         } else {
             bool loopFound = drawnVerticesContainLoop(newVerticesPath[i]);
