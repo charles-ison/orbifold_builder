@@ -89,15 +89,11 @@ void GeometryEngine::initMesh(Mesh* mesh) {
     numIndices = 2 * 3 * numTriangles;
 
     std::unordered_map<Triangle*, std::unordered_set<Vertex*>> problemTriangleVertices;
-    std::unordered_set<Vertex*> visitedVertices = {meshVertices[0]};
-    std::queue<Vertex*> verticesToVisit;
-    verticesToVisit.push(meshVertices[0]);
-    while(!verticesToVisit.empty()) {
-        Vertex* vertexToVisit = verticesToVisit.front();
-        verticesToVisit.pop();
+    for (int i=0; i<meshVertices.size(); i++) {
+        Vertex* vertex = meshVertices[i];
         int orientationFlag = 1;
         std::unordered_set<std::string> oldEdges;
-        for (Triangle* triangle: mesh->getOrderedTriangles(vertexToVisit)) {
+        for (Triangle* triangle: mesh->getOrderedTriangles(vertex)) {
             Vertex *vertex0 = triangle->vertices[0];
             Vertex *vertex1 = triangle->vertices[1];
             Vertex *vertex2 = triangle->vertices[2];
@@ -117,17 +113,10 @@ void GeometryEngine::initMesh(Mesh* mesh) {
 
             if (orientationFlag == -1) {
                 if (problemTriangleVertices.find(triangle) == problemTriangleVertices.end()) {
-                    std::unordered_set<Vertex*> newProblemVertices = {vertexToVisit};
+                    std::unordered_set<Vertex*> newProblemVertices = {vertex};
                     problemTriangleVertices.insert({triangle, newProblemVertices});
                 } else {
-                    problemTriangleVertices.at(triangle).insert(vertexToVisit);
-                }
-            }
-
-            for (Vertex* vertex : triangle->vertices) {
-                if (visitedVertices.find(vertex) == visitedVertices.end()) {
-                    verticesToVisit.push(vertex);
-                    visitedVertices.insert(vertex);
+                    problemTriangleVertices.at(triangle).insert(vertex);
                 }
             }
         }
