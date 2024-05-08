@@ -74,6 +74,7 @@ void ResultsWidget::addSurface(Surface newSurface) {
 
     geometryEngine->initMesh(mesh);
     geometryEngine->initLine(drawnVertices, drawingColor);
+    geometryEngine->initGenerators(generatorVertices, drawingColor);
     geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed, boundariesOverlapping, numOpenings);
     update();
 }
@@ -776,6 +777,7 @@ void ResultsWidget::smooth() {
     //mesh->directLaplaceEquationSolving(verticesToSmooth, verticesToSmoothMap, drawnVertices);
     mesh->implicitSmooth(verticesToSmooth, verticesToSmoothMap);
     //mesh->explicitSmooth(verticesToSmooth, verticesToSmoothMap);
+    geometryEngine->initGenerators(generatorVertices, drawingColor);
     geometryEngine->initMesh(mesh);
     geometryEngine->initLine(drawnVertices, drawingColor);
     geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed, boundariesOverlapping, numOpenings);
