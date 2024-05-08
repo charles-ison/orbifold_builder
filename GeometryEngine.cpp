@@ -12,6 +12,8 @@ GeometryEngine::GeometryEngine() : indexBuf(QOpenGLBuffer::IndexBuffer) {
     colorBuf.create();
     lineArrayBuf.create();
     lineColorBuf.create();
+    generatorsArrayBuf.create();
+    generatorsColorBuf.create();
     boundaryArrayBuf1.create();
     boundaryColorBuf1.create();
     boundaryArrayBuf2.create();
@@ -23,6 +25,7 @@ GeometryEngine::GeometryEngine() : indexBuf(QOpenGLBuffer::IndexBuffer) {
     pointArrayBuf.create();
     normalBuf.create();
     lineNormalBuf.create();
+    generatorsNormalBuf.create();
     pointNormalBuf.create();
     boundaryNormalBuf1.create();
     boundaryNormalBuf2.create();
@@ -187,6 +190,34 @@ void GeometryEngine::initLine(std::vector<Vertex*> lineVerticesVector, QColor co
     // Transfer normal data to VBO 0
     lineNormalBuf.bind();
     lineNormalBuf.allocate(&normals[0], numLineVertices * sizeof(QVector3D));
+}
+
+void GeometryEngine::initGenerators(std::vector<Vertex*> generatorsVerticesVector, QColor color) {
+    std::vector<QVector3D> positions;
+    std::vector<QVector3D> colors;
+    std::vector<QVector3D> normals;
+    numGeneratorVertices = generatorsVerticesVector.size();
+
+    QRgb rgb = color.rgb();
+    QVector3D vecColor = {(float) qRed(rgb), (float) qGreen(rgb), (float) qBlue(rgb)};
+
+    for (Vertex* generatorVertex : generatorsVerticesVector) {
+        positions.push_back(generatorVertex->position);
+        colors.push_back(vecColor);
+        normals.push_back(generatorVertex->normal);
+    }
+
+    // Transfer position data to VBO 0
+    generatorsArrayBuf.bind();
+    generatorsArrayBuf.allocate(&positions[0], numGeneratorVertices * sizeof(QVector3D));
+
+    // Transfer color data to VBO 0
+    generatorsColorBuf.bind();
+    generatorsColorBuf.allocate(&colors[0], numGeneratorVertices * sizeof(QVector3D));
+
+    // Transfer normal data to VBO 0
+    generatorsNormalBuf.bind();
+    generatorsNormalBuf.allocate(&normals[0], numGeneratorVertices * sizeof(QVector3D));
 }
 
 void GeometryEngine::initPoints(std::vector<Vertex*> vertices) {
@@ -444,6 +475,36 @@ void GeometryEngine::drawLine(QOpenGLShaderProgram *program) {
     // Draw geometry using indices from VBO 1
     glLineWidth(10.0);
     glDrawArrays(GL_LINE_STRIP, 0, numLineVertices);
+}
+
+void GeometryEngine::drawGenerators(QOpenGLShaderProgram *program) {
+    // Tell OpenGL which VBOs to use
+    generatorsArrayBuf.bind();
+
+    // Tell OpenGL programmable pipeline how to locate position data
+    int positionLocation = program->attributeLocation("input_position");
+    program->enableAttributeArray(positionLocation);
+    program->setAttributeBuffer(positionLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
+
+    // Tell OpenGL which VBOs to use
+    generatorsColorBuf.bind();
+
+    // Tell OpenGL programmable pipeline how to locate color data
+    int colorLocation = program->attributeLocation("input_color");
+    program->enableAttributeArray(colorLocation);
+    program->setAttributeBuffer(colorLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
+
+    // Tell OpenGL which VBOs to use
+    generatorsNormalBuf.bind();
+
+    // Tell OpenGL programmable pipeline how to locate color data
+    int normalLocation = program->attributeLocation("input_normal");
+    program->enableAttributeArray(normalLocation);
+    program->setAttributeBuffer(normalLocation, GL_FLOAT, 0, 3, sizeof(QVector3D));
+
+    // Draw geometry using indices from VBO 1
+    glLineWidth(10.0);
+    glDrawArrays(GL_LINES, 0, numGeneratorVertices);
 }
 
 void GeometryEngine::drawBoundary(QOpenGLShaderProgram *program) {

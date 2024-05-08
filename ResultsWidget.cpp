@@ -27,12 +27,14 @@ void ResultsWidget::addSurface(Surface newSurface) {
     isBoundary2Loop = false;
     boundariesAreCombinedLoop = false;
     boundariesOverlapping = false;
+    showGenerators = false;
     numOpenings = 0;
     boundary1DisplaySize = 0;
     boundary2DisplaySize = 0;
     numSmoothingSteps = 0;
     numSmoothingStepsSoFar = 0;
     drawnVertices.clear();
+    generatorVertices.clear();
     verticesToSmooth.clear();
     verticesToSmoothMap.clear();
     boundaryVertices1.clear();
@@ -587,6 +589,7 @@ void ResultsWidget::paintGL() {
         // Draw geometry
         geometryEngine->drawMesh(&program);
         geometryEngine->drawLine(&program);
+        geometryEngine->drawGenerators(&program);
         geometryEngine->drawBoundary(&program);
         geometryEngine->drawPoints(&program);
     }
@@ -817,11 +820,13 @@ void ResultsWidget::reset() {
     boundaryVertices1.clear();
     boundaryVertices2.clear();
     selectedPoints.clear();
+    generatorVertices.clear();
     boundariesReversed = false;
     isBoundary1Loop = false;
     isBoundary2Loop = false;
     boundariesAreCombinedLoop = false;
     boundariesOverlapping = false;
+    showGenerators = false;
     numOpenings = 0;
     numSmoothingSteps = 0;
     numSmoothingStepsSoFar = 0;
@@ -829,5 +834,47 @@ void ResultsWidget::reset() {
     geometryEngine->initPoints(selectedPoints);
     geometryEngine->initLine(drawnVertices, drawingColor);
     geometryEngine->initBoundary(boundaryVertices1, boundaryVertices2, boundary1DisplaySize, boundary2DisplaySize, isBoundary1Loop, isBoundary2Loop, boundariesAreCombinedLoop, boundariesReversed, boundariesOverlapping, numOpenings);
+    update();
+}
+
+void ResultsWidget::toggleGenerators() {
+    showGenerators = !showGenerators;
+    generatorVertices.clear();
+    if (showGenerators) {
+        std::vector<Vertex *> vertices = mesh->getVertices();
+        std::unordered_set<std::string> foundEdges;
+        for (int i = 0; i < vertices.size(); i++) {
+            Vertex *vertex = vertices[i];
+            std::unordered_set<std::string> oldEdges;
+            for (Triangle *triangle: mesh->getOrderedTriangles(vertex)) {
+                Vertex *vertex0 = triangle->vertices[0];
+                Vertex *vertex1 = triangle->vertices[1];
+                Vertex *vertex2 = triangle->vertices[2];
+                std::string edge0 = std::to_string(vertex0->index) + "-" + std::to_string(vertex1->index);
+                std::string edge1 = std::to_string(vertex1->index) + "-" + std::to_string(vertex2->index);
+                std::string edge2 = std::to_string(vertex2->index) + "-" + std::to_string(vertex0->index);
+                if (oldEdges.find(edge0) != oldEdges.end() && foundEdges.find(edge0) == oldEdges.end()) {
+                    generatorVertices.push_back(vertex0);
+                    generatorVertices.push_back(vertex1);
+                    foundEdges.insert(edge0);
+                }
+                if (oldEdges.find(edge1) != oldEdges.end() && foundEdges.find(edge0) == oldEdges.end()) {
+                    generatorVertices.push_back(vertex1);
+                    generatorVertices.push_back(vertex2);
+                    foundEdges.insert(edge1);
+                }
+                if (oldEdges.find(edge2) != oldEdges.end() && foundEdges.find(edge0) == oldEdges.end()) {
+                    generatorVertices.push_back(vertex2);
+                    generatorVertices.push_back(vertex0);
+                    foundEdges.insert(edge2);
+                }
+                oldEdges.clear();
+                oldEdges.insert(edge0);
+                oldEdges.insert(edge1);
+                oldEdges.insert(edge2);
+            }
+        }
+    }
+    geometryEngine->initGenerators(generatorVertices, drawingColor);
     update();
 }

@@ -32,6 +32,7 @@ private slots:
     void addSurface();
     void cutSurface();
     void glue();
+    void toggleGenerators();
     void toggleSmoothSurface();
     void reset();
     void drawingModeChanged();
@@ -108,6 +109,7 @@ private:
     QToolButton *cutSurfaceButton;
     QToolButton *deleteSurfaceButton;
     QToolButton *glueButton;
+    QToolButton *toggleGeneratorsButton;
     QToolButton *smoothButton;
     QToolButton *drawingModeButton;
     QToolButton *reverseButton;

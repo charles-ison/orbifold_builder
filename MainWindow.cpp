@@ -135,6 +135,10 @@ void MainWindow::glue() {
     updateResultsAttributesLabel();
 }
 
+void MainWindow::toggleGenerators() {
+    resultsWidget->toggleGenerators();
+}
+
 void MainWindow::toggleSmoothSurface() {
     resultsWidget->toggleSmoothSurface();
 }
@@ -366,6 +370,11 @@ void MainWindow::createToolbars() {
     resetButton->setMinimumHeight(fundamentalPolygonToolBarHeight);
     connect(resetButton, &QAbstractButton::clicked, this, &MainWindow::reset);
 
+    toggleGeneratorsButton = new QToolButton;
+    toggleGeneratorsButton->setText(tr("Show Generators"));
+    toggleGeneratorsButton->setMinimumHeight(fundamentalPolygonToolBarHeight);
+    connect(toggleGeneratorsButton, &QAbstractButton::clicked, this, &MainWindow::toggleGenerators);
+
     zoomButton = new QToolButton;
     zoomButton->setPopupMode(QToolButton::MenuButtonPopup);
     zoomButton->setMenu(createZoomMenu(&MainWindow::zoomScaleChanged));
@@ -383,6 +392,7 @@ void MainWindow::createToolbars() {
     resultsToolBar->addWidget(smoothButton);
     resultsToolBar->addWidget(reverseButton);
     resultsToolBar->addWidget(resetButton);
+    resultsToolBar->addWidget(toggleGeneratorsButton);
     resultsToolBar->addWidget(zoomButton);
     resultsToolBar->setMovable(false);
 }

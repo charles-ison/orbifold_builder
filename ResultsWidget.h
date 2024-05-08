@@ -37,6 +37,7 @@ public:
     void glue();
     void reset();
     void reverseBoundaries();
+    void toggleGenerators();
     void setDrawingMode(DrawingMode newDrawingMode);
     std::string getResultsAttributesLabelText();
 
@@ -78,6 +79,7 @@ private:
     QVector3D rotationAxis;
     qreal angularSpeed = 0;
     QQuaternion rotation;
+    std::vector<Vertex*> generatorVertices;
     std::vector<Vertex*> drawnVertices;
     std::vector<Vertex*> boundaryVertices1;
     std::vector<Vertex*> boundaryVertices2;
@@ -90,6 +92,7 @@ private:
 
     QColor drawingColor;
     DrawingMode drawingMode;
+    bool showGenerators;
     bool isDrawingEnabled;
     bool shouldPaintGL;
     bool findVertexToDelete;

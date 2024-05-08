@@ -425,10 +425,10 @@ void Mesh::explicitSmooth(std::vector<Vertex*> verticesToSmooth, std::map<Vertex
                     // neighborWeightSum += 1.0 / euclideanDistance(vertex, neighbor);
 
                     // Mean Curvature Weights
-                    // neighborWeightSum += getMeanCurvatureWeights(vertex, neighbor);
+                    neighborWeightSum += getMeanCurvatureWeights(vertex, neighbor);
 
                     // Mean Value Weights
-                    neighborWeightSum += getMeanValueWeights(vertex, neighbor);
+                    // neighborWeightSum += getMeanValueWeights(vertex, neighbor);
 
                     visitedNeighbors.insert(neighbor);
                     neighbors.push_back(neighbor);
@@ -444,10 +444,10 @@ void Mesh::explicitSmooth(std::vector<Vertex*> verticesToSmooth, std::map<Vertex
             // double weight = 1.0 / euclideanDistance(vertex, neighbor);
 
             // Mean Curvature weights
-            // double weight = getMeanCurvatureWeights(vertex, neighbor);
+            double weight = getMeanCurvatureWeights(vertex, neighbor);
 
             // Mean Value weights
-            double weight = getMeanValueWeights(vertex, neighbor);
+            // double weight = getMeanValueWeights(vertex, neighbor);
 
             xDiff += (weight/neighborWeightSum) * (neighbor->position.x() - vertex->position.x());
             yDiff += (weight/neighborWeightSum) * (neighbor->position.y() - vertex->position.y());
