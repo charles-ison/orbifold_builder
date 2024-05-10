@@ -20,15 +20,22 @@ PlyFile::PlyFile(QString fileName, QVector3D centerPosition, QVector3D scale) {
         }
     }
 
+    float scalingFactor = 1.0;
+    std::string fileNameString = fileName.toStdString();
+    std::string kleinBottleFileName = "klein_bottle.ply";
+    if (fileNameString.substr(fileNameString.length() - kleinBottleFileName.length(), fileNameString.length()) == kleinBottleFileName) {
+        scalingFactor = 0.1;
+    }
+
     for (int i=0; i<numVertices; i+=1) {
         plyFile >> plyFileToken;
-        float x = stof(plyFileToken);
+        float x = scalingFactor * stof(plyFileToken);
 
         plyFile >> plyFileToken;
-        float y = stof(plyFileToken);
+        float y = scalingFactor * stof(plyFileToken);
 
         plyFile >> plyFileToken;
-        float z = stof(plyFileToken);
+        float z = scalingFactor * stof(plyFileToken);
 
         int numPropertiesRead = 3;
         while (numPropertiesRead < numProperties) {

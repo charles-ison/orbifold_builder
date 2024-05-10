@@ -908,7 +908,23 @@ std::vector<Vertex*> ResultsWidget::findSecondGenerator(std::unordered_map<Verte
                 std::string edge = std::to_string(newVertex0->index) + "-" + std::to_string(newVertex1->index);
                 newEdges.insert(edge);
 
-                if (nextPath.size() > 4 && (triangle0->vertices[0] == newVertex0 || triangle0->vertices[1] == newVertex0 || triangle0->vertices[2] == newVertex0)) {
+                if (nextPath.size() > 4 && (triangle0->vertices[0] == newVertex0)) {
+                    nextPath.push_back(nextVertex);
+                    nextPath.push_back(newVertex0);
+                    nextPath.push_back(newVertex0);
+                    nextPath.push_back(triangle0->vertices[1]);
+                    return nextPath;
+                } else if (nextPath.size() > 4 && triangle0->vertices[1] == newVertex0) {
+                    nextPath.push_back(nextVertex);
+                    nextPath.push_back(newVertex0);
+                    nextPath.push_back(newVertex0);
+                    nextPath.push_back(triangle0->vertices[2]);
+                    return nextPath;
+                } else if (nextPath.size() > 4 && triangle0->vertices[2] == newVertex0) {
+                    nextPath.push_back(nextVertex);
+                    nextPath.push_back(newVertex0);
+                    nextPath.push_back(newVertex0);
+                    nextPath.push_back(triangle0->vertices[0]);
                     return nextPath;
                 }
 
@@ -921,9 +937,6 @@ std::vector<Vertex*> ResultsWidget::findSecondGenerator(std::unordered_map<Verte
                     newPotentialPath.push_back(newVertex0);
                     verticesToVisit.push({newVertex0, newPotentialPath});
                     visitedVertices.insert(newVertex0);
-
-                    temp.push_back(nextVertex);
-                    temp.push_back(newVertex0);
                 }
             }
             oldEdges.clear();
