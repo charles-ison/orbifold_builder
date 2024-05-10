@@ -62,6 +62,7 @@ private:
     void setSelectedPoints(Vertex *vertex);
     std::vector<Vertex*> connectFirstAndLastVertices(std::vector<Vertex*> boundary);
     std::vector<Vertex*> connectMiddleVertices(std::vector<Vertex*> boundary);
+    std::vector<Vertex*> findSecondGenerator(std::unordered_map<Vertex*, Triangle*> orientationBoundary);
 
     Mesh* mesh;
     Cube* cubeSurface;

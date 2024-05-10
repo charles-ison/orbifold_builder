@@ -6,6 +6,8 @@
 #include <unordered_set>
 #include <tuple>
 
+#include <iostream>
+
 ResultsWidget::~ResultsWidget() {
     // Make sure the context is current when deleting the buffers.
     makeCurrent();
@@ -842,41 +844,91 @@ void ResultsWidget::reset() {
 void ResultsWidget::toggleGenerators() {
     showGenerators = !showGenerators;
     generatorVertices.clear();
+    std::unordered_map<Vertex*, Triangle*> orientationBoundary;
     if (showGenerators) {
-        std::vector<Vertex *> vertices = mesh->getVertices();
+        std::vector<Vertex*> vertices = mesh->getVertices();
         std::unordered_set<std::string> foundEdges;
         for (int i = 0; i < vertices.size(); i++) {
             Vertex *vertex = vertices[i];
             std::unordered_set<std::string> oldEdges;
-            for (Triangle *triangle: mesh->getOrderedTriangles(vertex)) {
-                Vertex *vertex0 = triangle->vertices[0];
-                Vertex *vertex1 = triangle->vertices[1];
-                Vertex *vertex2 = triangle->vertices[2];
-                std::string edge0 = std::to_string(vertex0->index) + "-" + std::to_string(vertex1->index);
-                std::string edge1 = std::to_string(vertex1->index) + "-" + std::to_string(vertex2->index);
-                std::string edge2 = std::to_string(vertex2->index) + "-" + std::to_string(vertex0->index);
-                if (oldEdges.find(edge0) != oldEdges.end() && foundEdges.find(edge0) == oldEdges.end()) {
-                    generatorVertices.push_back(vertex0);
-                    generatorVertices.push_back(vertex1);
-                    foundEdges.insert(edge0);
-                }
-                if (oldEdges.find(edge1) != oldEdges.end() && foundEdges.find(edge0) == oldEdges.end()) {
-                    generatorVertices.push_back(vertex1);
-                    generatorVertices.push_back(vertex2);
-                    foundEdges.insert(edge1);
-                }
-                if (oldEdges.find(edge2) != oldEdges.end() && foundEdges.find(edge0) == oldEdges.end()) {
-                    generatorVertices.push_back(vertex2);
-                    generatorVertices.push_back(vertex0);
-                    foundEdges.insert(edge2);
+            std::unordered_set<std::string> newEdges;
+            for (Triangle *triangle : mesh->getOrderedTriangles(vertex)) {
+                for (int i=0; i<3; i++) {
+                    Vertex *vertex0 = triangle->vertices[i];
+                    Vertex *vertex1 = triangle->vertices[(i+1)%3];
+                    Vertex *vertex2 = triangle->vertices[(i+2)%3];
+                    std::string edge = std::to_string(vertex0->index) + "-" + std::to_string(vertex1->index);
+                    newEdges.insert(edge);
+                    if (oldEdges.find(edge) != oldEdges.end() && foundEdges.find(edge) == oldEdges.end()) {
+                        generatorVertices.push_back(vertex0);
+                        generatorVertices.push_back(vertex1);
+                        foundEdges.insert(edge);
+                        orientationBoundary.insert({vertex0, triangle});
+                        orientationBoundary.insert({vertex1, triangle});
+                    }
                 }
                 oldEdges.clear();
-                oldEdges.insert(edge0);
-                oldEdges.insert(edge1);
-                oldEdges.insert(edge2);
+                oldEdges = newEdges;
+                newEdges.clear();
             }
         }
     }
+
+    if (orientationBoundary.size() > 0) {
+        std::vector<Vertex*> secondGenerator = findSecondGenerator(orientationBoundary);
+        generatorVertices.insert(generatorVertices.end(), secondGenerator.begin(), secondGenerator.end());
+    }
+
     geometryEngine->initGenerators(generatorVertices, drawingColor);
     update();
+}
+
+std::vector<Vertex*> ResultsWidget::findSecondGenerator(std::unordered_map<Vertex*, Triangle*> orientationBoundary) {
+    Vertex* vertex0 = orientationBoundary.begin()->first;
+    Triangle* triangle0 = orientationBoundary.begin()->second;
+    std::unordered_set<Vertex*> visitedVertices;
+    std::transform(orientationBoundary.begin(), orientationBoundary.end(),
+                   std::inserter(visitedVertices, visitedVertices.end()),
+                   [](auto pair){ return pair.first; });
+    std::queue<std::tuple<Vertex*, std::vector<Vertex*>>> verticesToVisit;
+    std::vector<Vertex*> path0;
+    verticesToVisit.push({vertex0, path0});
+    while (!verticesToVisit.empty()) {
+        std::tuple<Vertex*, std::vector<Vertex*>> vertexToVisitAndPath = verticesToVisit.front();
+        verticesToVisit.pop();
+        Vertex* nextVertex = get<0>(vertexToVisitAndPath);
+        std::vector<Vertex*> nextPath = get<1>(vertexToVisitAndPath);
+        std::unordered_set<std::string> oldEdges;
+        std::unordered_set<std::string> newEdges;
+        int orientation = 1;
+        for (Triangle* triangle : mesh->getOrderedTriangles(nextVertex)) {
+            for (int i=0; i<3; i++) {
+                Vertex *newVertex0 = triangle->vertices[i];
+                Vertex *newVertex1 = triangle->vertices[(i+1)%3];
+                std::string edge = std::to_string(newVertex0->index) + "-" + std::to_string(newVertex1->index);
+                newEdges.insert(edge);
+
+                if (nextPath.size() > 4 && (triangle0->vertices[0] == newVertex0 || triangle0->vertices[1] == newVertex0 || triangle0->vertices[2] == newVertex0)) {
+                    return nextPath;
+                }
+
+                if (oldEdges.find(edge) != oldEdges.end() && nextVertex == vertex0) {
+                    orientation *= -1;
+                }
+                if (visitedVertices.find(newVertex0) == visitedVertices.end() && orientation == 1) {
+                    std::vector<Vertex*> newPotentialPath = nextPath;
+                    newPotentialPath.push_back(nextVertex);
+                    newPotentialPath.push_back(newVertex0);
+                    verticesToVisit.push({newVertex0, newPotentialPath});
+                    visitedVertices.insert(newVertex0);
+
+                    temp.push_back(nextVertex);
+                    temp.push_back(newVertex0);
+                }
+            }
+            oldEdges.clear();
+            oldEdges = newEdges;
+            newEdges.clear();
+        }
+    }
 }

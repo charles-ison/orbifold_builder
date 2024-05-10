@@ -48,8 +48,22 @@ std::vector<double> Mesh::computeAngles(Vertex* vertex0, Vertex* vertex1, Vertex
 }
 
 std::vector<Triangle*> Mesh::getOrderedTriangles(Vertex* vertex){
+    Triangle* firstTriangle;
+    int leastNumNeighbors = INT_MAX;
+    for (Triangle* triangle : vertex->triangles) {
+        std::unordered_set<Triangle*> neighbors;
+        for (Vertex* neighborVertex : triangle->vertices) {
+            for (Triangle* neighborTriangle : neighborVertex->triangles) {
+                neighbors.insert(neighborTriangle);
+            }
+        }
+        if (neighbors.size() < leastNumNeighbors) {
+            firstTriangle = triangle;
+            leastNumNeighbors = neighbors.size();
+        }
+    }
+
     bool nextTriangleFound = true;
-    Triangle* firstTriangle = *vertex->triangles.begin();
     Triangle* currentTriangle = nullptr;
     Triangle* lastTriangle = nullptr;
     std::vector<Triangle*> orderedTriangles;
