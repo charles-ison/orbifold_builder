@@ -908,6 +908,7 @@ std::vector<Vertex*> ResultsWidget::findSecondGenerator(std::unordered_map<Verte
                 std::string edge = std::to_string(newVertex0->index) + "-" + std::to_string(newVertex1->index);
                 newEdges.insert(edge);
 
+                // TODO: This still needs cleaning up
                 if (nextPath.size() > 4 && (triangle0->vertices[0] == newVertex0)) {
                     nextPath.push_back(nextVertex);
                     nextPath.push_back(newVertex0);
